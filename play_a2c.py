@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+import argparse
+import gym
+import pybullet_envs
+import time
+import math
+from algorithms import a2c_model as model
+import numpy as np
+import torch
+
+import envs.build_envs.standup_env_builder as env_builder
+
+def quater2sin(list):
+    theta = math.acos(list[3])*2/math.pi*180
+    x,y,z = list[0]/math.sqrt(1-list[3]**2),list[1]/math.sqrt(1-list[3]**2),list[2]/math.sqrt(1-list[3]**2)
+    return theta,x,y,z
+
+if __name__ == "__main__":
+    env =env_builder.build_standup_env(enable_randomizer=True,enable_rendering=False)
+
+    net = model.A2C(env.observation_space.shape[0], env.action_space.shape[0])
+    net.load_state_dict(torch.load("saves/a2c-standup/三脚猫.dat"))
+    for i in range(100):
+        obs = env.reset()
+        total_reward = 0.0
+        total_steps = 0
+        while True:
+            obs_v = torch.FloatTensor([obs])
+            print(quater2sin(obs[3:7]))
+            #time.sleep(0.5)
+            mu_v, var_v, val_v = net(obs_v)
+            action = mu_v.squeeze(dim=0).data.numpy()
+            action = np.clip(action, -1, 1)
+            obs, reward, done, _ = env.step(action)
+            total_reward += reward
+            total_steps += 1
+            if done:
+                break
+        print("In %d steps we got %.3f reward" % (total_steps, total_reward))
