@@ -1,3 +1,3 @@
-# Laikago
+# laikago_py
 
-两个文件夹，**Laikago_Mujoco**是mujoco版本的仿真模型，**Laikago_Bullet**是bullet版本的仿真模型，分别用mujoco_py和pybullet实现。
+`envs`文件下的是环境文件。

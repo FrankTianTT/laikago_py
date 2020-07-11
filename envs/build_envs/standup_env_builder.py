@@ -39,8 +39,6 @@ def build_standup_env(enable_randomizer, enable_rendering):
                                               env_randomizers=randomizers, robot_sensors=sensors, task=task)
 
     env = observation_dictionary_to_array_wrapper.ObservationDictionaryToArrayWrapper(env)
-    env = trajectory_generator_wrapper_env.TrajectoryGeneratorWrapperEnv(env,
-                                                                         trajectory_generator=simple_openloop.LaikagoPoseOffsetGenerator(
-                                                                             action_limit=laikago.UPPER_BOUND))
+
 
     return env

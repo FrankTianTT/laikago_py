@@ -21,7 +21,7 @@ LEARNING_RATE = 5e-5
 ENTROPY_BETA = 1e-4
 
 TEST_ITERS = 1000
-DEVICE = 'cpu'
+DEVICE = 'cuda'
 
 def test_net(net, env, count=10, device=DEVICE):
     rewards = 0.0
@@ -59,7 +59,6 @@ if __name__ == "__main__":
 
     net = model.A2C(env.observation_space.shape[0], env.action_space.shape[0]).to(device)
     print(net)
-
     writer = SummaryWriter(comment="-a2c-standup")
     agent = model.AgentA2C(net, device=device)
     exp_source = ptan.experience.ExperienceSourceFirstLast(env, agent, GAMMA, steps_count=REWARD_STEPS)
