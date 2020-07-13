@@ -7,7 +7,7 @@ TASK_NAME = "standup"
 FILE_NAME = "best_+477.537_11000.dat"
 ################################
 
-from algorithms import a2c_model as model
+from network_model import a2c_model as model
 import numpy as np
 import torch
 import os

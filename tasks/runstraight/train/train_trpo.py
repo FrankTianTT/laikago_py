@@ -6,18 +6,17 @@ import runstraight.runstraight_env_builder as env_builder
 TASK_NAME = "runstraight"
 ################################
 
-
-
 import os
 import math
 import ptan
 import time
 from tensorboardX import SummaryWriter
-from algorithms import trpo_model as model
+from network_model import trpo_model as model
 import numpy as np
 import torch
 import torch.optim as optim
 import torch.nn.functional as F
+from algorithms.utilities import trpo
 
 GAMMA = 0.99
 GAE_LAMBDA = 0.95
@@ -30,6 +29,8 @@ TRPO_DAMPING = 0.1
 
 TEST_ITERS = 100000
 DEVICE = 'cpu'
+
+TASK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def test_net(net, env, count=10, device="cpu"):
     rewards = 0.0
@@ -87,7 +88,7 @@ def calc_adv_ref(trajectory, net_crt, states_v, device="cpu"):
 if __name__ == "__main__":
     device = torch.device(DEVICE)
 
-    save_path = os.path.join("saves", "a2c-"+TASK_NAME)
+    save_path = os.path.join(TASK_DIR, "saves", "a2c-"+TASK_NAME)
     os.makedirs(save_path, exist_ok=True)
 
     env = env_builder.build_env(enable_randomizer=True, enable_rendering=False)
@@ -182,7 +183,7 @@ if __name__ == "__main__":
                 kl = logstd_v - logstd0_v + v - 0.5
                 return kl.sum(1, keepdim=True)
 
-            model.trpo_step(net_act, get_loss, get_kl, TRPO_MAX_KL,
+            trpo.trpo_step(net_act, get_loss, get_kl, TRPO_MAX_KL,
                            TRPO_DAMPING, device=device)
 
             trajectory.clear()

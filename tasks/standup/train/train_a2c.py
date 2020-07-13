@@ -2,12 +2,13 @@
 # by frank tian on 7.10.2020
 ################################
 #change these when changing task
-import runstraight.runstraight_env_builder as env_builder
-TASK_NAME = "runstraight"
+import standup.standup_env_builder as env_builder
+TASK_NAME = "standup"
+FILE_NAME = "best_+477.537_11000.dat"
 ################################
 
-from algorithms import a2c_model as model
-from algorithms import common
+from network_model import a2c_model as model
+from algorithms.utilities import common
 import os
 import time
 import math
@@ -27,6 +28,8 @@ ENTROPY_BETA = 1e-4
 
 TEST_ITERS = 1000
 DEVICE = 'cuda'
+
+TASK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def test_net(net, env, count=10, device=DEVICE):
     rewards = 0.0
@@ -56,7 +59,7 @@ def calc_logprob(mu_v, var_v, actions_v):
 if __name__ == "__main__":
     device = torch.device(DEVICE)
 
-    save_path = os.path.join("saves", "a2c-"+TASK_NAME)
+    save_path = os.path.join(TASK_DIR, "saves", "a2c-"+TASK_NAME)
     os.makedirs(save_path, exist_ok=True)
 
     env = env_builder.build_env(enable_randomizer=True, enable_rendering=False)
