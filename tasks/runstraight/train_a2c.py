@@ -1,4 +1,4 @@
-# by frank tian on 4.23.2020
+# by frank tian on 7.10.2020
 
 from algorithms import a2c_model as model
 from algorithms import common
@@ -51,15 +51,15 @@ def calc_logprob(mu_v, var_v, actions_v):
 if __name__ == "__main__":
     device = torch.device(DEVICE)
 
-    save_path = os.path.join("saves", "a2c-standup")
+    save_path = os.path.join("saves", "a2c-runstraight")
     os.makedirs(save_path, exist_ok=True)
 
-    env =env_builder.build_standup_env(enable_randomizer=True,enable_rendering=False)
-    test_env = env_builder.build_standup_env(enable_randomizer=True,enable_rendering=False)
+    env = env_builder.build_runstraight_env(enable_randomizer=True, enable_rendering=False)
+    test_env = env_builder.build_runstraight_env(enable_randomizer=False, enable_rendering=False)
 
     net = model.A2C(env.observation_space.shape[0], env.action_space.shape[0]).to(device)
     print(net)
-    writer = SummaryWriter(comment="-a2c-standup")
+    writer = SummaryWriter(comment="-a2c-runstraight")
     agent = model.AgentA2C(net, device=device)
     exp_source = ptan.experience.ExperienceSourceFirstLast(env, agent, GAMMA, steps_count=REWARD_STEPS)
 
@@ -128,4 +128,3 @@ if __name__ == "__main__":
                 tb_tracker.track("loss_policy", loss_policy_v, step_idx)
                 tb_tracker.track("loss_value", loss_value_v, step_idx)
                 tb_tracker.track("loss_total", loss_v, step_idx)
-

@@ -9,7 +9,7 @@ from build_envs.utilities import controllable_env_randomizer_from_config
 from robots import laikago
 
 
-def build_standup_env(enable_randomizer, enable_rendering):
+def build_runstraight_env(enable_randomizer, enable_rendering):
 
     sim_params = locomotion_gym_config.SimulationParameters()
     sim_params.enable_rendering = enable_rendering
