@@ -27,7 +27,7 @@ REPLAY_INITIAL = 10000
 SAC_ENTROPY_ALPHA = 0.1
 
 TEST_ITERS = 10000
-DEVICE = 'cpu'
+DEVICE = 'cuda'
 
 TASK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -58,10 +58,10 @@ if __name__ == "__main__":
     env = env_builder.build_env(enable_randomizer=True, enable_rendering=False)
     test_env = env_builder.build_env(enable_randomizer=False, enable_rendering=False)
 
-    act_net = model.ModelActor(
+    act_net = model.SACActor(
         env.observation_space.shape[0],
         env.action_space.shape[0]).to(device)
-    crt_net = model.ModelCritic(
+    crt_net = model.SACCritic(
         env.observation_space.shape[0]
     ).to(device)
     twinq_net = model.ModelSACTwinQ(
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     tgt_crt_net = ptan.agent.TargetNet(crt_net)
 
     writer = SummaryWriter(comment="-sac-" + TASK_NAME)
-    agent = model.AgentDDPG(act_net, device=device)
+    agent = model.AgentSAC(act_net, device=device)
     exp_source = ptan.experience.ExperienceSourceFirstLast(
         env, agent, gamma=GAMMA, steps_count=1)
     buffer = ptan.experience.ExperienceReplayBuffer(

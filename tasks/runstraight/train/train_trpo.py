@@ -28,7 +28,7 @@ TRPO_MAX_KL = 0.01
 TRPO_DAMPING = 0.1
 
 TEST_ITERS = 100000
-DEVICE = 'cpu'
+DEVICE = 'cuda'
 
 TASK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
