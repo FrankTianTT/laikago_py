@@ -43,7 +43,7 @@ class RunstraightTask(object):
         del env
         self._get_pos_vel_info()
 
-        reward = self.body_lin_vel[0] + self.body_pos[2]
+        reward = self.body_lin_vel[0] + self.body_pos[2]*0.3
         return reward
 
     def done(self, env):
@@ -52,7 +52,8 @@ class RunstraightTask(object):
         if self._env.env_step_counter > 3000:
             return True
         self._get_pos_vel_info()
-        done = self.body_pos[2] < 0.2  or math.sqrt(self.body_pos[0] ** 2 + self.body_pos[1] ** 2) > 4
+        print(self._env.env_step_counter,self.body_lin_vel[0])
+        done = self.body_pos[2] < 0.15 or (self._env.env_step_counter > 100 and self.body_lin_vel[0] < 0.15)
         return done
 
     def _get_pybullet_client(self):
