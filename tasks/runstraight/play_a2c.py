@@ -13,7 +13,7 @@ import envs.build_envs.runstraight_env_builder as env_builder
 TASK_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.join(TASK_DIR, 'saves')
 A2C_DIR = os.path.join(MODEL_DIR, "a2c-runstraight")
-LOAD_FILE = os.path.join(A2C_DIR, "best_+477.537_11000.dat")
+LOAD_FILE = os.path.join(A2C_DIR, "best_+1626.809_23000.dat")
 
 if __name__ == "__main__":
     env =env_builder.build_runstraight_env(enable_randomizer=True, enable_rendering=True)
