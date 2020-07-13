@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
-import argparse
-import gym
-import pybullet_envs
-import time
-import math
+# by frank tian on 7.10.2020
+################################
+#change these when changing task
+import standup.standup_env_builder as env_builder
+TASK_NAME = "standup"
+FILE_NAME = "best_+477.537_11000.dat"
+################################
+
 from algorithms import a2c_model as model
 import numpy as np
 import torch
 import os
-import envs.build_envs.standup_env_builder as env_builder
 
 TASK_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_DIR = os.path.join(TASK_DIR, 'saves')
-A2C_DIR = os.path.join(MODEL_DIR, "a2c-standup")
-LOAD_FILE = os.path.join(A2C_DIR, "best_+1318.009_31000.dat")
+LOAD_FILE = os.path.join(TASK_DIR, 'saves', "a2c-"+TASK_NAME, FILE_NAME)
 
 if __name__ == "__main__":
-    env =env_builder.build_standup_env(enable_randomizer=True,enable_rendering=True)
+    env =env_builder.build_env(enable_randomizer=True, enable_rendering=True)
 
     net = model.A2C(env.observation_space.shape[0], env.action_space.shape[0])
     net.load_state_dict(torch.load(LOAD_FILE))

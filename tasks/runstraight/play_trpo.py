@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
+# by frank tian on 7.13.2020
+################################
+#change these when changing task
+import runstraight.runstraight_env_builder as env_builder
+TASK_NAME = "runstraight"
+FILE_NAME = "best_+477.537_11000.dat"
+################################
+
 from algorithms import trpo_model as model
 import numpy as np
 import torch
 import os
-import envs.build_envs.standup_env_builder as env_builder
 
 TASK_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_DIR = os.path.join(TASK_DIR, 'saves')
-A2C_DIR = os.path.join(MODEL_DIR, "ddpg-runstraight")
-LOAD_FILE = os.path.join(A2C_DIR, "best_+477.537_11000.dat")
+LOAD_FILE = os.path.join(TASK_DIR, 'saves', "trpo-"+TASK_NAME, FILE_NAME)
 
 
 if __name__ == "__main__":

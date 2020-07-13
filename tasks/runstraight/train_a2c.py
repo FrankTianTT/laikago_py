@@ -1,8 +1,13 @@
+#!/usr/bin/env python3
 # by frank tian on 7.10.2020
+################################
+#change these when changing task
+import runstraight.runstraight_env_builder as env_builder
+TASK_NAME = "runstraight"
+################################
 
 from algorithms import a2c_model as model
 from algorithms import common
-import envs.build_envs.runstraight_env_builder as env_builder
 import os
 import time
 import math
@@ -51,15 +56,15 @@ def calc_logprob(mu_v, var_v, actions_v):
 if __name__ == "__main__":
     device = torch.device(DEVICE)
 
-    save_path = os.path.join("saves", "a2c-runstraight")
+    save_path = os.path.join("saves", "a2c-"+TASK_NAME)
     os.makedirs(save_path, exist_ok=True)
 
-    env = env_builder.build_runstraight_env(enable_randomizer=True, enable_rendering=False)
-    test_env = env_builder.build_runstraight_env(enable_randomizer=False, enable_rendering=False)
+    env = env_builder.build_env(enable_randomizer=True, enable_rendering=False)
+    test_env = env_builder.build_env(enable_randomizer=False, enable_rendering=False)
 
     net = model.A2C(env.observation_space.shape[0], env.action_space.shape[0]).to(device)
     print(net)
-    writer = SummaryWriter(comment="-a2c-runstraight")
+    writer = SummaryWriter(comment="-a2c-"+TASK_NAME)
     agent = model.AgentA2C(net, device=device)
     exp_source = ptan.experience.ExperienceSourceFirstLast(env, agent, GAMMA, steps_count=REWARD_STEPS)
 

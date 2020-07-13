@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
+# by frank tian on 7.13.2020
+################################
+#change these when changing task
+import runstraight.runstraight_env_builder as env_builder
+TASK_NAME = "runstraight"
+################################
+
+
+
 import os
 import math
 import ptan
 import time
-import argparse
 from tensorboardX import SummaryWriter
-import envs.build_envs.runstraight_env_builder as env_builder
 from algorithms import trpo_model as model
 import numpy as np
 import torch
@@ -80,18 +87,18 @@ def calc_adv_ref(trajectory, net_crt, states_v, device="cpu"):
 if __name__ == "__main__":
     device = torch.device(DEVICE)
 
-    save_path = os.path.join("saves", "trpo-runstraight")
+    save_path = os.path.join("saves", "a2c-"+TASK_NAME)
     os.makedirs(save_path, exist_ok=True)
 
-    env = env_builder.build_runstraight_env(enable_randomizer=True, enable_rendering=False)
-    test_env = env_builder.build_runstraight_env(enable_randomizer=False, enable_rendering=False)
+    env = env_builder.build_env(enable_randomizer=True, enable_rendering=False)
+    test_env = env_builder.build_env(enable_randomizer=False, enable_rendering=False)
 
     net_act = model.TRPOActor(env.observation_space.shape[0], env.action_space.shape[0]).to(device)
     net_crt = model.TRPOCritic(env.observation_space.shape[0]).to(device)
     print(net_act)
     print(net_crt)
 
-    writer = SummaryWriter(comment="-trpo-runstraight")
+    writer = SummaryWriter(comment="-trpo-"+TASK_NAME)
     agent = model.AgentTRPO(net_act, device=device)
     exp_source = ptan.experience.ExperienceSource(env, agent, steps_count=1)
 

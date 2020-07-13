@@ -1,11 +1,16 @@
+#!/usr/bin/env python3
 # by frank tian on 7.13.2020
+################################
+#change these when changing task
+import runstraight.runstraight_env_builder as env_builder
+TASK_NAME = "runstraight"
+################################
+
 
 from algorithms import ddpg_model as model
 from algorithms import common
-import envs.build_envs.runstraight_env_builder as env_builder
 import os
 import time
-import math
 import ptan
 from tensorboardX import SummaryWriter
 
@@ -45,11 +50,11 @@ def test_net(net, env, count=10, device="cpu"):
 if __name__ == "__main__":
     device = torch.device(DEVICE)
 
-    save_path = os.path.join("saves", "ddpg-runstraight")
+    save_path = os.path.join("saves", "a2c-"+TASK_NAME)
     os.makedirs(save_path, exist_ok=True)
 
-    env = env_builder.build_runstraight_env(enable_randomizer=True, enable_rendering=False)
-    test_env = env_builder.build_runstraight_env(enable_randomizer=False, enable_rendering=False)
+    env = env_builder.build_env(enable_randomizer=True, enable_rendering=False)
+    test_env = env_builder.build_env(enable_randomizer=False, enable_rendering=False)
 
     act_net = model.DDPGActor(
         env.observation_space.shape[0],
@@ -62,7 +67,7 @@ if __name__ == "__main__":
     tgt_act_net = ptan.agent.TargetNet(act_net)
     tgt_crt_net = ptan.agent.TargetNet(crt_net)
 
-    writer = SummaryWriter(comment="-ddpg-runstraight")
+    writer = SummaryWriter(comment="-ddpg-"+TASK_NAME)
     agent = model.AgentDDPG(act_net, device=device)
     exp_source = ptan.experience.ExperienceSourceFirstLast(
         env, agent, gamma=GAMMA, steps_count=1)

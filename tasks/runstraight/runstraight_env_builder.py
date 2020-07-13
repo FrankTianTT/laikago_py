@@ -1,9 +1,10 @@
+#!/usr/bin/env python3
+# by frank tian on 7.13.2020
+
 from build_envs import locomotion_gym_env
 from build_envs import locomotion_gym_config
 from build_envs.env_wrappers import observation_dictionary_to_array_wrapper
-from build_envs.env_wrappers import trajectory_generator_wrapper_env
-from build_envs.env_wrappers import simple_openloop
-from build_envs.tasks import standup_task
+from runstraight import runstraight_task
 from build_envs.sensors import environment_sensors
 from build_envs.sensors import sensor_wrappers
 from build_envs.sensors import robot_sensors
@@ -11,7 +12,7 @@ from build_envs.utilities import controllable_env_randomizer_from_config
 from robots import laikago
 
 
-def build_standup_env(enable_randomizer, enable_rendering):
+def build_env(enable_randomizer, enable_rendering):
 
     sim_params = locomotion_gym_config.SimulationParameters()
     sim_params.enable_rendering = enable_rendering
@@ -28,7 +29,7 @@ def build_standup_env(enable_randomizer, enable_rendering):
             wrapped_sensor=environment_sensors.LastActionSensor(num_actions=laikago.NUM_MOTORS), num_history=3)
     ]
 
-    task = standup_task.StandupTask()
+    task = runstraight_task.RunstraightTask()
 
     randomizers = []
     if enable_randomizer:

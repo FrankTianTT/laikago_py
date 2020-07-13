@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# by frank tian on 7.13.2020
+
 import math
 
 class RunstraightTask(object):
