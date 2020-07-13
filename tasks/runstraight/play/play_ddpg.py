@@ -12,7 +12,7 @@ import numpy as np
 import torch
 import os
 
-TASK_DIR = os.path.dirname(os.path.abspath(__file__))
+TASK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOAD_FILE = os.path.join(TASK_DIR, 'saves', "ddpg-"+TASK_NAME, FILE_NAME)
 
 if __name__ == "__main__":

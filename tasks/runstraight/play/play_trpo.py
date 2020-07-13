@@ -4,7 +4,7 @@
 #change these when changing task
 import runstraight.runstraight_env_builder as env_builder
 TASK_NAME = "runstraight"
-FILE_NAME = "best_+477.537_11000.dat"
+FILE_NAME = "best_+39.793_200000.dat"
 ################################
 
 from network_model import trpo_model as model
@@ -12,7 +12,7 @@ import numpy as np
 import torch
 import os
 
-TASK_DIR = os.path.dirname(os.path.abspath(__file__))
+TASK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOAD_FILE = os.path.join(TASK_DIR, 'saves', "trpo-"+TASK_NAME, FILE_NAME)
 
 

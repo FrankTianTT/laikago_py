@@ -52,7 +52,6 @@ class RunstraightTask(object):
         if self._env.env_step_counter > 3000:
             return True
         self._get_pos_vel_info()
-        print(self._env.env_step_counter,self.body_lin_vel[0])
         done = self.body_pos[2] < 0.15 or (self._env.env_step_counter > 100 and self.body_lin_vel[0] < 0.15)
         return done
 
