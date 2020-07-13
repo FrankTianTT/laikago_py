@@ -1,6 +1,6 @@
 import math
 
-class StandupTask(object):
+class RunstraightTask(object):
     def __init__(self,
                  weight=1.0,
                  pose_weight=0.5,
@@ -40,7 +40,7 @@ class StandupTask(object):
         del env
         self._get_pos_vel_info()
 
-        reward = self.body_pos[2] - math.sqrt(self.body_pos[0] ** 2 + self.body_pos[1] ** 2)/10
+        reward = self.body_lin_vel[0] + self.body_pos[2]
         return reward
 
     def done(self, env):
