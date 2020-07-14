@@ -4,7 +4,7 @@
 #change these when changing task
 import runstraight.runstraight_env_builder as env_builder
 TASK_NAME = "runstraight"
-FILE_NAME = "best_+477.537_11000.dat"
+FILE_NAME = "best_+706.430_360000.dat"
 ################################
 
 from network_model import sac_model as model

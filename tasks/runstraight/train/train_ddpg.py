@@ -52,7 +52,7 @@ def test_net(net, env, count=10, device="cpu"):
 if __name__ == "__main__":
     device = torch.device(DEVICE)
 
-    save_path = os.path.join(TASK_DIR, "saves", "a2c-"+TASK_NAME)
+    save_path = os.path.join(TASK_DIR, "saves", "ddpg-"+TASK_NAME)
     os.makedirs(save_path, exist_ok=True)
 
     env = env_builder.build_env(enable_randomizer=True, enable_rendering=False)

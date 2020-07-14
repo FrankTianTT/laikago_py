@@ -4,7 +4,7 @@
 #change these when changing task
 import runstraight.runstraight_env_builder as env_builder
 TASK_NAME = "runstraight"
-FILE_NAME = "best_+477.537_11000.dat"
+FILE_NAME = "best_+50.796_391000.dat"
 ################################
 
 from network_model import d4pg_model as model

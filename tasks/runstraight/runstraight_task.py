@@ -10,7 +10,8 @@ class RunstraightTask(object):
                  velocity_weight=0.05,
                  end_effector_weight=0.2,
                  root_pose_weight=0.15,
-                 root_velocity_weight=0.1):
+                 root_velocity_weight=0.1,
+                 mode='train'):
         self._env = None
         self._weight = weight
 
@@ -28,7 +29,8 @@ class RunstraightTask(object):
         self.joint_pos = None
         self.joint_vel = None
 
-
+        self.pos = []
+        self.mode = mode
         return
 
     def __call__(self, env):
@@ -42,17 +44,18 @@ class RunstraightTask(object):
         """Get the reward without side effects."""
         del env
         self._get_pos_vel_info()
-
-        reward = self.body_lin_vel[0] + self.body_pos[2]*0.3
+        max_vel = 3
+        reward = min([self.body_lin_vel[0], max_vel]) + self.body_pos[2]*0.3
         return reward
 
     def done(self, env):
         """Checks if the episode is over."""
         del env
-        if self._env.env_step_counter > 3000:
+        if self.mode == 'train' and self._env.env_step_counter > 3000:
             return True
+
         self._get_pos_vel_info()
-        done = self.body_pos[2] < 0.15 or (self._env.env_step_counter > 100 and self.body_lin_vel[0] < 0.15)
+        done = self.body_pos[2] < 0.1
         return done
 
     def _get_pybullet_client(self):

@@ -108,7 +108,7 @@ if __name__ == "__main__":
                     continue
 
                 states_v, actions_v, vals_ref_v = \
-                    common.unpack_batch_a2c(batch, net_crt, last_val_gamma=GAMMA ** REWARD_STEPS, device=device)
+                    common.unpack_batch_acktr(batch, net_crt, last_val_gamma=GAMMA ** REWARD_STEPS, device=device)
                 batch.clear()
 
                 opt_crt.zero_grad()

@@ -8,7 +8,7 @@ TASK_NAME = "runstraight"
 
 
 from network_model import d4pg_model as model
-from utilities import common
+from algorithms.utilities import common
 import os
 import time
 import ptan
