@@ -16,8 +16,10 @@ def build_env(enable_randomizer, enable_rendering):
 
     sim_params = locomotion_gym_config.SimulationParameters()
     sim_params.enable_rendering = enable_rendering
+    #sim_params.robot_on_rack = True
 
     gym_config = locomotion_gym_config.LocomotionGymConfig(simulation_parameters=sim_params)
+
 
     robot_class = laikago.Laikago
 

@@ -31,6 +31,8 @@ class RunstraightTask(object):
 
         self.pos = []
         self.mode = mode
+
+        self.pos_list_length = 50
         return
 
     def __call__(self, env):
@@ -40,22 +42,32 @@ class RunstraightTask(object):
         self._env = env
         return
 
+    def _update_pos_list(self):
+        self._get_pos_vel_info()
+        self.pos.append(self.body_pos)
+        if len(self.pos) > self.pos_list_length:
+            self.pos.pop(0)
+
+    def _cal_average_val(self):
+        return math.sqrt((self.pos[0][0]-self.pos[-1][0])**2+ (self.pos[0][1] - self.pos[-1][1])**2)/len(self.pos)
     def reward(self, env):
         """Get the reward without side effects."""
         del env
-        self._get_pos_vel_info()
+        self._update_pos_list()
+        average_val = self._cal_average_val()
         max_vel = 3
-        reward = min([self.body_lin_vel[0], max_vel]) + self.body_pos[2]*0.3
+        reward = min([self.body_lin_vel[0], max_vel])
         return reward
 
     def done(self, env):
         """Checks if the episode is over."""
         del env
-        if self.mode == 'train' and self._env.env_step_counter > 3000:
+        if self.mode == 'train' and self._env.env_step_counter > 300:
             return True
 
-        self._get_pos_vel_info()
-        done = self.body_pos[2] < 0.1
+        #average_val = self._cal_average_val()
+        #done = self.body_pos[2] < 0.1 or (average_val < 0.05 and self._env.env_step_counter > self.pos_list_length)
+        done = False
         return done
 
     def _get_pybullet_client(self):

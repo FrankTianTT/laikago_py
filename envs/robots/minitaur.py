@@ -1425,4 +1425,3 @@ class Minitaur(object):
   def GetConstants(cls):
     del cls
     return minitaur_constants
-

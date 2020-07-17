@@ -4,7 +4,7 @@
 #change these when changing task
 import runstraight.runstraight_env_builder as env_builder
 TASK_NAME = "runstraight"
-FILE_NAME = "best_+401.080_2700000.dat"
+FILE_NAME = "best_+111.507_900000.dat"
 ################################
 
 from network_model import ppo_model as model
@@ -17,7 +17,7 @@ LOAD_FILE = os.path.join(TASK_DIR, 'saves', "ppo-"+TASK_NAME, FILE_NAME)
 
 
 if __name__ == "__main__":
-    env = env_builder.build_env(enable_randomizer=True, enable_rendering=True)
+    env = env_builder.build_env(enable_randomizer=True, enable_rendering=True, mode='test')
 
     net = model.PPOActor(env.observation_space.shape[0], env.action_space.shape[0])
     net.load_state_dict(torch.load(LOAD_FILE))

@@ -4,7 +4,7 @@
 #change these when changing task
 import runstraight.runstraight_env_builder as env_builder
 TASK_NAME = "runstraight"
-FILE_NAME = "best_+50.796_391000.dat"
+FILE_NAME = "best_+70.933_115000.dat"
 ################################
 
 from network_model import d4pg_model as model
@@ -16,7 +16,7 @@ TASK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOAD_FILE = os.path.join(TASK_DIR, 'saves', "d4pg-"+TASK_NAME, FILE_NAME)
 
 if __name__ == "__main__":
-    env =env_builder.build_env(enable_randomizer=True, enable_rendering=True)
+    env =env_builder.build_env(enable_randomizer=True, enable_rendering=True, mode='test')
 
     net = model.D4PGActor(env.observation_space.shape[0], env.action_space.shape[0])
     net.load_state_dict(torch.load(LOAD_FILE))

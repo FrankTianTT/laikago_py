@@ -4,7 +4,7 @@
 #change these when changing task
 import standup.standup_env_builder as env_builder
 TASK_NAME = "standup"
-FILE_NAME = "best_+477.537_11000.dat"
+FILE_NAME = "best_+1318.009_31000.dat"
 ################################
 
 from network_model import a2c_model as model
@@ -12,7 +12,7 @@ import numpy as np
 import torch
 import os
 
-TASK_DIR = os.path.dirname(os.path.abspath(__file__))
+TASK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOAD_FILE = os.path.join(TASK_DIR, 'saves', "a2c-"+TASK_NAME, FILE_NAME)
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@ import ptan
 import torch.nn as nn
 import torch
 
-HID_SIZE = 64
+HID_SIZE = 128
 
 
 class PPOActor(nn.Module):
@@ -12,9 +12,9 @@ class PPOActor(nn.Module):
 
         self.mu = nn.Sequential(
             nn.Linear(obs_size, HID_SIZE),
-            nn.Tanh(),
+            nn.ReLU(),
             nn.Linear(HID_SIZE, HID_SIZE),
-            nn.Tanh(),
+            nn.ReLU(),
             nn.Linear(HID_SIZE, act_size),
             nn.Tanh(),
         )
