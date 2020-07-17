@@ -2,6 +2,7 @@
 # by frank tian on 7.13.2020
 
 import math
+from envs.build_envs.utilities.quaternion import bullet_quaternion as bq
 
 class RunstraightTask(object):
     def __init__(self,
@@ -48,15 +49,43 @@ class RunstraightTask(object):
         if len(self.pos) > self.pos_list_length:
             self.pos.pop(0)
 
-    def _cal_average_val(self):
+    def _cal_average_vel(self):
         return math.sqrt((self.pos[0][0]-self.pos[-1][0])**2+ (self.pos[0][1] - self.pos[-1][1])**2)/len(self.pos)
+
+    # 此方向不考虑旋转，为狗头朝向的方向
+    def _cal_current_face_ori(self):
+        self._get_pos_vel_info()
+        return bq(self.body_ori).ori([0, 0, 1])
+
+    # 此方向考虑旋转，为背部朝向的方向
+    def _cal_current_back_ori(self):
+        self._get_pos_vel_info()
+        return bq(self.body_ori).ori([0, 1, 0])
+
+    def _reward_of_ori(self):
+        # 理想的face_ori为[1,0,0]
+        face_ori = self._cal_current_face_ori()
+        # 理想的back_ori为[0,0,1]
+        back_ori = self._cal_current_back_ori()
+        face_reward = -face_ori[2]**2 - (1-face_ori[0])**2
+        back_reward = -(1-back_ori[2])**2 * 5
+        return face_reward + back_reward
+
+    def _reward_of_vel(self):
+        max_vel = 3
+        self._update_pos_list()
+        average_vel = self._cal_average_vel()
+        instantaneous_vel = self.body_lin_vel[0]
+        average_reward = min([average_vel, max_vel])
+        instantaneous_reward = min([instantaneous_vel, max_vel])
+        return average_reward + instantaneous_reward
+
     def reward(self, env):
         """Get the reward without side effects."""
         del env
-        self._update_pos_list()
-        average_val = self._cal_average_val()
-        max_vel = 3
-        reward = min([self.body_lin_vel[0], max_vel])
+        vel_r = self._reward_of_vel()
+        ori_r = self._reward_of_ori()
+        reward = vel_r * 3 + ori_r
         return reward
 
     def done(self, env):
@@ -65,10 +94,10 @@ class RunstraightTask(object):
         if self.mode == 'train' and self._env.env_step_counter > 300:
             return True
 
-        #average_val = self._cal_average_val()
-        #done = self.body_pos[2] < 0.1 or (average_val < 0.05 and self._env.env_step_counter > self.pos_list_length)
-        done = False
-        return done
+        back_ori = self._cal_current_back_ori()
+        if back_ori[2] < 0.5:
+            return True
+        return False
 
     def _get_pybullet_client(self):
         """Get bullet client from the environment"""
