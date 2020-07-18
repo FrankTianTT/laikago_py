@@ -31,8 +31,9 @@ class RunstraightTask(object):
         self.joint_vel = None
 
         self.body_pos_list = []
+        self.motor_pos_list = []
         self.mode = mode
-
+        self.motor_list_length = 5
         self.pos_list_length = 50
         return
 
@@ -71,7 +72,7 @@ class RunstraightTask(object):
         back_reward = - (1 - back_ori[2]) ** 2 * 3
         return face_reward + back_reward
 
-    def _reward_of_vel(self):
+    def _reward_of_body_vel(self):
         max_vel = 3
         self._update_pos_list()
         average_vel = self._cal_average_vel()
@@ -85,17 +86,31 @@ class RunstraightTask(object):
         reward = math.exp(1 + self.body_pos[2]) - math.e
         return reward
 
+    def _update_motor_list(self):
+        self._get_pos_vel_info()
+        self.motor_pos_list.append(self.joint_pos)
+        if len(self.motor_pos_list) > self.motor_list_length:
+            self.motor_pos_list.pop(0)
+
+    def _reward_of_motor_vel(self):
+        self._update_motor_list()
+        reward = 0
+        for i in range(12):
+            reward = reward - abs(self.joint_vel[i])
+        return reward
+
     def reward(self, env):
         """Get the reward without side effects."""
         del env
-        vel_r = self._reward_of_vel() * 3
+        body_vel_r = self._reward_of_body_vel() * 3
+        motor_vel_r = self._reward_of_motor_vel() * 0.5
         ori_r = self._reward_of_ori()
         pos_r = self._reward_of_pos()
-        reward = vel_r + ori_r + pos_r
+        reward = body_vel_r + ori_r + pos_r + motor_vel_r
         if self._bad_end():
             reward = reward - 100
         if self.mode == 'test' and self._env.env_step_counter % 50 == 0:
-            print('ori_r', round(ori_r),'pos:',round(pos_r),'vel:',round(vel_r))
+            print('ori_r', round(ori_r),'pos:',round(pos_r),'body_vel:',round(body_vel_r),'motor_vel',round(motor_vel_r))
         return reward
 
     def _bad_end(self):

@@ -12,7 +12,8 @@ class StanduppushTask(object):
                  end_effector_weight=0.2,
                  root_pose_weight=0.15,
                  root_velocity_weight=0.1,
-                 mode='train'):
+                 mode='train',
+                 force=True):
         self._env = None
         self._weight = weight
 
@@ -32,16 +33,21 @@ class StanduppushTask(object):
 
         self.mode = mode
 
+        self.force = force
         self.force_id = 0
-        self.force_ori = [[1,0,0],[0,1,0],[-1,0,0],[0,-1,0],
-                          [math.sqrt(0.5),math.sqrt(0.5),0],
-                          [-math.sqrt(0.5),math.sqrt(0.5),0],
-                          [math.sqrt(0.5),-math.sqrt(0.5),0],
-                          [-math.sqrt(0.5),-math.sqrt(0.5),0]]
+        self._get_force_ori()
         self.max_force = 10000
         self.force_delay_steps = 3
         return
 
+    def _get_force_ori(self):
+        self.force_ori = []
+        f_ori = [[1, 0, 0], [0, 1, 0], [-1, 0, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]]
+        for i in f_ori:
+            for j in f_ori:
+                ori = [o[0]+o[1] for o in zip(i,j)]
+                self.force_ori.append(ori)
+        print(self.force_ori)
     def __call__(self, env):
         return self.reward(env)
 
@@ -95,12 +101,14 @@ class StanduppushTask(object):
 
     def _give_force(self):
         if self._env.env_step_counter % self.force_delay_steps == 0:
-            self.force_id = random.randint(0,7)
+            self.force_id = random.randint(0,len(self.force_ori)-1)
         ori = self.force_ori[self.force_id]
         return [f*random.random() * self.max_force for f in ori]
 
 
     def update(self, env):
+        if not self.force:
+            return
         force = self._give_force()
         self.body_pos = env._pybullet_client.getBasePositionAndOrientation(self.quadruped)[0]
         env._pybullet_client.applyExternalForce(objectUniqueId=self.quadruped, linkIndex=-1,
