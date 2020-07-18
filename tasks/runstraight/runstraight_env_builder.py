@@ -10,7 +10,7 @@ from build_envs.sensors import sensor_wrappers
 from build_envs.sensors import robot_sensors
 from build_envs.utilities import controllable_env_randomizer_from_config
 from robots import laikago
-
+from runstraight import simplereward_task
 
 def build_env(enable_randomizer=True, enable_rendering=False, mode='train'):
 
@@ -29,8 +29,8 @@ def build_env(enable_randomizer=True, enable_rendering=False, mode='train'):
             wrapped_sensor=environment_sensors.LastActionSensor(num_actions=laikago.NUM_MOTORS), num_history=3)
     ]
 
-    task = runstraight_task.RunstraightTask(mode = mode)
-
+    #task = runstraight_task.RunstraightTask(mode = mode)
+    task = simplereward_task.RunstraightTask(mode = mode)
     randomizers = []
     if enable_randomizer:
         randomizer = controllable_env_randomizer_from_config.ControllableEnvRandomizerFromConfig(verbose=False)

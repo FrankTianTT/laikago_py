@@ -4,7 +4,7 @@
 import math
 from envs.build_envs.utilities.quaternion import bullet_quaternion as bq
 import random
-class StanduppushTask(object):
+class SingleforceTask(object):
     def __init__(self,
                  weight=1.0,
                  pose_weight=0.5,
@@ -115,10 +115,16 @@ class StanduppushTask(object):
     def update(self, env):
         if not self.force:
             return
-        force = self._give_force()
+        force = [3000,0,1000]
         self.body_pos = env._pybullet_client.getBasePositionAndOrientation(self.quadruped)[0]
-        env._pybullet_client.applyExternalForce(objectUniqueId=self.quadruped, linkIndex=-1,
-                             forceObj=force, posObj=self.body_pos, flags=env._pybullet_client.WORLD_FRAME)
+        for i in env._robot._foot_link_ids:
+            env._pybullet_client.applyExternalForce(objectUniqueId=self.quadruped, linkIndex=i,
+                                                    forceObj=[0,0,300], posObj=self.body_pos,
+                                                    flags=env._pybullet_client.WORLD_FRAME)
+
+        #env._pybullet_client.applyExternalForce(objectUniqueId=self.quadruped, linkIndex=-1, forceObj=force, posObj=self.body_pos, flags=env._pybullet_client.WORLD_FRAME)
+
+
         pass
 
 

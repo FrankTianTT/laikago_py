@@ -4,7 +4,7 @@
 #change these when changing task
 import runstraight.runstraight_env_builder as env_builder
 TASK_NAME = "runstraight"
-FILE_NAME = 'standup_ppo.dat'
+FILE_NAME = ''
 ################################
 
 import os
@@ -27,9 +27,9 @@ LEARNING_RATE_CRITIC = 1e-4
 
 PPO_EPS = 0.2
 PPO_EPOCHES = 10
-PPO_BATCH_SIZE = 64
+PPO_BATCH_SIZE = 256
 
-TEST_ITERS = 10000
+TEST_ITERS = 5000
 DEVICE = 'cuda'
 
 TASK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

@@ -4,9 +4,9 @@
 #change these when changing task
 import standuppush.standuppush_env_builder as env_builder
 TASK_NAME = "standuppush"
-FILE_NAME = "best_+1110.575_40000.dat"
+FILE_NAME = "standup_ppo.dat"
 DONE = True
-FORCE = False
+FORCE = True
 ################################
 
 from network_model import ppo_model as model

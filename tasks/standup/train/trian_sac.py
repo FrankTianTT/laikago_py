@@ -4,7 +4,7 @@
 #change these when changing task
 import standup.standup_env_builder as env_builder
 TASK_NAME = "standup"
-FILE_NAME = 'standup_sac.dat'
+FILE_NAME = ''
 ################################
 
 import os
