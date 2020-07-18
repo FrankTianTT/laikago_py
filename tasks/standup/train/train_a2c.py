@@ -69,7 +69,7 @@ if __name__ == "__main__":
     net = model.A2C(env.observation_space.shape[0], env.action_space.shape[0]).to(device)
     print(net)
 
-    if LOAD_FILE is not '':
+    if FILE_NAME is not '':
         net.load_state_dict(torch.load(LOAD_FILE))
 
     writer = SummaryWriter(comment="-a2c-"+TASK_NAME)

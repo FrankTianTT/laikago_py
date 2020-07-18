@@ -4,7 +4,7 @@
 #change these when changing task
 import runstraight.runstraight_env_builder as env_builder
 TASK_NAME = "runstraight"
-FILE_NAME = "best_+450.355_550000.dat"
+FILE_NAME = "best_-124.911_60000.dat"
 DONE = True
 ################################
 

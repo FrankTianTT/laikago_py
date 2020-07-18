@@ -31,9 +31,7 @@ class RunstraightTask(object):
         self.joint_vel = None
 
         self.body_pos_list = []
-        self.motor_pos_list = []
         self.mode = mode
-        self.motor_list_length = 5
         self.pos_list_length = 50
         return
 
@@ -86,14 +84,8 @@ class RunstraightTask(object):
         reward = math.exp(1 + self.body_pos[2]) - math.e
         return reward
 
-    def _update_motor_list(self):
-        self._get_pos_vel_info()
-        self.motor_pos_list.append(self.joint_pos)
-        if len(self.motor_pos_list) > self.motor_list_length:
-            self.motor_pos_list.pop(0)
-
     def _reward_of_motor_vel(self):
-        self._update_motor_list()
+        self._get_pos_vel_info()
         reward = 0
         for i in range(12):
             reward = reward - abs(self.joint_vel[i])
@@ -103,9 +95,9 @@ class RunstraightTask(object):
         """Get the reward without side effects."""
         del env
         body_vel_r = self._reward_of_body_vel() * 3
-        motor_vel_r = self._reward_of_motor_vel() * 0.5
+        motor_vel_r = self._reward_of_motor_vel() * 0.2
         ori_r = self._reward_of_ori()
-        pos_r = self._reward_of_pos()
+        pos_r = self._reward_of_pos() * 2
         reward = body_vel_r + ori_r + pos_r + motor_vel_r
         if self._bad_end():
             reward = reward - 100

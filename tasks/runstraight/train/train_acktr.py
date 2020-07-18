@@ -72,7 +72,7 @@ if __name__ == "__main__":
     print(act_net)
     print(crt_net)
 
-    if LOAD_FILE is not '':
+    if FILE_NAME is not '':
         act_net.load_state_dict(torch.load(LOAD_FILE))
 
     writer = SummaryWriter(comment="-acktr-" + TASK_NAME)

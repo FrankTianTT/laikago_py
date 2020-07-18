@@ -47,7 +47,6 @@ class StanduppushTask(object):
             for j in f_ori:
                 ori = [o[0]+o[1] for o in zip(i,j)]
                 self.force_ori.append(ori)
-        print(self.force_ori)
     def __call__(self, env):
         return self.reward(env)
 
@@ -71,9 +70,9 @@ class StanduppushTask(object):
         face_ori = self._cal_current_face_ori()
         # 理想的back_ori为[0,0,1]
         back_ori = self._cal_current_back_ori()
-        face_reward = - (1 - face_ori[0]) ** 2
         back_reward = - (1 - back_ori[2]) ** 2 * 3
-        return face_reward + back_reward
+        return back_reward
+
     def _reward_of_pos(self):
         self._get_pos_vel_info()
         reward = math.exp(1 + self.body_pos[2]) - math.e

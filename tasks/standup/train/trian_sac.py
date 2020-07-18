@@ -73,7 +73,7 @@ if __name__ == "__main__":
     print(crt_net)
     print(twinq_net)
 
-    if LOAD_FILE is not '':
+    if FILE_NAME is not '':
         act_net.load_state_dict(torch.load(LOAD_FILE))
 
     tgt_crt_net = ptan.agent.TargetNet(crt_net)

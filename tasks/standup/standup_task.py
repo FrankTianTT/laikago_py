@@ -63,11 +63,19 @@ class StandupTask(object):
         reward = math.exp(1 + self.body_pos[2]) - math.e
         return reward
 
+    def _reward_of_motor_vel(self):
+        self._get_pos_vel_info()
+        reward = 0
+        for i in range(12):
+            reward = reward - abs(self.joint_vel[i])
+        return reward
+
     def reward(self, env):
         del env
         ori_r = self._reward_of_ori()
         pos_r = self._reward_of_pos() * 5
-        reward = ori_r + pos_r
+        motor_vel_r = self._reward_of_motor_vel() * 0.5
+        reward = ori_r + pos_r + motor_vel_r
         if self._bad_end():
             reward = reward - 100
         if self.mode == 'test' and self._env.env_step_counter % 50 == 0:
