@@ -87,14 +87,23 @@ class RunstraightTask(object):
 
     def reward(self, env):
         """Get the reward without side effects."""
+        del env
         vel_r = self._reward_of_vel()
         ori_r = self._reward_of_ori()
         pos_r = self._reward_of_pos()
         reward = vel_r * 30 + ori_r + pos_r * 10
-        if self.done(env):
+        if self._bad_end():
             reward = reward - 100
         return reward
 
+    def _bad_end(self):
+        back_ori = self._cal_current_back_ori()
+        if back_ori[2] < 0.5:
+            return True
+        if self.body_pos[2] < 0.2:
+            return True
+        else:
+            return False
     def done(self, env):
         """Checks if the episode is over."""
         del env
@@ -102,13 +111,7 @@ class RunstraightTask(object):
             return False
         if self.mode == 'train' and self._env.env_step_counter > 300:
             return True
-
-        back_ori = self._cal_current_back_ori()
-        if back_ori[2] < 0.5:
-            return True
-        if self.body_pos[2] < 0.2:
-            return True
-        return False
+        return self._bad_end()
 
     def _get_pybullet_client(self):
         """Get bullet client from the environment"""
