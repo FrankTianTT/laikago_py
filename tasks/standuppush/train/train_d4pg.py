@@ -2,8 +2,8 @@
 # by frank tian on 7.13.2020
 ################################
 #change these when changing task
-import standup.standup_env_builder as env_builder
-TASK_NAME = "standup"
+import standuppush.standuppush_env_builder as env_builder
+TASK_NAME = "standuppush"
 FILE_NAME = ''
 ################################
 

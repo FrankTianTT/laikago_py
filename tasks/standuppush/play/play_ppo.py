@@ -2,9 +2,9 @@
 # by frank tian on 7.13.2020
 ################################
 #change these when changing task
-import runstraight.runstraight_env_builder as env_builder
-TASK_NAME = "runstraight"
-FILE_NAME = "best_+350.166_80000.dat"
+import standuppush.standuppush_env_builder as env_builder
+TASK_NAME = "standuppush"
+FILE_NAME = "standup_without_force_ppo.dat"
 DONE = True
 ################################
 

@@ -4,7 +4,7 @@
 #change these when changing task
 import standup.standup_env_builder as env_builder
 TASK_NAME = "standup"
-FILE_NAME = "best_+820.987_100000.dat"
+FILE_NAME = "best_+2874.355_20000.dat"
 DONE = True
 ################################
 

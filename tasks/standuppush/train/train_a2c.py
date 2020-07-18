@@ -2,9 +2,9 @@
 # by frank tian on 7.10.2020
 ################################
 #change these when changing task
-import standup.standup_env_builder as env_builder
-TASK_NAME = "standup"
-FILE_NAME = ''
+import standuppush.standuppush_env_builder as env_builder
+TASK_NAME = "standuppush"
+FILE_NAME = '' #'standup_a2c.dat'
 ################################
 
 from network_model import a2c_model as model

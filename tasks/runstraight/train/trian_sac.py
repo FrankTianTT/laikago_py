@@ -4,7 +4,7 @@
 #change these when changing task
 import runstraight.runstraight_env_builder as env_builder
 TASK_NAME = "runstraight"
-FILE_NAME = ''
+FILE_NAME = 'standup_sac.dat'
 ################################
 
 import os
