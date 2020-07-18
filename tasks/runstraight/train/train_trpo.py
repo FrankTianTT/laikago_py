@@ -4,6 +4,7 @@
 #change these when changing task
 import runstraight.runstraight_env_builder as env_builder
 TASK_NAME = "runstraight"
+FILE_NAME = ''
 ################################
 
 import os
@@ -31,6 +32,7 @@ TEST_ITERS = 100000
 DEVICE = 'cuda'
 
 TASK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LOAD_FILE = os.path.join(TASK_DIR, 'saves', "trpo-"+TASK_NAME, FILE_NAME)
 
 def test_net(net, env, count=10, device="cpu"):
     rewards = 0.0
@@ -94,16 +96,19 @@ if __name__ == "__main__":
     env = env_builder.build_env(enable_randomizer=True, enable_rendering=False)
     test_env = env_builder.build_env(enable_randomizer=False, enable_rendering=False)
 
-    net_act = model.TRPOActor(env.observation_space.shape[0], env.action_space.shape[0]).to(device)
-    net_crt = model.TRPOCritic(env.observation_space.shape[0]).to(device)
-    print(net_act)
-    print(net_crt)
+    act_net = model.TRPOActor(env.observation_space.shape[0], env.action_space.shape[0]).to(device)
+    crt_net = model.TRPOCritic(env.observation_space.shape[0]).to(device)
+    print(act_net)
+    print(crt_net)
+
+    if LOAD_FILE is not '':
+        act_net.load_state_dict(torch.load(LOAD_FILE))
 
     writer = SummaryWriter(comment="-trpo-"+TASK_NAME)
-    agent = model.AgentTRPO(net_act, device=device)
+    agent = model.AgentTRPO(act_net, device=device)
     exp_source = ptan.experience.ExperienceSource(env, agent, steps_count=1)
 
-    opt_crt = optim.Adam(net_crt.parameters(),LEARNING_RATE_CRITIC)
+    opt_crt = optim.Adam(crt_net.parameters(), LEARNING_RATE_CRITIC)
 
     trajectory = []
     best_reward = None
@@ -117,7 +122,7 @@ if __name__ == "__main__":
 
             if step_idx % TEST_ITERS == 0:
                 ts = time.time()
-                rewards, steps = test_net(net_act, test_env, device=device)
+                rewards, steps = test_net(act_net, test_env, device=device)
                 print("Test done in %.2f sec, reward %.3f, steps %d" % (
                     time.time() - ts, rewards, steps))
                 writer.add_scalar("test_reward", rewards, step_idx)
@@ -127,7 +132,7 @@ if __name__ == "__main__":
                         print("Best reward updated: %.3f -> %.3f" % (best_reward, rewards))
                         name = "best_%+.3f_%d.dat" % (rewards, step_idx)
                         fname = os.path.join(save_path, name)
-                        torch.save(net_act.state_dict(), fname)
+                        torch.save(act_net.state_dict(), fname)
                     best_reward = rewards
 
             trajectory.append(exp)
@@ -138,9 +143,9 @@ if __name__ == "__main__":
             traj_actions = [t[0].action for t in trajectory]
             traj_states_v = torch.FloatTensor(traj_states).to(device)
             traj_actions_v = torch.FloatTensor(traj_actions).to(device)
-            traj_adv_v, traj_ref_v = calc_adv_ref(trajectory, net_crt, traj_states_v, device=device)
-            mu_v = net_act(traj_states_v)
-            old_logprob_v = calc_logprob(mu_v, net_act.logstd, traj_actions_v)
+            traj_adv_v, traj_ref_v = calc_adv_ref(trajectory, crt_net, traj_states_v, device=device)
+            mu_v = act_net(traj_states_v)
+            old_logprob_v = calc_logprob(mu_v, act_net.logstd, traj_actions_v)
 
             # normalize advantages
             traj_adv_v = (traj_adv_v - torch.mean(traj_adv_v)) / torch.std(traj_adv_v)
@@ -156,7 +161,7 @@ if __name__ == "__main__":
 
             # critic step
             opt_crt.zero_grad()
-            value_v = net_crt(traj_states_v)
+            value_v = crt_net(traj_states_v)
             loss_value_v = F.mse_loss(
                 value_v.squeeze(-1), traj_ref_v)
             loss_value_v.backward()
@@ -164,16 +169,16 @@ if __name__ == "__main__":
 
             # actor step
             def get_loss():
-                mu_v = net_act(traj_states_v)
+                mu_v = act_net(traj_states_v)
                 logprob_v = calc_logprob(
-                    mu_v, net_act.logstd, traj_actions_v)
+                    mu_v, act_net.logstd, traj_actions_v)
                 dp_v = torch.exp(logprob_v - old_logprob_v)
                 action_loss_v = -traj_adv_v.unsqueeze(dim=-1)*dp_v
                 return action_loss_v.mean()
 
             def get_kl():
-                mu_v = net_act(traj_states_v)
-                logstd_v = net_act.logstd
+                mu_v = act_net(traj_states_v)
+                logstd_v = act_net.logstd
                 mu0_v = mu_v.detach()
                 logstd0_v = logstd_v.detach()
                 std_v = torch.exp(logstd_v)
@@ -183,7 +188,7 @@ if __name__ == "__main__":
                 kl = logstd_v - logstd0_v + v - 0.5
                 return kl.sum(1, keepdim=True)
 
-            trpo.trpo_step(net_act, get_loss, get_kl, TRPO_MAX_KL,
+            trpo.trpo_step(act_net, get_loss, get_kl, TRPO_MAX_KL,
                            TRPO_DAMPING, device=device)
 
             trajectory.clear()

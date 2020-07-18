@@ -4,7 +4,6 @@
 #change these when changing task
 import standup.standup_env_builder as env_builder
 TASK_NAME = "standup"
-FILE_NAME = "best_+477.537_11000.dat"
 ################################
 
 from network_model import a2c_model as model

@@ -4,6 +4,7 @@
 #change these when changing task
 import runstraight.runstraight_env_builder as env_builder
 TASK_NAME = "runstraight"
+FILE_NAME = ''
 ################################
 
 import os
@@ -30,6 +31,7 @@ TEST_ITERS = 10000
 DEVICE = 'cuda'
 
 TASK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LOAD_FILE = os.path.join(TASK_DIR, 'saves', "sac-"+TASK_NAME, FILE_NAME)
 
 def test_net(net, env, count=10, device="cpu"):
     rewards = 0.0
@@ -70,6 +72,9 @@ if __name__ == "__main__":
     print(act_net)
     print(crt_net)
     print(twinq_net)
+
+    if LOAD_FILE is not '':
+        act_net.load_state_dict(torch.load(LOAD_FILE))
 
     tgt_crt_net = ptan.agent.TargetNet(crt_net)
 

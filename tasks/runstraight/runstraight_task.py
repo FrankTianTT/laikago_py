@@ -30,7 +30,7 @@ class RunstraightTask(object):
         self.joint_pos = None
         self.joint_vel = None
 
-        self.pos = []
+        self.body_pos_list = []
         self.mode = mode
 
         self.pos_list_length = 50
@@ -45,12 +45,12 @@ class RunstraightTask(object):
 
     def _update_pos_list(self):
         self._get_pos_vel_info()
-        self.pos.append(self.body_pos)
-        if len(self.pos) > self.pos_list_length:
-            self.pos.pop(0)
+        self.body_pos_list.append(self.body_pos)
+        if len(self.body_pos_list) > self.pos_list_length:
+            self.body_pos_list.pop(0)
 
     def _cal_average_vel(self):
-        return math.sqrt((self.pos[0][0]-self.pos[-1][0])**2+ (self.pos[0][1] - self.pos[-1][1])**2)/len(self.pos)
+        return math.sqrt((self.body_pos_list[0][0] - self.body_pos_list[-1][0]) ** 2 + (self.body_pos_list[0][1] - self.body_pos_list[-1][1]) ** 2) / len(self.body_pos_list)
 
     # 此方向不考虑旋转，为狗头朝向的方向
     def _cal_current_face_ori(self):
@@ -67,8 +67,8 @@ class RunstraightTask(object):
         face_ori = self._cal_current_face_ori()
         # 理想的back_ori为[0,0,1]
         back_ori = self._cal_current_back_ori()
-        face_reward = -face_ori[2]**2 - (1-face_ori[0])**2
-        back_reward = -(1-back_ori[2])**2 * 5
+        face_reward = face_ori[2] * 5 - (1-face_ori[0])**2
+        back_reward = -(1-back_ori[2])**2 * 3
         return face_reward + back_reward
 
     def _reward_of_vel(self):
@@ -80,22 +80,33 @@ class RunstraightTask(object):
         instantaneous_reward = min([instantaneous_vel, max_vel])
         return average_reward + instantaneous_reward
 
+    def _reward_of_pos(self):
+        pos = self.body_pos
+        reward = pos[2]
+        return reward
+
     def reward(self, env):
         """Get the reward without side effects."""
-        del env
         vel_r = self._reward_of_vel()
         ori_r = self._reward_of_ori()
-        reward = vel_r * 3 + ori_r
+        pos_r = self._reward_of_pos()
+        reward = vel_r * 30 + ori_r + pos_r * 10
+        if self.done(env):
+            reward = reward - 100
         return reward
 
     def done(self, env):
         """Checks if the episode is over."""
         del env
+        if self.mode == 'never_done':
+            return False
         if self.mode == 'train' and self._env.env_step_counter > 300:
             return True
 
         back_ori = self._cal_current_back_ori()
         if back_ori[2] < 0.5:
+            return True
+        if self.body_pos[2] < 0.2:
             return True
         return False
 

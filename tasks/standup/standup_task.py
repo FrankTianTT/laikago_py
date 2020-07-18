@@ -2,6 +2,7 @@
 # by frank tian on 7.9.2020
 
 import math
+from envs.build_envs.utilities.quaternion import bullet_quaternion as bq
 
 class StandupTask(object):
     def __init__(self,
@@ -10,7 +11,8 @@ class StandupTask(object):
                  velocity_weight=0.05,
                  end_effector_weight=0.2,
                  root_pose_weight=0.15,
-                 root_velocity_weight=0.1):
+                 root_velocity_weight=0.1,
+                 mode='train'):
         self._env = None
         self._weight = weight
 
@@ -28,7 +30,7 @@ class StandupTask(object):
         self.joint_pos = None
         self.joint_vel = None
 
-
+        self.mode = mode
         return
 
     def __call__(self, env):
@@ -38,22 +40,57 @@ class StandupTask(object):
         self._env = env
         return
 
-    def reward(self, env):
-        """Get the reward without side effects."""
-        del env
+    # 此方向不考虑旋转，为狗头朝向的方向
+    def _cal_current_face_ori(self):
         self._get_pos_vel_info()
+        return bq(self.body_ori).ori([0, 0, 1])
 
-        reward = self.body_pos[2] - math.sqrt(self.body_pos[0] ** 2 + self.body_pos[1] ** 2)/10
+    # 此方向考虑旋转，为背部朝向的方向
+    def _cal_current_back_ori(self):
+        self._get_pos_vel_info()
+        return bq(self.body_ori).ori([0, 1, 0])
+
+    def _reward_of_ori(self):
+        # 理想的face_ori为[1,0,0]
+        face_ori = self._cal_current_face_ori()
+        # 理想的back_ori为[0,0,1]
+        back_ori = self._cal_current_back_ori()
+        face_reward = - (1 - face_ori[0]) ** 2
+        back_reward = - (1 - back_ori[2]) ** 2 * 3
+        return face_reward + back_reward
+    def _reward_of_pos(self):
+        self._get_pos_vel_info()
+        reward = math.exp(1 + self.body_pos[2]) - math.e
+        return reward
+
+    def reward(self, env):
+        del env
+        ori_r = self._reward_of_ori()
+        pos_r = self._reward_of_pos() * 5
+        reward = ori_r + pos_r
+        if self._bad_end():
+            reward = reward - 100
+        if self.mode == 'test' and self._env.env_step_counter % 50 == 0:
+            print('ori_r', round(ori_r),'pos:',round(pos_r))
         return reward
 
     def done(self, env):
         """Checks if the episode is over."""
         del env
-        if self._env.env_step_counter > 3000:
+        if self.mode == 'never_done': #only use in test mode
+            return False
+        if self.mode == 'train' and self._env.env_step_counter > 300:
             return True
-        self._get_pos_vel_info()
-        done = self.body_pos[2] < 0.2  or math.sqrt(self.body_pos[0] ** 2 + self.body_pos[1] ** 2) > 4
-        return done
+        return self._bad_end()
+
+    def _bad_end(self):
+        back_ori = self._cal_current_back_ori()
+        if back_ori[2] < 0.7:
+            return True
+        if self.body_pos[2] < 0.2:
+            return True
+        else:
+            return False
 
     def _get_pybullet_client(self):
         """Get bullet client from the environment"""

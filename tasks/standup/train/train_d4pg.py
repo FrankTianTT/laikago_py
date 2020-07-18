@@ -2,9 +2,8 @@
 # by frank tian on 7.13.2020
 ################################
 #change these when changing task
-import runstraight.runstraight_env_builder as env_builder
-TASK_NAME = "runstraight"
-FILE_NAME = ''
+import standup.standup_env_builder as env_builder
+TASK_NAME = "standup"
 ################################
 
 
@@ -37,7 +36,6 @@ DELTA_Z = (Vmax - Vmin) / (N_ATOMS - 1)
 DEVICE = 'cuda'
 
 TASK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-LOAD_FILE = os.path.join(TASK_DIR, 'saves', "d4pg-"+TASK_NAME, FILE_NAME)
 
 def test_net(net, env, count=10, device="cpu"):
     rewards = 0.0
@@ -115,9 +113,6 @@ if __name__ == "__main__":
         device)
     print(act_net)
     print(crt_net)
-
-    if LOAD_FILE is not '':
-        act_net.load_state_dict(torch.load(LOAD_FILE))
 
     tgt_act_net = ptan.agent.TargetNet(act_net)
     tgt_crt_net = ptan.agent.TargetNet(crt_net)

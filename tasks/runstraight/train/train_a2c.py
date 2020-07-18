@@ -4,6 +4,7 @@
 #change these when changing task
 import runstraight.runstraight_env_builder as env_builder
 TASK_NAME = "runstraight"
+FILE_NAME = '' #'standup_a2c.dat'
 ################################
 
 from network_model import a2c_model as model
@@ -29,6 +30,7 @@ TEST_ITERS = 1000
 DEVICE = 'cuda'
 
 TASK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LOAD_FILE = os.path.join(TASK_DIR, 'saves', "a2c-"+TASK_NAME, FILE_NAME)
 
 def test_net(net, env, count=10, device=DEVICE):
     rewards = 0.0
@@ -66,6 +68,10 @@ if __name__ == "__main__":
 
     net = model.A2C(env.observation_space.shape[0], env.action_space.shape[0]).to(device)
     print(net)
+
+    if LOAD_FILE is not '':
+        net.load_state_dict(torch.load(LOAD_FILE))
+
     writer = SummaryWriter(comment="-a2c-"+TASK_NAME)
     agent = model.AgentA2C(net, device=device)
     exp_source = ptan.experience.ExperienceSourceFirstLast(env, agent, GAMMA, steps_count=REWARD_STEPS)

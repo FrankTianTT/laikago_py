@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
-# by frank tian on 7.13.2020
+# by frank tian on 7.10.2020
 ################################
 #change these when changing task
-import runstraight.runstraight_env_builder as env_builder
-TASK_NAME = "runstraight"
-FILE_NAME = "best_+169.065_278000.dat"
+import standup.standup_env_builder as env_builder
+TASK_NAME = "standup"
+FILE_NAME = "best_+1137.581_12000.dat"
 DONE = True
 ################################
 
-from network_model import ddpg_model as model
+from network_model import d4pg_model as model
 import numpy as np
 import torch
 import os
 
 TASK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-LOAD_FILE = os.path.join(TASK_DIR, 'saves', "ddpg-"+TASK_NAME, FILE_NAME)
+LOAD_FILE = os.path.join(TASK_DIR, 'saves', "d4pg-"+TASK_NAME, FILE_NAME)
 
 if __name__ == "__main__":
     mode = 'test' if DONE else 'never_done'
-    env = env_builder.build_env(enable_randomizer=True, enable_rendering=True, mode=mode)
+    env =env_builder.build_env(enable_randomizer=True, enable_rendering=True, mode=mode)
 
-    net = model.DDPGActor(env.observation_space.shape[0], env.action_space.shape[0])
+    net = model.D4PGActor(env.observation_space.shape[0], env.action_space.shape[0])
     net.load_state_dict(torch.load(LOAD_FILE))
     for i in range(100):
         obs = env.reset()

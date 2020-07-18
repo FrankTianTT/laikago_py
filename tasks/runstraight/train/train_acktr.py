@@ -4,6 +4,7 @@
 #change these when changing task
 import runstraight.runstraight_env_builder as env_builder
 TASK_NAME = "runstraight"
+FILE_NAME = ''
 ################################
 
 import os
@@ -30,6 +31,7 @@ TEST_ITERS = 100000
 DEVICE = 'cuda'
 
 TASK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LOAD_FILE = os.path.join(TASK_DIR, 'saves', "acktr-"+TASK_NAME, FILE_NAME)
 
 def test_net(net, env, count=10, device="cpu"):
     rewards = 0.0
@@ -65,17 +67,20 @@ if __name__ == "__main__":
     envs = [env_builder.build_env(enable_randomizer=True, enable_rendering=False) for _ in range(ENVS_COUNT)]
     test_env = env_builder.build_env(enable_randomizer=False, enable_rendering=False)
 
-    net_act = model.ACKTRActor(envs[0].observation_space.shape[0], envs[0].action_space.shape[0]).to(device)
-    net_crt = model.ACKTRCritic(envs[0].observation_space.shape[0]).to(device)
-    print(net_act)
-    print(net_crt)
+    act_net = model.ACKTRActor(envs[0].observation_space.shape[0], envs[0].action_space.shape[0]).to(device)
+    crt_net = model.ACKTRCritic(envs[0].observation_space.shape[0]).to(device)
+    print(act_net)
+    print(crt_net)
+
+    if LOAD_FILE is not '':
+        act_net.load_state_dict(torch.load(LOAD_FILE))
 
     writer = SummaryWriter(comment="-acktr-" + TASK_NAME)
-    agent = model.AgentACKTR(net_act, device=device)
+    agent = model.AgentACKTR(act_net, device=device)
     exp_source = ptan.experience.ExperienceSourceFirstLast(envs, agent, GAMMA, steps_count=REWARD_STEPS)
 
-    opt_act = kfac.KFACOptimizer(net_act, lr=LEARNING_RATE_ACTOR)
-    opt_crt = optim.Adam(net_crt.parameters(), lr=LEARNING_RATE_CRITIC)
+    opt_act = kfac.KFACOptimizer(act_net, lr=LEARNING_RATE_ACTOR)
+    opt_crt = optim.Adam(crt_net.parameters(), lr=LEARNING_RATE_CRITIC)
 
     batch = []
     best_reward = None
@@ -90,7 +95,7 @@ if __name__ == "__main__":
 
                 if step_idx % TEST_ITERS == 0:
                     ts = time.time()
-                    rewards, steps = test_net(net_act, test_env, device=device)
+                    rewards, steps = test_net(act_net, test_env, device=device)
                     print("Test done in %.2f sec, reward %.3f, steps %d" % (
                         time.time() - ts, rewards, steps))
                     writer.add_scalar("test_reward", rewards, step_idx)
@@ -100,7 +105,7 @@ if __name__ == "__main__":
                             print("Best reward updated: %.3f -> %.3f" % (best_reward, rewards))
                             name = "best_%+.3f_%d.dat" % (rewards, step_idx)
                             fname = os.path.join(save_path, name)
-                            torch.save(net_act.state_dict(), fname)
+                            torch.save(act_net.state_dict(), fname)
                         best_reward = rewards
 
                 batch.append(exp)
@@ -108,17 +113,17 @@ if __name__ == "__main__":
                     continue
 
                 states_v, actions_v, vals_ref_v = \
-                    common.unpack_batch_acktr(batch, net_crt, last_val_gamma=GAMMA ** REWARD_STEPS, device=device)
+                    common.unpack_batch_acktr(batch, crt_net, last_val_gamma=GAMMA ** REWARD_STEPS, device=device)
                 batch.clear()
 
                 opt_crt.zero_grad()
-                value_v = net_crt(states_v)
+                value_v = crt_net(states_v)
                 loss_value_v = F.mse_loss(value_v.squeeze(-1), vals_ref_v)
                 loss_value_v.backward()
                 opt_crt.step()
 
-                mu_v = net_act(states_v)
-                log_prob_v = calc_logprob(mu_v, net_act.logstd, actions_v)
+                mu_v = act_net(states_v)
+                log_prob_v = calc_logprob(mu_v, act_net.logstd, actions_v)
                 if opt_act.steps % opt_act.Ts == 0:
                     opt_act.zero_grad()
                     pg_fisher_loss = -log_prob_v.mean()
@@ -129,7 +134,7 @@ if __name__ == "__main__":
                 opt_act.zero_grad()
                 adv_v = vals_ref_v.unsqueeze(dim=-1) - value_v.detach()
                 loss_policy_v = -(adv_v * log_prob_v).mean()
-                entropy_loss_v = ENTROPY_BETA * (-(torch.log(2*math.pi*torch.exp(net_act.logstd)) + 1)/2).mean()
+                entropy_loss_v = ENTROPY_BETA * (-(torch.log(2 * math.pi * torch.exp(act_net.logstd)) + 1) / 2).mean()
                 loss_v = loss_policy_v + entropy_loss_v
                 loss_v.backward()
                 opt_act.step()
