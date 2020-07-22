@@ -89,7 +89,7 @@ def update(self, env):
 在这个文件中定义`build_env()`函数，返回一个从gym继承的`ENV`类，你可以直接使用locomotion_gym_env文件的`LocomotionGymEnv`完成这个功能，但是这个函数存在的意义在于完成更高级的设置。
 
 在这个函数中完成task和env的绑定，例如
-```
+```python
 task = runstraight_task.RunstraightTask(mode = mode)
 env = locomotion_gym_env.LocomotionGymEnv(gym_config=gym_config, robot_class=robot_class,
                                               env_randomizers=randomizers, robot_sensors=sensors, task=task)
@@ -97,7 +97,7 @@ env = locomotion_gym_env.LocomotionGymEnv(gym_config=gym_config, robot_class=rob
 
 也可以在这个函数中添加符合gym规范的wrapper，例如
 
-```
+```python
 env = observation_dictionary_to_array_wrapper.ObservationDictionaryToArrayWrapper(env)
 ```
 
