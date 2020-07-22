@@ -73,7 +73,7 @@ class StandupTask(object):
         del env
         ori_r = self._reward_of_ori()
         pos_r = self._reward_of_pos() * 5
-        energy_r = self._reward_of_energy() * 3
+        energy_r = self._reward_of_energy()
         reward = ori_r + pos_r + energy_r
         if self._bad_end():
             reward = reward - 100

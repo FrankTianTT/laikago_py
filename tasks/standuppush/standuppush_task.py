@@ -88,7 +88,7 @@ class StanduppushTask(object):
         del env
         ori_r = self._reward_of_ori()
         pos_r = self._reward_of_pos() * 5
-        energy_r = self._reward_of_energy() * 3
+        energy_r = self._reward_of_energy()
         reward = ori_r + pos_r + energy_r
         if self._bad_end():
             reward = reward - 100
@@ -130,16 +130,6 @@ class StanduppushTask(object):
         env._pybullet_client.applyExternalForce(objectUniqueId=self.quadruped, linkIndex=-1,
                              forceObj=force, posObj=self.body_pos, flags=env._pybullet_client.WORLD_FRAME)
         pass
-
-
-    def _bad_end(self):
-        back_ori = self._cal_current_back_ori()
-        if back_ori[2] < 0.7:
-            return True
-        if self.body_pos[2] < 0.2:
-            return True
-        else:
-            return False
 
     def _get_pybullet_client(self):
         """Get bullet client from the environment"""

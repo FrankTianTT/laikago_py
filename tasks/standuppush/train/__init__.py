@@ -11,5 +11,5 @@ def delete_log():
     shutil.rmtree(LOG_DIR)
 
 if __name__ == "__main__":
-    delete_log()
+    #delete_log()
     print_tensoroard()

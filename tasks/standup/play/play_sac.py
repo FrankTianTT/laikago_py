@@ -4,8 +4,9 @@
 #change these when changing task
 import standup.standup_env_builder as env_builder
 TASK_NAME = "standup"
-FILE_NAME = "best_+764.801_60000.dat"
+FILE_NAME = "best_+1047.810_40000.dat"
 DONE = True
+HID_SIZE=256
 ################################
 
 from network_model import sac_model as model
@@ -21,7 +22,7 @@ if __name__ == "__main__":
     mode = 'test' if DONE else 'never_done'
     env = env_builder.build_env(enable_randomizer=True, enable_rendering=True, mode=mode)
 
-    net = model.SACActor(env.observation_space.shape[0], env.action_space.shape[0])
+    net = model.SACActor(env.observation_space.shape[0], env.action_space.shape[0],HID_SIZE)
     net.load_state_dict(torch.load(LOAD_FILE))
     for i in range(100):
         obs = env.reset()

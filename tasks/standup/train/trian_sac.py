@@ -5,6 +5,7 @@
 import standup.standup_env_builder as env_builder
 TASK_NAME = "standup"
 FILE_NAME = ''
+HID_SIZE = 256
 ################################
 
 import os
@@ -62,13 +63,13 @@ if __name__ == "__main__":
 
     act_net = model.SACActor(
         env.observation_space.shape[0],
-        env.action_space.shape[0]).to(device)
+        env.action_space.shape[0],HID_SIZE).to(device)
     crt_net = model.SACCritic(
-        env.observation_space.shape[0]
+        env.observation_space.shape[0],HID_SIZE
     ).to(device)
     twinq_net = model.ModelSACTwinQ(
         env.observation_space.shape[0],
-        env.action_space.shape[0]).to(device)
+        env.action_space.shape[0],HID_SIZE).to(device)
     print(act_net)
     print(crt_net)
     print(twinq_net)
