@@ -5,7 +5,7 @@
 import runstraight.runstraight_env_builder as env_builder
 TASK_NAME = "runstraight"
 FILE_NAME = "standuppush_ppo_256.dat"
-DONE = False
+DONE = True
 HID_SIZE = 256
 ################################
 

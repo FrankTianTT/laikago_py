@@ -2,6 +2,7 @@
 # by frank tian on 7.13.2020
 
 import math
+import sys
 from envs.build_envs.utilities.quaternion import bullet_quaternion as bq
 
 class RunstraightTask(object):
@@ -105,8 +106,8 @@ class RunstraightTask(object):
         reward = body_vel_r + ori_r + pos_r + energy_r
         if self._bad_end():
             reward = reward - 100
-        if self.mode != 'train' and self._env.env_step_counter % 50 == 0:
-            print('ori_r', round(ori_r),'pos:',round(pos_r),'body_vel:',round(body_vel_r),'energy',round(energy_r))
+        if self.mode != 'train' and self._env.env_step_counter % 25 == 0:
+            print('ori_r', round(ori_r,2),'pos:',round(pos_r,2),'body_vel:',round(body_vel_r,2),'energy',round(energy_r,2))
         return reward
 
     def _bad_end(self):
@@ -115,15 +116,15 @@ class RunstraightTask(object):
         average_vel = self._cal_average_vel()
         instantaneous_vel = self.body_lin_vel[0]
         if back_ori[2] < 0.7:
-            if self.mode == 'test':
+            if self.mode != 'train' and sys._getframe(1).f_code.co_name == 'reward':
                 print('die because wrong ori')
             return True
         if self.body_pos[2] < 0.2:
-            if self.mode == 'test':
+            if self.mode != 'train' and sys._getframe(1).f_code.co_name == 'reward':
                 print('die because wrong pos')
             return True
         if (average_vel < 0.1 and self._env.env_step_counter > self.pos_list_length) and instantaneous_vel < 0.1:
-            if self.mode == 'test':
+            if self.mode != 'train' and sys._getframe(1).f_code.co_name == 'reward':
                 print('die because too slow')
             return True
         else:
