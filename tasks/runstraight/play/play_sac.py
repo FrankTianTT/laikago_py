@@ -6,7 +6,7 @@ import runstraight.runstraight_env_builder as env_builder
 TASK_NAME = "runstraight"
 FILE_NAME = "best_-31.401_40000.dat"
 DONE = True
-HID_SIZE=256
+HID_SIZE = 256
 ################################
 
 from network_model import sac_model as model
