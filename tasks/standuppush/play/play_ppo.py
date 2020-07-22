@@ -4,9 +4,9 @@
 #change these when changing task
 import standuppush.standuppush_env_builder as env_builder
 TASK_NAME = "standuppush"
-FILE_NAME = "standuppush_ppo.dat"
+FILE_NAME = "best_+110.091_110000.dat"
 DONE = True
-FORCE = True
+HID_SIZE = 256
 ################################
 
 from network_model import ppo_model as model
@@ -20,10 +20,9 @@ LOAD_FILE = os.path.join(TASK_DIR, 'saves', "ppo-"+TASK_NAME, FILE_NAME)
 
 if __name__ == "__main__":
     mode = 'test' if DONE else 'never_done'
+    env = env_builder.build_env(enable_randomizer=True, enable_rendering=True, mode=mode)
 
-    env = env_builder.build_env(enable_randomizer=True, enable_rendering=True, mode=mode,force=FORCE)
-
-    net = model.PPOActor(env.observation_space.shape[0], env.action_space.shape[0])
+    net = model.PPOActor(env.observation_space.shape[0], env.action_space.shape[0], hid_size=HID_SIZE)
     net.load_state_dict(torch.load(LOAD_FILE))
     for i in range(100):
         obs = env.reset()

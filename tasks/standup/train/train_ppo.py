@@ -4,7 +4,8 @@
 #change these when changing task
 import standup.standup_env_builder as env_builder
 TASK_NAME = "standup"
-FILE_NAME = 'standuppush_ppo.dat'
+FILE_NAME = ''
+HID_SIZE = 256
 ################################
 
 import os
@@ -27,9 +28,9 @@ LEARNING_RATE_CRITIC = 1e-4
 
 PPO_EPS = 0.2
 PPO_EPOCHES = 10
-PPO_BATCH_SIZE = 64
+PPO_BATCH_SIZE = 256
 
-TEST_ITERS = 10000
+TEST_ITERS = 5000
 DEVICE = 'cuda'
 
 TASK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -99,8 +100,8 @@ if __name__ == "__main__":
     env = env_builder.build_env(enable_randomizer=True, enable_rendering=False)
     test_env = env_builder.build_env(enable_randomizer=False, enable_rendering=False)
 
-    act_net = model.PPOActor(env.observation_space.shape[0], env.action_space.shape[0]).to(device)
-    crt_net = model.PPOCritic(env.observation_space.shape[0]).to(device)
+    act_net = model.PPOActor(env.observation_space.shape[0], env.action_space.shape[0], hid_size=HID_SIZE).to(device)
+    crt_net = model.PPOCritic(env.observation_space.shape[0], hid_size=HID_SIZE).to(device)
     print(act_net)
     print(crt_net)
 

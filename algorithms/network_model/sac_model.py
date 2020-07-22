@@ -3,19 +3,19 @@ import ptan
 import torch.nn as nn
 import torch
 
-HID_SIZE = 128
+hid_size = 128
 
 
 class SACActor(nn.Module):
-    def __init__(self, obs_size, act_size):
+    def __init__(self, obs_size, act_size, hid_size=128):
         super(SACActor, self).__init__()
 
         self.mu = nn.Sequential(
-            nn.Linear(obs_size, HID_SIZE),
+            nn.Linear(obs_size, hid_size),
             nn.ReLU(),
-            nn.Linear(HID_SIZE, HID_SIZE),
+            nn.Linear(hid_size, hid_size),
             nn.ReLU(),
-            nn.Linear(HID_SIZE, act_size),
+            nn.Linear(hid_size, act_size),
             nn.Tanh(),
         )
         self.logstd = nn.Parameter(torch.zeros(act_size))
@@ -25,38 +25,38 @@ class SACActor(nn.Module):
 
 
 class SACCritic(nn.Module):
-    def __init__(self, obs_size):
+    def __init__(self, obs_size, hid_size=128):
         super(SACCritic, self).__init__()
 
         self.value = nn.Sequential(
-            nn.Linear(obs_size, HID_SIZE),
+            nn.Linear(obs_size, hid_size),
             nn.ReLU(),
-            nn.Linear(HID_SIZE, HID_SIZE),
+            nn.Linear(hid_size, hid_size),
             nn.ReLU(),
-            nn.Linear(HID_SIZE, 1),
+            nn.Linear(hid_size, 1),
         )
 
     def forward(self, x):
         return self.value(x)
 
 class ModelSACTwinQ(nn.Module):
-    def __init__(self, obs_size, act_size):
+    def __init__(self, obs_size, act_size, hid_size=128):
         super(ModelSACTwinQ, self).__init__()
 
         self.q1 = nn.Sequential(
-            nn.Linear(obs_size + act_size, HID_SIZE),
+            nn.Linear(obs_size + act_size, hid_size),
             nn.ReLU(),
-            nn.Linear(HID_SIZE, HID_SIZE),
+            nn.Linear(hid_size, hid_size),
             nn.ReLU(),
-            nn.Linear(HID_SIZE, 1),
+            nn.Linear(hid_size, 1),
         )
 
         self.q2 = nn.Sequential(
-            nn.Linear(obs_size + act_size, HID_SIZE),
+            nn.Linear(obs_size + act_size, hid_size),
             nn.ReLU(),
-            nn.Linear(HID_SIZE, HID_SIZE),
+            nn.Linear(hid_size, hid_size),
             nn.ReLU(),
-            nn.Linear(HID_SIZE, 1),
+            nn.Linear(hid_size, 1),
         )
 
     def forward(self, obs, act):

@@ -4,7 +4,7 @@
 #change these when changing task
 import runstraight.runstraight_env_builder as env_builder
 TASK_NAME = "runstraight"
-FILE_NAME = 'runslow_ppo.dat'
+FILE_NAME = 'runslow_ppo_128.dat'
 ################################
 
 import os

@@ -3,19 +3,19 @@ import ptan
 import torch.nn as nn
 import torch
 
-HID_SIZE = 128
+hid_size = 128
 
 
 class PPOActor(nn.Module):
-    def __init__(self, obs_size, act_size):
+    def __init__(self, obs_size, act_size, hid_size=128):
         super(PPOActor, self).__init__()
 
         self.mu = nn.Sequential(
-            nn.Linear(obs_size, HID_SIZE),
+            nn.Linear(obs_size, hid_size),
             nn.ReLU(),
-            nn.Linear(HID_SIZE, HID_SIZE),
+            nn.Linear(hid_size, hid_size),
             nn.ReLU(),
-            nn.Linear(HID_SIZE, act_size),
+            nn.Linear(hid_size, act_size),
             nn.Tanh(),
         )
         self.logstd = nn.Parameter(torch.zeros(act_size))
@@ -25,15 +25,15 @@ class PPOActor(nn.Module):
 
 
 class PPOCritic(nn.Module):
-    def __init__(self, obs_size):
+    def __init__(self, obs_size, hid_size=128):
         super(PPOCritic, self).__init__()
 
         self.value = nn.Sequential(
-            nn.Linear(obs_size, HID_SIZE),
+            nn.Linear(obs_size, hid_size),
             nn.ReLU(),
-            nn.Linear(HID_SIZE, HID_SIZE),
+            nn.Linear(hid_size, hid_size),
             nn.ReLU(),
-            nn.Linear(HID_SIZE, 1),
+            nn.Linear(hid_size, 1),
         )
 
     def forward(self, x):

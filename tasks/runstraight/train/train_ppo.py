@@ -4,7 +4,8 @@
 #change these when changing task
 import runstraight.runstraight_env_builder as env_builder
 TASK_NAME = "runstraight"
-FILE_NAME = 'runslow_ppo.dat'
+FILE_NAME = 'runslow_ppo_128.dat'
+HID_SIZE = 128
 ################################
 
 import os
@@ -99,8 +100,8 @@ if __name__ == "__main__":
     env = env_builder.build_env(enable_randomizer=True, enable_rendering=False)
     test_env = env_builder.build_env(enable_randomizer=False, enable_rendering=False)
 
-    act_net = model.PPOActor(env.observation_space.shape[0], env.action_space.shape[0]).to(device)
-    crt_net = model.PPOCritic(env.observation_space.shape[0]).to(device)
+    act_net = model.PPOActor(env.observation_space.shape[0], env.action_space.shape[0], hid_size=HID_SIZE).to(device)
+    crt_net = model.PPOCritic(env.observation_space.shape[0], hid_size=HID_SIZE).to(device)
     print(act_net)
     print(crt_net)
 

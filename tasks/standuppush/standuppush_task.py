@@ -30,6 +30,7 @@ class StanduppushTask(object):
         self.body_ang_vel = None
         self.joint_pos = None
         self.joint_vel = None
+        self.joint_tor = None
 
         self.mode = mode
 
@@ -77,24 +78,33 @@ class StanduppushTask(object):
         self._get_pos_vel_info()
         reward = math.exp(1 + self.body_pos[2]) - math.e
         return reward
-    def _reward_of_motor_vel(self):
-        self._get_pos_vel_info()
-        reward = 0
-        for i in range(12):
-            reward = reward - abs(self.joint_vel[i])
-        return reward
 
+    def _reward_of_energy(self):
+        self._get_pos_vel_info()
+        E = sum([abs(p[0]*p[1]) for p in zip(self.joint_tor,self.joint_vel)])
+        reward = -E
+        return reward
     def reward(self, env):
         del env
         ori_r = self._reward_of_ori()
         pos_r = self._reward_of_pos() * 5
-        motor_vel_r = self._reward_of_motor_vel() * 0.5
-        reward = ori_r + pos_r + motor_vel_r
+        energy_r = self._reward_of_energy() * 3
+        reward = ori_r + pos_r + energy_r
         if self._bad_end():
             reward = reward - 100
         if self.mode == 'test' and self._env.env_step_counter % 50 == 0:
-            print('ori_r', round(ori_r), 'pos:', round(pos_r))
+            print('ori_r', round(ori_r), 'pos:', round(pos_r), 'energy:', round(energy_r))
         return reward
+
+
+    def _bad_end(self):
+        back_ori = self._cal_current_back_ori()
+        if back_ori[2] < 0.5:
+            return True
+        if self.body_pos[2] < 0.2:
+            return True
+        else:
+            return False
 
     def done(self, env):
         """Checks if the episode is over."""
@@ -142,12 +152,15 @@ class StanduppushTask(object):
 
     def _get_pos_vel_info(self):
         pyb = self._get_pybullet_client()
-        self.body_pos = pyb.getBasePositionAndOrientation(self.quadruped)[0]#3 list: position list of 3 floats
-        self.body_ori = pyb.getBasePositionAndOrientation(self.quadruped)[1]#4 list: orientation as list of 4 floats in [x,y,z,w] order
-        self.body_lin_vel = pyb.getBaseVelocity(self.quadruped)[0]#3 list: linear velocity [x,y,z]
-        self.body_ang_vel = pyb.getBaseVelocity(self.quadruped)[1]#3 list: angular velocity [wx,wy,wz]
-        self.joint_pos = []#float: the position value of this joint
-        self.joint_vel = []#float: the velocity value of this joint
+        quadruped = self._env.robot.quadruped
+        self.body_pos = pyb.getBasePositionAndOrientation(quadruped)[0]  # 3 list: position list of 3 floats
+        self.body_ori = pyb.getBasePositionAndOrientation(quadruped)[1]  # 4 list: orientation as list of 4 floats in [x,y,z,w] order
+        self.body_lin_vel = pyb.getBaseVelocity(quadruped)[0]  # 3 list: linear velocity [x,y,z]
+        self.body_ang_vel = pyb.getBaseVelocity(quadruped)[1]  # 3 list: angular velocity [wx,wy,wz]
+        self.joint_pos = []  # float: the position value of this joint
+        self.joint_vel = []  # float: the velocity value of this joint
+        self.joint_tor = []  # float: the torque value of this joint
         for i in range(12):
-            self.joint_pos.append(pyb.getJointState(self.quadruped,i)[0])
-            self.joint_vel.append(pyb.getJointState(self.quadruped,i)[1])
+            self.joint_pos.append(pyb.getJointState(quadruped, i)[0])
+            self.joint_vel.append(pyb.getJointState(quadruped, i)[1])
+            self.joint_tor.append(pyb.getJointState(quadruped, i)[3])
