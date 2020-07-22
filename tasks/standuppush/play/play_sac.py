@@ -4,9 +4,10 @@
 #change these when changing task
 import standuppush.standuppush_env_builder as env_builder
 TASK_NAME = "standuppush"
-FILE_NAME = "best_+764.801_60000.dat"
+FILE_NAME = "standuppush_sac_256.dat"
 DONE = True
 HID_SIZE = 256
+FORCE = False
 ################################
 
 from network_model import sac_model as model
@@ -20,7 +21,7 @@ LOAD_FILE = os.path.join(TASK_DIR, 'saves', "sac-"+TASK_NAME, FILE_NAME)
 
 if __name__ == "__main__":
     mode = 'test' if DONE else 'never_done'
-    env = env_builder.build_env(enable_randomizer=True, enable_rendering=True, mode=mode)
+    env = env_builder.build_env(enable_randomizer=True, enable_rendering=True, mode=mode, force=FORCE)
 
     net = model.SACActor(env.observation_space.shape[0], env.action_space.shape[0],HID_SIZE)
     net.load_state_dict(torch.load(LOAD_FILE))

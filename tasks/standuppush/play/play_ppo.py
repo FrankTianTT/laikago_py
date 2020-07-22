@@ -4,7 +4,7 @@
 #change these when changing task
 import standuppush.standuppush_env_builder as env_builder
 TASK_NAME = "standuppush"
-FILE_NAME = "best_+111.423_20000.dat"
+FILE_NAME = "standuppush_ppo_256.dat"
 DONE = True
 HID_SIZE = 256
 ################################

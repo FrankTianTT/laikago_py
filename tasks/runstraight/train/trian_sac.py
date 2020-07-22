@@ -4,8 +4,8 @@
 #change these when changing task
 import runstraight.runstraight_env_builder as env_builder
 TASK_NAME = "runstraight"
-FILE_NAME = ''
-HID_SIZE=256
+FILE_NAME = 'standuppush_sac_256.dat'
+HID_SIZE = 256
 ################################
 
 import os

@@ -4,9 +4,9 @@
 #change these when changing task
 import runstraight.runstraight_env_builder as env_builder
 TASK_NAME = "runstraight"
-FILE_NAME = "best_+840.105_580000.dat"
+FILE_NAME = "standuppush_ppo_256.dat"
 DONE = False
-HID_SIZE = 128
+HID_SIZE = 256
 ################################
 
 from network_model import ppo_model as model

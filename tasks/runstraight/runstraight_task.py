@@ -105,7 +105,7 @@ class RunstraightTask(object):
         reward = body_vel_r + ori_r + pos_r + energy_r
         if self._bad_end():
             reward = reward - 100
-        if self.mode == 'test' and self._env.env_step_counter % 50 == 0:
+        if self.mode != 'train' and self._env.env_step_counter % 50 == 0:
             print('ori_r', round(ori_r),'pos:',round(pos_r),'body_vel:',round(body_vel_r),'energy',round(energy_r))
         return reward
 

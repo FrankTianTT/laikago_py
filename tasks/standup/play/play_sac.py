@@ -4,7 +4,7 @@
 #change these when changing task
 import standup.standup_env_builder as env_builder
 TASK_NAME = "standup"
-FILE_NAME = "best_+1047.810_40000.dat"
+FILE_NAME = "standup_sac_256.dat"
 DONE = True
 HID_SIZE=256
 ################################
