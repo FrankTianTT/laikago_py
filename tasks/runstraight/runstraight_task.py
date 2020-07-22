@@ -29,6 +29,7 @@ class RunstraightTask(object):
         self.body_ang_vel = None
         self.joint_pos = None
         self.joint_vel = None
+        self.joint_tor = None
 
         self.body_pos_list = []
         self.mode = mode
@@ -40,6 +41,7 @@ class RunstraightTask(object):
 
     def reset(self,env):
         self._env = env
+        self.body_pos_list = []
         return
 
     def _update_pos_list(self):
@@ -49,7 +51,8 @@ class RunstraightTask(object):
             self.body_pos_list.pop(0)
 
     def _cal_average_vel(self):
-        return math.sqrt((self.body_pos_list[0][0] - self.body_pos_list[-1][0]) ** 2 + (self.body_pos_list[0][1] - self.body_pos_list[-1][1]) ** 2) / len(self.body_pos_list)
+        #print(self.body_pos_list[-1][0], self.body_pos_list[0][0])
+        return (self.body_pos_list[-1][0] - self.body_pos_list[0][0]) / len(self.body_pos_list) / 0.01
 
     # 此方向不考虑旋转，为狗头朝向的方向
     def _cal_current_face_ori(self):
@@ -77,6 +80,8 @@ class RunstraightTask(object):
         instantaneous_vel = self.body_lin_vel[0]
         average_reward = math.exp(1 + min([average_vel, max_vel])) - math.e
         instantaneous_reward = math.exp(1 + min([instantaneous_vel, max_vel])) - math.e
+        #print(average_vel,instantaneous_vel)
+        #print(average_reward, instantaneous_reward)
         return average_reward + instantaneous_reward
 
     def _reward_of_pos(self):
@@ -84,25 +89,24 @@ class RunstraightTask(object):
         reward = math.exp(1 + self.body_pos[2]) - math.e
         return reward
 
-    def _reward_of_motor_vel(self):
+    def _reward_of_energy(self):
         self._get_pos_vel_info()
-        reward = 0
-        for i in range(12):
-            reward = reward - abs(self.joint_vel[i])
+        E = sum([abs(p[0]*p[1]) for p in zip(self.joint_tor,self.joint_vel)])
+        reward = -E
         return reward
 
     def reward(self, env):
         """Get the reward without side effects."""
         del env
-        body_vel_r = self._reward_of_body_vel() * 3
-        motor_vel_r = self._reward_of_motor_vel() * 0.2
-        ori_r = self._reward_of_ori()
-        pos_r = self._reward_of_pos() * 2
-        reward = body_vel_r + ori_r + pos_r + motor_vel_r
+        body_vel_r = self._reward_of_body_vel() * 0.5
+        energy_r = self._reward_of_energy() * 1
+        ori_r = self._reward_of_ori() * 1
+        pos_r = self._reward_of_pos() * 0.2
+        reward = body_vel_r + ori_r + pos_r + energy_r
         if self._bad_end():
             reward = reward - 100
         if self.mode == 'test' and self._env.env_step_counter % 50 == 0:
-            print('ori_r', round(ori_r),'pos:',round(pos_r),'body_vel:',round(body_vel_r),'motor_vel',round(motor_vel_r))
+            print('ori_r', round(ori_r),'pos:',round(pos_r),'body_vel:',round(body_vel_r),'energy',round(energy_r))
         return reward
 
     def _bad_end(self):
@@ -111,10 +115,16 @@ class RunstraightTask(object):
         average_vel = self._cal_average_vel()
         instantaneous_vel = self.body_lin_vel[0]
         if back_ori[2] < 0.7:
+            if self.mode == 'test':
+                print('die because wrong ori')
             return True
         if self.body_pos[2] < 0.2:
+            if self.mode == 'test':
+                print('die because wrong pos')
             return True
         if (average_vel < 0.1 and self._env.env_step_counter > self.pos_list_length) and instantaneous_vel < 0.1:
+            if self.mode == 'test':
+                print('die because too slow')
             return True
         else:
             return False
@@ -145,6 +155,9 @@ class RunstraightTask(object):
         self.body_ang_vel = pyb.getBaseVelocity(quadruped)[1]#3 list: angular velocity [wx,wy,wz]
         self.joint_pos = []#float: the position value of this joint
         self.joint_vel = []#float: the velocity value of this joint
+        self.joint_tor = []  # float: the torque value of this joint
+
         for i in range(12):
             self.joint_pos.append(pyb.getJointState(quadruped,i)[0])
             self.joint_vel.append(pyb.getJointState(quadruped,i)[1])
+            self.joint_tor.append(pyb.getJointState(quadruped, i)[3])

@@ -29,6 +29,7 @@ class RunstraightTask(object):
         self.body_ang_vel = None
         self.joint_pos = None
         self.joint_vel = None
+        self.joint_tor = None
 
         self.previous_pos = None
         self.now_pos = None
