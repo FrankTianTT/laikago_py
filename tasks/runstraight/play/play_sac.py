@@ -4,7 +4,7 @@
 #change these when changing task
 import runstraight.runstraight_env_builder as env_builder
 TASK_NAME = "runstraight"
-FILE_NAME = "best_-31.401_40000.dat"
+FILE_NAME = "run_without_coord_sac_256.dat"
 DONE = True
 HID_SIZE = 256
 ################################

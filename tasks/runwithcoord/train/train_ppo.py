@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-# by frank tian on 7.13.2020
+# by frank tian on 7.23.2020
 ################################
 #change these when changing task
-import runstraight.runstraight_env_builder as env_builder
-TASK_NAME = "runstraight"
-FILE_NAME = 'run_ppo_256.dat'
+import runwithcoord.runwithcoord_env_builder as env_builder
+TASK_NAME = "runwithcoord"
+FILE_NAME = 'run_without_coord_ppo_256.dat'
 HID_SIZE = 256
+IF_COORD = False
 ################################
 
 import os
@@ -106,7 +107,11 @@ if __name__ == "__main__":
     print(crt_net)
 
     if FILE_NAME is not '':
-        act_net.load_state_dict(torch.load(LOAD_FILE))
+        pretrain_model = torch.load(LOAD_FILE)
+        if not IF_COORD:
+            x = torch.zeros(256, 9).to(torch.device('cuda'))
+            pretrain_model['mu.0.weight'] = torch.cat((pretrain_model['mu.0.weight'], x), 1)
+        act_net.load_state_dict(pretrain_model)
 
     writer = SummaryWriter(comment="-ppo-" + TASK_NAME)
     agent = model.AgentPPO(act_net, device=device)

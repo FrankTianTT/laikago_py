@@ -323,8 +323,8 @@ class BasePositionSensor(sensor.BoxSpaceSensor):
   """A sensor that reads the base position of the Minitaur robot."""
 
   def __init__(self,
-               lower_bound: _FLOAT_OR_ARRAY = -100,
-               upper_bound: _FLOAT_OR_ARRAY = 100,
+               lower_bound: _FLOAT_OR_ARRAY = -100.0,
+               upper_bound: _FLOAT_OR_ARRAY = 100.0,
                name: typing.Text = "BasePosition",
                dtype: typing.Type[typing.Any] = np.float64) -> None:
     """Constructs BasePositionSensor.

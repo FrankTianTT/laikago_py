@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-# by frank tian on 7.13.2020
+# by frank tian on 7.23.2020
 ################################
 #change these when changing task
-import runstraight.runstraight_env_builder as env_builder
-TASK_NAME = "runstraight"
-FILE_NAME = "run_without_coord_ppo_256.dat"
-DONE = False
+import runwithcoord.runwithcoord_env_builder as env_builder
+TASK_NAME = "runwithcoord"
+FILE_NAME = "best_+183.862_1430000.dat"
+DONE = True
 HID_SIZE = 256
+IF_COORD = True
 ################################
 
 from network_model import ppo_model as model
@@ -23,7 +24,11 @@ if __name__ == "__main__":
     env = env_builder.build_env(enable_randomizer=True, enable_rendering=True, mode=mode)
 
     net = model.PPOActor(env.observation_space.shape[0], env.action_space.shape[0], hid_size=HID_SIZE)
-    net.load_state_dict(torch.load(LOAD_FILE))
+    pretrain_model = torch.load(LOAD_FILE)
+    if not IF_COORD:
+        x = torch.zeros(256, 9).to(torch.device('cuda'))
+        pretrain_model['mu.0.weight'] = torch.cat((pretrain_model['mu.0.weight'], x), 1)
+    net.load_state_dict(pretrain_model)
     for i in range(100):
         obs = env.reset()
         total_reward = 0.0
