@@ -4,16 +4,17 @@
 #change these when changing task
 import runwithcoord.runwithcoord_env_builder as env_builder
 TASK_NAME = "runwithcoord"
-FILE_NAME = "run_sac_256.dat"
+FILE_NAME = "best_+989.099_680000.dat"
 DONE = True
 HID_SIZE = 256
-IF_COORD = False
+IF_COORD = True
 ################################
 
 from network_model import sac_model as model
 import numpy as np
 import torch
 import os
+import time
 
 TASK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOAD_FILE = os.path.join(TASK_DIR, 'saves', "sac-"+TASK_NAME, FILE_NAME)

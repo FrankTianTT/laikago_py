@@ -4,7 +4,7 @@
 #change these when changing task
 import runwithcoord.runwithcoord_env_builder as env_builder
 TASK_NAME = "runwithcoord"
-FILE_NAME = "best_+183.862_1430000.dat"
+FILE_NAME = "run_with_coord_ppo_256.dat"
 DONE = True
 HID_SIZE = 256
 IF_COORD = True
@@ -14,6 +14,7 @@ from network_model import ppo_model as model
 import numpy as np
 import torch
 import os
+import time
 
 TASK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOAD_FILE = os.path.join(TASK_DIR, 'saves', "ppo-"+TASK_NAME, FILE_NAME)
@@ -41,6 +42,7 @@ if __name__ == "__main__":
             obs, reward, done, _ = env.step(action)
             total_reward += reward
             total_steps += 1
+            time.sleep(1)
             if done:
                 break
         print("In %d steps we got %.3f reward" % (total_steps, total_reward))
