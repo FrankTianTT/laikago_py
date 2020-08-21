@@ -4,7 +4,7 @@
 #change these when changing task
 import standuppush.standuppush_env_builder as env_builder
 TASK_NAME = "standuppush"
-FILE_NAME = ''
+FILE_NAME = 'standup_sac.dat'
 HID_SIZE = 256
 ################################
 

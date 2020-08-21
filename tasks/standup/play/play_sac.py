@@ -4,9 +4,9 @@
 #change these when changing task
 import standup.standup_env_builder as env_builder
 TASK_NAME = "standup"
-FILE_NAME = "standup_sac_256.dat"
+FILE_NAME = "standup_sac.dat"
 DONE = True
-HID_SIZE=256
+HID_SIZE = 256
 ################################
 
 from network_model import sac_model as model
