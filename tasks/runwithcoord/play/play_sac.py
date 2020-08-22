@@ -4,7 +4,7 @@
 #change these when changing task
 import runwithcoord.runwithcoord_env_builder as env_builder
 TASK_NAME = "runwithcoord"
-FILE_NAME = "best_+989.099_680000.dat"
+FILE_NAME = "best_+559.113_1190000.dat"
 DONE = True
 HID_SIZE = 256
 IF_COORD = True

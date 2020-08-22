@@ -4,7 +4,7 @@
 #change these when changing task
 import runwithcoord.runwithcoord_env_builder as env_builder
 TASK_NAME = "runwithcoord"
-FILE_NAME = 'run_without_coord_sac_256.dat'
+FILE_NAME = 'standuppush_sac.dat'
 HID_SIZE = 256
 IF_COORD = False
 ################################
