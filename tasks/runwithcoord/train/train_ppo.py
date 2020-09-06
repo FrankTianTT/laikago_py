@@ -27,6 +27,7 @@ TRAJECTORY_SIZE = 2049
 LEARNING_RATE_ACTOR = 1e-5
 LEARNING_RATE_CRITIC = 1e-4
 
+ENTROPY_BETA = 1e-3
 PPO_EPS = 0.2
 PPO_EPOCHES = 10
 PPO_BATCH_SIZE = 256
@@ -207,6 +208,9 @@ if __name__ == "__main__":
                     clipped_surr_v = batch_adv_v * c_ratio_v
                     loss_policy_v = -torch.min(
                         surr_obj_v, clipped_surr_v).mean()
+                    entropy_loss_v = ENTROPY_BETA * (
+                            -(torch.log(2 * math.pi * torch.exp(act_net.logstd)) + 1) / 2).mean()
+                    loss_policy_v = loss_policy_v + entropy_loss_v
                     loss_policy_v.backward()
                     opt_act.step()
 
@@ -219,4 +223,5 @@ if __name__ == "__main__":
             writer.add_scalar("values", traj_ref_v.mean().item(), step_idx)
             writer.add_scalar("loss_policy", sum_loss_policy / count_steps, step_idx)
             writer.add_scalar("loss_value", sum_loss_value / count_steps, step_idx)
+            writer.add_scalar("loss_entropy", entropy_loss_v, step_idx)
 

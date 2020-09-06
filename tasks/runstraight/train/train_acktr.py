@@ -28,7 +28,7 @@ ENTROPY_BETA = 1e-3
 ENVS_COUNT = 16
 
 TEST_ITERS = 100000
-DEVICE = 'cuda'
+DEVICE = 'cpu'
 
 TASK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOAD_FILE = os.path.join(TASK_DIR, 'saves', "acktr-"+TASK_NAME, FILE_NAME)
