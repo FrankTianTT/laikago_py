@@ -4,7 +4,7 @@
 #change these when changing task
 import standupnomove.standupnomove_env_builder as env_builder
 TASK_NAME = "standupnomove"
-FILE_NAME = "standuppush_sac.dat"
+FILE_NAME = "standupnomove_sac.dat"
 DONE = True
 HID_SIZE = 256
 FORCE = True

@@ -26,7 +26,7 @@ TRAJECTORY_SIZE = 2049
 LEARNING_RATE_ACTOR = 1e-5
 LEARNING_RATE_CRITIC = 1e-4
 
-ENTROPY_BETA = 1e-3
+ENTROPY_BETA = 5e-4
 PPO_EPS = 0.2
 PPO_EPOCHES = 10
 PPO_BATCH_SIZE = 256
@@ -35,16 +35,17 @@ TEST_ITERS = 5000
 DEVICE = 'cuda'
 
 TASK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-LOAD_FILE = os.path.join(TASK_DIR, 'saves', "ppo(no-entropy)-"+TASK_NAME, FILE_NAME)
+LOAD_FILE = os.path.join(TASK_DIR, 'saves', "ppo-"+TASK_NAME, FILE_NAME)
 
-def test_net(net, env, count=10, device="cpu"):
+def test_net(net, env, count=10, device=DEVICE):
     rewards = 0.0
     steps = 0
     for _ in range(count):
         obs = env.reset()
         while True:
-            obs_v = ptan.agent.float32_preprocessor([obs]).to(device)
-            mu_v = net(obs_v)[0]
+            obs_v = ptan.agent.float32_preprocessor([obs])
+            obs_v = obs_v.to(device)
+            mu_v, _ = net(obs_v)
             action = mu_v.squeeze(dim=0).data.cpu().numpy()
             action = np.clip(action, -1, 1)
             obs, reward, done, _ = env.step(action)
@@ -55,11 +56,10 @@ def test_net(net, env, count=10, device="cpu"):
     return rewards / count, steps / count
 
 
-def calc_logprob(mu_v, logstd_v, actions_v):
-    p1 = - ((mu_v - actions_v) ** 2) / (2*torch.exp(logstd_v).clamp(min=1e-3))
-    p2 = - torch.log(torch.sqrt(2 * math.pi * torch.exp(logstd_v)))
+def calc_logprob(mu_v, var_v, actions_v):
+    p1 = - ((mu_v - actions_v) ** 2) / (2*var_v.clamp(min=1e-3))
+    p2 = - torch.log(torch.sqrt(2 * math.pi * var_v))
     return p1 + p2
-
 
 def calc_adv_ref(trajectory, net_crt, states_v, device="cpu"):
     """
@@ -107,10 +107,9 @@ if __name__ == "__main__":
     print(crt_net)
 
     if FILE_NAME is not '':
-        pretrain_model = torch.load(LOAD_FILE)
-        act_net.load_state_dict(pretrain_model)
+        act_net.load_state_dict(torch.load(LOAD_FILE))
 
-    writer = SummaryWriter(comment="-ppo(no-entropy)-" + TASK_NAME)
+    writer = SummaryWriter(comment="-ppo-" + TASK_NAME)
     agent = model.AgentPPO(act_net, device=device)
     exp_source = ptan.experience.ExperienceSource(env, agent, steps_count=1)
 
@@ -154,9 +153,9 @@ if __name__ == "__main__":
             traj_actions_v = traj_actions_v.to(device)
             traj_adv_v, traj_ref_v = calc_adv_ref(
                 trajectory, crt_net, traj_states_v, device=device)
-            mu_v = act_net(traj_states_v)
+            mu_v, var_v = act_net(traj_states_v)
             old_logprob_v = calc_logprob(
-                mu_v, act_net.logstd, traj_actions_v)
+                mu_v, var_v, traj_actions_v)
 
             # normalize advantages
             traj_adv_v = traj_adv_v - torch.mean(traj_adv_v)
@@ -168,6 +167,7 @@ if __name__ == "__main__":
 
             sum_loss_value = 0.0
             sum_loss_policy = 0.0
+            sum_loss_entropy = 0.0
             count_steps = 0
 
             for epoch in range(PPO_EPOCHES):
@@ -190,11 +190,12 @@ if __name__ == "__main__":
                     loss_value_v.backward()
                     opt_crt.step()
 
+
                     # actor training
                     opt_act.zero_grad()
-                    mu_v = act_net(states_v)
+                    mu_v, var_v = act_net(states_v)
                     logprob_pi_v = calc_logprob(
-                        mu_v, act_net.logstd, actions_v)
+                        mu_v, var_v, actions_v)
                     ratio_v = torch.exp(
                         logprob_pi_v - batch_old_logprob_v)
                     surr_obj_v = batch_adv_v * ratio_v
@@ -204,13 +205,15 @@ if __name__ == "__main__":
                     clipped_surr_v = batch_adv_v * c_ratio_v
                     loss_policy_v = -torch.min(
                         surr_obj_v, clipped_surr_v).mean()
-                    entropy_loss_v = ENTROPY_BETA * (
-                            -(torch.log(2 * math.pi * torch.exp(act_net.logstd)) + 1) / 2).mean()
-                    loss_policy_v.backward()
+                    ent_v = -(torch.log(2 * math.pi * var_v) + 1) / 2
+                    loss_entropy_v = ENTROPY_BETA * ent_v.mean()
+                    loss = loss_policy_v + loss_entropy_v
+                    loss.backward()
                     opt_act.step()
 
                     sum_loss_value += loss_value_v.item()
                     sum_loss_policy += loss_policy_v.item()
+                    sum_loss_entropy += loss_entropy_v.item()
                     count_steps += 1
 
             trajectory.clear()
@@ -218,5 +221,5 @@ if __name__ == "__main__":
             writer.add_scalar("values", traj_ref_v.mean().item(), step_idx)
             writer.add_scalar("loss_policy", sum_loss_policy / count_steps, step_idx)
             writer.add_scalar("loss_value", sum_loss_value / count_steps, step_idx)
-            writer.add_scalar("loss_entropy", entropy_loss_v, step_idx)
+            writer.add_scalar("loss_entropy", sum_loss_entropy / count_steps, step_idx)
 
