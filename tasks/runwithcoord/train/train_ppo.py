@@ -14,7 +14,7 @@ import math
 import ptan
 import time
 from tensorboardX import SummaryWriter
-from network_model import ppo_model as model
+from model import ppo_model as model
 import numpy as np
 import torch
 import torch.optim as optim

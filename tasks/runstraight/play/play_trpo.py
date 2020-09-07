@@ -8,7 +8,7 @@ FILE_NAME = "best_+39.793_200000.dat"
 DONE = True
 ################################
 
-from network_model import trpo_model as model
+from model import trpo_model as model
 import numpy as np
 import torch
 import os

@@ -13,7 +13,7 @@ import ptan
 import time
 from tensorboardX import SummaryWriter
 from algorithms.utilities import common,kfac
-from network_model import acktr_model as model
+from model import acktr_model as model
 import numpy as np
 import torch
 import torch.optim as optim

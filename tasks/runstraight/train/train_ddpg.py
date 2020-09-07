@@ -8,7 +8,7 @@ FILE_NAME = ''
 ################################
 
 
-from network_model import ddpg_model as model
+from model import ddpg_model as model
 from algorithms.utilities import common
 import os
 import time

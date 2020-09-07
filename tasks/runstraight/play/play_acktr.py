@@ -8,7 +8,7 @@ FILE_NAME = "best_-4.050_2500000.dat"
 DONE = True
 ################################
 
-from network_model import acktr_model as model
+from model import acktr_model as model
 import numpy as np
 import torch
 import os

@@ -8,7 +8,7 @@ FILE_NAME = "best_+468.668_352000.dat"
 DONE = True
 ################################
 
-from network_model import a2c_model as model
+from model import a2c_model as model
 import numpy as np
 import torch
 import os

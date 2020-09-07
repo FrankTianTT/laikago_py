@@ -7,7 +7,7 @@ TASK_NAME = "standuppush"
 FILE_NAME = '' #'standup_a2c.dat'
 ################################
 
-from network_model import a2c_model as model
+from model import a2c_model as model
 from algorithms.utilities import common
 import os
 import time
@@ -40,7 +40,7 @@ def test_net(net, env, count=10, device=DEVICE):
         while True:
             obs_v = ptan.agent.float32_preprocessor([obs])
             obs_v = obs_v.to(device)
-            mu_v = net(obs_v)[0]
+            mu_v, _, _ = net(obs_v)[0]
             action = mu_v.squeeze(dim=0).data.cpu().numpy()
             action = np.clip(action, -1, 1)
             obs, reward, done, _ = env.step(action)

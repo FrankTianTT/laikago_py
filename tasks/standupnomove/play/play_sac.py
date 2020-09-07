@@ -10,7 +10,7 @@ HID_SIZE = 256
 FORCE = True
 ################################
 
-from network_model import sac_model as model
+from model import sac_model as model
 import numpy as np
 import torch
 import os

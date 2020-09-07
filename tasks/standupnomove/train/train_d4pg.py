@@ -7,7 +7,7 @@ TASK_NAME = "standupnomove"
 FILE_NAME = '' #'standup_a2c.dat'
 ################################
 
-from network_model import d4pg_model as model
+from model import d4pg_model as model
 from algorithms.utilities import common
 import os
 import time

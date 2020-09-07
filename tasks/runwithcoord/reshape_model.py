@@ -1,5 +1,5 @@
 import os
-from network_model import ppo_model as model
+from model import ppo_model as model
 import runwithcoord.runwithcoord_env_builder as env_builder
 import torch
 

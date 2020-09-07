@@ -10,7 +10,7 @@ HID_SIZE = 256
 IF_COORD = True
 ################################
 
-from network_model import ppo_model as model
+from model import ppo_model as model
 import numpy as np
 import torch
 import os

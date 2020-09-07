@@ -14,7 +14,7 @@ import gym
 import time
 from tensorboardX import SummaryWriter
 import numpy as np
-from algorithms.network_model import sac_model as model
+from algorithms.model import sac_model as model
 from algorithms.utilities import common
 import torch
 import torch.optim as optim

@@ -7,7 +7,7 @@ TASK_NAME = "standup"
 FILE_NAME = ''
 ################################
 
-from network_model import a2c_model as model
+from model import a2c_model as model
 from algorithms.utilities import common
 import os
 import time

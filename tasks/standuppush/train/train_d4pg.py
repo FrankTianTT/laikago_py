@@ -7,7 +7,7 @@ TASK_NAME = "standuppush"
 FILE_NAME = ''
 ################################
 
-from network_model import d4pg_model as model
+from model import d4pg_model as model
 from algorithms.utilities import common
 import os
 import time

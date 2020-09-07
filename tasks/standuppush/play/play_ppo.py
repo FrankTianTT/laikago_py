@@ -4,12 +4,12 @@
 #change these when changing task
 import standuppush.standuppush_env_builder as env_builder
 TASK_NAME = "standuppush"
-FILE_NAME = "standuppush_ppo_256.dat"
+FILE_NAME = "best_+225.826_50000.dat"
 DONE = True
 HID_SIZE = 256
 ################################
 
-from network_model import ppo_model as model
+from model import ppo_model as model
 import numpy as np
 import torch
 import os
@@ -30,7 +30,7 @@ if __name__ == "__main__":
         total_steps = 0
         while True:
             obs_v = torch.FloatTensor([obs])
-            mu_v = net(obs_v)
+            mu_v, _ = net(obs_v)
             action = mu_v.squeeze(dim=0).data.numpy()
             action = np.clip(action, -1, 1)
             obs, reward, done, _ = env.step(action)
