@@ -21,7 +21,7 @@ if __name__ == "__main__":
     env =env_builder.build_env(enable_randomizer=True, enable_rendering=True,mode=mode)
 
     net = model.A2C(env.observation_space.shape[0], env.action_space.shape[0])
-    net.load_state_dict(torch.load(LOAD_FILE))
+    net.load_state_dict(torch.load(LOAD_FILE, map_location='cpu'))
     for i in range(100):
         obs = env.reset()
         total_reward = 0.0

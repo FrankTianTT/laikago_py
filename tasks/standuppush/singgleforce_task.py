@@ -77,6 +77,7 @@ class SingleforceTask(object):
         self._get_pos_vel_info()
         reward = math.exp(1 + self.body_pos[2]) - math.e
         return reward
+
     def _reward_of_motor_vel(self):
         self._get_pos_vel_info()
         reward = 0

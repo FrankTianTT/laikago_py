@@ -25,9 +25,9 @@ if __name__ == "__main__":
     env = env_builder.build_env(enable_randomizer=True, enable_rendering=True, mode=mode)
 
     net = model.SACActor(env.observation_space.shape[0], env.action_space.shape[0],HID_SIZE)
-    pretrain_model = torch.load(LOAD_FILE)
+    pretrain_model = torch.load(LOAD_FILE, map_location='cpu')#.to(torch.device('cpu'))
     if not IF_COORD:
-        x = torch.zeros(256, 9).to(torch.device('cuda'))
+        x = torch.zeros(256, 9).to(torch.device('cpu'))
         pretrain_model['mu.0.weight'] = torch.cat((pretrain_model['mu.0.weight'], x), 1)
     net.load_state_dict(pretrain_model)
     for i in range(100):

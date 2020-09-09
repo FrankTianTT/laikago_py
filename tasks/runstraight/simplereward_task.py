@@ -77,7 +77,7 @@ class RunstraightTask(object):
         p1 = 3
         p2 = 3
         p3 = 1
-        E = sum([abs(p[0]*p[1]) for p in zip(self.joint_tor,self.joint_vel)])
+        E = sum([abs(p[0]*p[1]) for p in zip(self.joint_tor, self.joint_vel)])
         reward = po * (self.now_pos[0] - self.previous_pos[0]) - \
                  p1 * abs(self.now_pos[1] - self.previous_pos[1]) - \
                  p2 * abs(self.now_pos[2] - self.previous_pos[2]) - \

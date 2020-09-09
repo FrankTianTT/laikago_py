@@ -63,13 +63,13 @@ if __name__ == "__main__":
 
     act_net = model.SACActor(
         env.observation_space.shape[0],
-        env.action_space.shape[0],HID_SIZE).to(device)
+        env.action_space.shape[0], HID_SIZE).to(device)
     crt_net = model.SACCritic(
-        env.observation_space.shape[0],HID_SIZE
+        env.observation_space.shape[0], HID_SIZE
     ).to(device)
     twinq_net = model.ModelSACTwinQ(
         env.observation_space.shape[0],
-        env.action_space.shape[0],HID_SIZE).to(device)
+        env.action_space.shape[0], HID_SIZE).to(device)
     print(act_net)
     print(crt_net)
     print(twinq_net)
