@@ -83,6 +83,59 @@ class MotorAngleSensor(sensor.BoxSpaceSensor):
     else:
       return motor_angles
 
+class MotorVelocitiySensor(sensor.BoxSpaceSensor):
+  """A sensor that reads motor angles from the robot."""
+
+  def __init__(self,
+               num_motors: int,
+               noisy_reading: bool = True,
+               observe_sine_cosine: bool = False,
+               lower_bound: _FLOAT_OR_ARRAY = -np.pi,
+               upper_bound: _FLOAT_OR_ARRAY = np.pi,
+               name: typing.Text = "MotorAngle",
+               dtype: typing.Type[typing.Any] = np.float64) -> None:
+    """Constructs MotorAngleSensor.
+
+    Args:
+      num_motors: the number of motors in the robot
+      noisy_reading: whether values are true observations
+      observe_sine_cosine: whether to convert readings to sine/cosine values for
+        continuity
+      lower_bound: the lower bound of the motor angle
+      upper_bound: the upper bound of the motor angle
+      name: the name of the sensor
+      dtype: data type of sensor value
+    """
+    self._num_motors = num_motors
+    self._noisy_reading = noisy_reading
+    self._observe_sine_cosine = observe_sine_cosine
+
+    if observe_sine_cosine:
+      super(MotorVelocitiySensor, self).__init__(
+          name=name,
+          shape=(self._num_motors * 2,),
+          lower_bound=-np.ones(self._num_motors * 2),
+          upper_bound=np.ones(self._num_motors * 2),
+          dtype=dtype)
+    else:
+      super(MotorVelocitiySensor, self).__init__(
+          name=name,
+          shape=(self._num_motors,),
+          lower_bound=lower_bound,
+          upper_bound=upper_bound,
+          dtype=dtype)
+
+  def _get_observation(self) -> _ARRAY:
+    if self._noisy_reading:
+      motor_angles = self._robot.GetMotorAngles()
+    else:
+      motor_angles = self._robot.GetTrueMotorAngles()
+
+    if self._observe_sine_cosine:
+      return np.hstack((np.cos(motor_angles), np.sin(motor_angles)))
+    else:
+      return motor_angles
+
 class MinitaurLegPoseSensor(sensor.BoxSpaceSensor):
   """A sensor that reads leg_pose from the Minitaur robot."""
 
