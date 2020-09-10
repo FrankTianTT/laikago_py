@@ -1,16 +1,15 @@
 from stable_baselines3 import SAC
-import pybullet_envs
-import gym
 from stable_baselines3.common.callbacks import EvalCallback
+import runwithcoord.runwithcoord_env_builder as env_builder
 
-ENV_NAME = 'HalfCheetahBulletEnv-v0'
-TIME_STEPS = 100000
+TASK_NAME = "runwithcoord"
+TIME_STEPS = 1000000
 
-env = gym.make(ENV_NAME)
-eval_env = gym.make(ENV_NAME)
+env = env_builder.build_env(enable_randomizer=True, enable_rendering=False)
+eval_env = env_builder.build_env(enable_randomizer=True, enable_rendering=False)
 
 eval_callback = EvalCallback(eval_env, best_model_save_path='./logs/',
-                             log_path='./logs/', eval_freq=500,
+                             log_path='./logs/', eval_freq=1000,
                              deterministic=True, render=False)
 model = SAC('MlpPolicy', env, verbose=1, tensorboard_log="./log/")
 model.learn(total_timesteps=TIME_STEPS, callback=eval_callback)

@@ -1,5 +1,5 @@
 from deeprl.sac import SAC
-import standuppush.standuppush_env_builder as env_builder
+import standupnomove.standupnomove_env_builder as env_builder
 import os
 
 TASK_DIR = os.path.dirname(os.path.abspath(__file__))
