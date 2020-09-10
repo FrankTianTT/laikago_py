@@ -12,7 +12,6 @@ import shutil
 
 
 class ReplayBuffer():
-
     def __init__(self, buf_sz, batch_sz=1):
         self.memory = deque(maxlen=buf_sz)
         self.batch_sz = batch_sz
@@ -58,16 +57,16 @@ class QNetwork(nn.Module):
 
 
 class GaussianPolicy(nn.Module):
-    def __init__(self, num_inputs, num_actions, hidden_dim=256, log_std_min=-20, log_std_max=-2):
+    def __init__(self, obs_size, action_size, hidden_size=256, log_std_min=-20, log_std_max=-2):
         super(GaussianPolicy, self).__init__()
         self.log_std_min = log_std_min
         self.log_std_max = log_std_max
 
-        self.linear1 = nn.Linear(num_inputs, hidden_dim)
-        self.linear2 = nn.Linear(hidden_dim, hidden_dim)
+        self.linear1 = nn.Linear(obs_size, hidden_size)
+        self.linear2 = nn.Linear(hidden_size, hidden_size)
 
-        self.mean_linear = nn.Linear(hidden_dim, num_actions)
-        self.log_std_linear = nn.Linear(hidden_dim, num_actions)
+        self.mean_linear = nn.Linear(hidden_size, action_size)
+        self.log_std_linear = nn.Linear(hidden_size, action_size)
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     def forward(self, state):
@@ -95,22 +94,23 @@ class GaussianPolicy(nn.Module):
 
 class SAC:
 
-    def __init__(
-            self,
-            env,
-            batch_sz=256,
-            start_step=10000,
-            target_update_interval=1,
-            evaluate_interval=1,
-            n_updates=1,
-            gamma=0.99,
-            tau=0.005,
-            lr=0.0003,
-            alpha=0.2,
-            auto_entropy_tuning=True,
-            save_model_interval=100,
-            is_load_model=False
-    ):
+    def __init__(self,
+                 env,
+                 batch_sz=256,
+                 start_step=10000,
+                 target_update_interval=1,
+                 evaluate_interval=100,
+                 n_updates=1,
+                 gamma=0.99,
+                 tau=0.005,
+                 lr=0.0003,
+                 alpha=0.2,
+                 auto_entropy_tuning=True,
+                 save_model_interval=100,
+                 hidden_size=256,
+                 save_name=None,
+                 log_path=None,
+                 save_path=None):
         self.env = env
         self.n_state = env.observation_space.shape[0]
         self.n_action = env.action_space.shape[0]
@@ -125,27 +125,32 @@ class SAC:
         self.alpha = alpha
         self.auto_entropy_tuning = auto_entropy_tuning
         self.save_model_interval = save_model_interval
+        self.hidden_size = hidden_size
+        self.save_name = save_name
+        self.log_path = log_path
+        self.save_path = save_path
 
         self.global_epoch = 0
         self.global_step = 0
         self.reward_list = []
         self.memory = ReplayBuffer(1000000, self.batch_sz)
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        LOG_PATH = './log'
-        shutil.rmtree(LOG_PATH, ignore_errors=True)
-        self.writer = SummaryWriter(LOG_PATH)
+        if self.log_path is not None:
+            shutil.rmtree(self.log_path, ignore_errors=True)
+            self.writer = SummaryWriter(self.log_path)
+        else:
+            self.writer = SummaryWriter('./log')
+            shutil.rmtree('./log', ignore_errors=True)
 
         self.critic = QNetwork(self.n_state, self.n_action).to(self.device)
-        self.critic_opt = optim.Adam(self.critic.parameters(), lr=self.lr)
+        self.critic_optim = optim.Adam(self.critic.parameters(), lr=self.lr)
         self.critic_target = QNetwork(self.n_state, self.n_action).to(self.device)
         self.update_target(1.0)
 
-        self.actor = GaussianPolicy(self.n_state, self.n_action, 256).to(self.device)
-        self.actor_opt = optim.Adam(self.actor.parameters(), lr=self.lr)
+        self.actor = GaussianPolicy(self.n_state, self.n_action, self.hidden_size).to(self.device)
+        self.actor_optim = optim.Adam(self.actor.parameters(), lr=self.lr)
 
-        if is_load_model:
-            self.load_model()
-            print('load model')
+        self.best_reward = None
 
         if self.auto_entropy_tuning:
             self.target_entropy = -torch.prod(Tensor(self.env.action_space.shape).to(self.device)).item()
@@ -186,9 +191,9 @@ class SAC:
         Q_loss = Q1_loss + Q2_loss
         # self.writer.add_scalar('Q loss', Q_loss, self.global_epoch)
 
-        self.critic_opt.zero_grad()
+        self.critic_optim.zero_grad()
         Q_loss.backward()
-        self.critic_opt.step()
+        self.critic_optim.step()
 
     def update_actor(self, batch):
         '''
@@ -202,9 +207,9 @@ class SAC:
         policy_loss = ((self.alpha * log_pi) - target_Q).mean()
         # self.writer.add_scalar('Policy loss', policy_loss, self.global_epoch)
 
-        self.actor_opt.zero_grad()
+        self.actor_optim.zero_grad()
         policy_loss.backward()
-        self.actor_opt.step()
+        self.actor_optim.step()
 
     def update_alpha(self, batch):
         '''
@@ -245,6 +250,7 @@ class SAC:
         for epoch in range(epochs):
             s = self.env.reset()
 
+            total_reward = 0
             while True:
                 if self.global_step < self.start_step:
                     a = self.env.action_space.sample()
@@ -258,34 +264,62 @@ class SAC:
                 s_, r, done, _ = self.env.step(a)
                 self.memory.push(s, a, r, s_)
                 self.global_step += 1
+                total_reward += r
                 if done:
                     break
-                s = s_
 
+                s = s_
             self.global_epoch += 1
 
-            if self.global_epoch % self.evaluate_interval == 0:
-                eval_r = self.evaluate()
-                self.writer.add_scalar('Total reward', eval_r, self.global_epoch)
-
+            self.writer.add_scalar('Total reward', total_reward, self.global_epoch)
             if self.global_epoch % self.save_model_interval == 0:
-                self.save_model()
+                self.save_model(self.save_name)
 
-            print('Finish epoch %d' % self.global_epoch)
+            if self.global_epoch % self.evaluate_interval == 0:
+                eval_reward = self.evaluate()
+                print('Test reward is {:.3f}'.format( total_reward))
+                if self.best_reward is None:
+                    self.best_reward = eval_reward
+                elif eval_reward > self.best_reward:
+                    print('Best reward from {:.3f} to {:.3f}'.format(self.best_reward, eval_reward))
+                    self.best_reward = eval_reward
 
-    def load_model(self, epoch=100):
-        self.critic.load_state_dict(torch.load('./model/critic_' + str(epoch) + '.pth'))
-        self.critic_target.load_state_dict(torch.load('./model/critic_target_' + str(epoch) + '.pth'))
-        self.actor.load_state_dict(torch.load('./model/actor_' + str(epoch) + '.pth'))
+            print('Finish epoch {}, with reward {:.3f}'.format(self.global_epoch, total_reward))
 
-    def save_model(self):
-        if not os.path.exists('model'):
-            os.mkdir('model')
-        torch.save(self.critic.state_dict(), './model/critic_' + str(self.global_epoch) + '.pth')
-        torch.save(self.critic_target.state_dict(), './model/critic_target_' + str(self.global_epoch) + '.pth')
-        torch.save(self.actor.state_dict(), './model/actor_' + str(self.global_epoch) + '.pth')
+    def load_model(self, load_name, epochs=100):
+        if self.save_path is not None:
+            save_path = self.save_path
+        else:
+            if not os.path.exists('save'):
+                os.mkdir('save')
+            save_path = './save'
+        self.critic.load_state_dict(torch.load(os.path.join(save_path, load_name + '_' + str(epochs) + '_critic' + '.pth')))
+        self.critic_target.load_state_dict(torch.load(os.path.join(save_path, load_name + '_' + str(epochs) + '_critic-target' + '.pth')))
+        self.actor.load_state_dict(torch.load(os.path.join(save_path, load_name + '_' + str(epochs) + '_actor' + '.pth')))
 
-    def evaluate(self, n=1):
+    def save_model(self, save_name):
+        if self.save_path is not None:
+            save_path = self.save_path
+            if not os.path.exists(self.save_path):
+                os.mkdir(self.save_path)
+        else:
+            if not os.path.exists('save'):
+                os.mkdir('save')
+            save_path = './save'
+        torch.save(self.critic.state_dict(), os.path.join(save_path, save_name+ '_' + str(self.global_epoch) + '_critic' + '.pth'))
+        torch.save(self.critic_target.state_dict(), os.path.join(save_path, save_name + '_' + str(self.global_epoch) + '_critic-target' + '.pth'))
+        torch.save(self.actor.state_dict(), os.path.join(save_path, save_name + '_' + str(self.global_epoch) + '_actor' + '.pth'))
+
+    def play(self, done=True, total_steps=10000):
+        s = self.env.reset()
+        for i in range(total_steps):
+            action = self.select_action(s)
+            s, r, d, _ = self.env.step(action)
+            self.env.render()
+            if done and d:
+                s = self.env.reset()
+
+    def evaluate(self, n=3):
         tot_reward = 0
         for _ in range(n):
             s = self.env.reset()
@@ -310,7 +344,6 @@ class SAC:
         plt.savefig('SAC.png')
         if is_show:
             plt.show()
-
 
 if __name__ == '__main__':
     env = gym.make('HalfCheetah-v2')
