@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# by frank tian on 7.9.2020
-
 import math
 from envs.build_envs.utilities.quaternion import bullet_quaternion as bq
 import random
@@ -42,15 +39,38 @@ class LaikagoTask(object):
         self.quadruped = self._env.robot.quadruped
         return
 
-    # 此方向不考虑旋转，为狗头朝向的方向
+    # This direction is concerning rotation, which is the direction the head faces
     def _cal_current_face_ori(self):
         self._get_pos_vel_info()
         return bq(self.body_ori).ori([0, 0, 1])
 
-    # 此方向考虑旋转，为背部朝向的方向
+    # This direction is not concerning rotation, which is the direction the back faces
     def _cal_current_back_ori(self):
         self._get_pos_vel_info()
         return bq(self.body_ori).ori([0, 1, 0])
+
+    '''
+    There are 16 joints in the laikago.
+    No.0, 4, 8, 12 are joints between hip-motor and chassis
+    No.1, 5, 9, 13 are joints between upper-leg and hip-motor
+    No.2, 6, 10, 14 are joints between lower_leg and upper-leg
+    No,3, 7, 11, 15 are joints of toes
+    '''
+    def _get_collision_info(self):
+        pyb = self._get_pybullet_client()
+        quadruped = self._env.robot.quadruped
+        ground = self._env._world_dict["ground"]
+        contact_points = pyb.getContactPoints(bodyA=quadruped, bodyB=ground)
+        contact_ids = [point[3] for point in contact_points]
+        collision_info = []
+        num_joints = pyb.getNumJoints(self.quadruped)
+        for i in range(num_joints):
+            if i in contact_ids:
+                collision_info.append(True)
+            else:
+                collision_info.append(False)
+        return collision_info
+
 
     def reward(self, env):
         del env
