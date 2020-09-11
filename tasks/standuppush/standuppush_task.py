@@ -3,8 +3,10 @@
 
 import math
 from envs.build_envs.utilities.quaternion import bullet_quaternion as bq
+from envs.build_envs.laikago_task import LaikagoTask
 import random
-class StanduppushTask(object):
+
+class StanduppushTask(LaikagoTask):
     def __init__(self,
                  weight=1.0,
                  pose_weight=0.5,
@@ -14,25 +16,13 @@ class StanduppushTask(object):
                  root_velocity_weight=0.1,
                  mode='train',
                  force=True):
-        self._env = None
-        self._weight = weight
-
-        # reward function parameters
-        self._pose_weight = pose_weight
-        self._velocity_weight = velocity_weight
-        self._end_effector_weight = end_effector_weight
-        self._root_pose_weight = root_pose_weight
-        self._root_velocity_weight = root_velocity_weight
-
-        self.body_pos = None
-        self.body_ori = None
-        self.body_lin_vel = None
-        self.body_ang_vel = None
-        self.joint_pos = None
-        self.joint_vel = None
-        self.joint_tor = None
-
-        self.mode = mode
+        super(StanduppushTask, self).__init__(weight,
+                                          pose_weight,
+                                          velocity_weight,
+                                          end_effector_weight,
+                                          root_pose_weight,
+                                          root_velocity_weight,
+                                          mode)
 
         self.force = force
         self.force_id = 0
@@ -48,23 +38,6 @@ class StanduppushTask(object):
             for j in f_ori:
                 ori = [o[0]+o[1] for o in zip(i,j)]
                 self.force_ori.append(ori)
-    def __call__(self, env):
-        return self.reward(env)
-
-    def reset(self,env):
-        self._env = env
-        self.quadruped = self._env.robot.quadruped
-        return
-
-    # 此方向不考虑旋转，为狗头朝向的方向
-    def _cal_current_face_ori(self):
-        self._get_pos_vel_info()
-        return bq(self.body_ori).ori([0, 0, 1])
-
-    # 此方向考虑旋转，为背部朝向的方向
-    def _cal_current_back_ori(self):
-        self._get_pos_vel_info()
-        return bq(self.body_ori).ori([0, 1, 0])
 
     def _reward_of_ori(self):
         # 理想的face_ori为[1,0,0]
@@ -96,7 +69,6 @@ class StanduppushTask(object):
             print('ori_r', round(ori_r), 'pos:', round(pos_r), 'energy:', round(energy_r))
         return reward
 
-
     def _bad_end(self):
         back_ori = self._cal_current_back_ori()
         if back_ori[2] < 0.5:
@@ -121,7 +93,6 @@ class StanduppushTask(object):
         ori = self.force_ori[self.force_id]
         return [f*random.random() * self.max_force for f in ori]
 
-
     def update(self, env):
         if not self.force:
             return
@@ -129,27 +100,3 @@ class StanduppushTask(object):
         self.body_pos = env._pybullet_client.getBasePositionAndOrientation(self.quadruped)[0]
         env._pybullet_client.applyExternalForce(objectUniqueId=self.quadruped, linkIndex=-1,
                              forceObj=force, posObj=self.body_pos, flags=env._pybullet_client.WORLD_FRAME)
-
-    def _get_pybullet_client(self):
-        """Get bullet client from the environment"""
-        return self._env._pybullet_client
-
-    def _get_num_joints(self):
-        """Get the number of joints in the character's body."""
-        pyb = self._get_pybullet_client()
-        return pyb.getNumJoints(self._env.robot.quadruped)
-
-    def _get_pos_vel_info(self):
-        pyb = self._get_pybullet_client()
-        quadruped = self._env.robot.quadruped
-        self.body_pos = pyb.getBasePositionAndOrientation(quadruped)[0]  # 3 list: position list of 3 floats
-        self.body_ori = pyb.getBasePositionAndOrientation(quadruped)[1]  # 4 list: orientation as list of 4 floats in [x,y,z,w] order
-        self.body_lin_vel = pyb.getBaseVelocity(quadruped)[0]  # 3 list: linear velocity [x,y,z]
-        self.body_ang_vel = pyb.getBaseVelocity(quadruped)[1]  # 3 list: angular velocity [wx,wy,wz]
-        self.joint_pos = []  # float: the position value of this joint
-        self.joint_vel = []  # float: the velocity value of this joint
-        self.joint_tor = []  # float: the torque value of this joint
-        for i in range(12):
-            self.joint_pos.append(pyb.getJointState(quadruped, i)[0])
-            self.joint_vel.append(pyb.getJointState(quadruped, i)[1])
-            self.joint_tor.append(pyb.getJointState(quadruped, i)[3])

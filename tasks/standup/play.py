@@ -4,10 +4,11 @@ import standup.standup_env_builder as env_builder
 
 ENV_NAME = "Stand-Up"
 TIME_STEPS = 100000
+VERSION = 0
 
-env = env_builder.build_env(enable_randomizer=True, enable_rendering=True)
+env = env_builder.build_env(enable_randomizer=True, version=VERSION, enable_rendering=True)
 
-model = SAC.load("logs/best_model")
+model = SAC.load("logs/v{}/best_model".format(VERSION))
 
 total_reward = 0
 obs = env.reset()

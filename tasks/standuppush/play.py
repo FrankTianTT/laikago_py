@@ -5,7 +5,7 @@ import standuppush.standuppush_env_builder as env_builder
 TASK_NAME = "Stand-Up-Push"
 TIME_STEPS = 100000
 
-force = False
+force = True
 env = env_builder.build_env(enable_randomizer=True, enable_rendering=True, force=force)
 
 model = SAC.load("logs/best_model")

@@ -12,8 +12,7 @@ class LaikagoTask(object):
                  end_effector_weight=0.2,
                  root_pose_weight=0.15,
                  root_velocity_weight=0.1,
-                 mode='train',
-                 force=True):
+                 mode='train'):
         self._env = None
         self._weight = weight
 
@@ -23,6 +22,7 @@ class LaikagoTask(object):
         self._end_effector_weight = end_effector_weight
         self._root_pose_weight = root_pose_weight
         self._root_velocity_weight = root_velocity_weight
+        self.mode = mode
 
         self.body_pos = None
         self.body_ori = None
@@ -31,8 +31,6 @@ class LaikagoTask(object):
         self.joint_pos = None
         self.joint_vel = None
         self.joint_tor = None
-
-        self.mode = mode
         return
 
     def __call__(self, env):
@@ -40,6 +38,7 @@ class LaikagoTask(object):
 
     def reset(self,env):
         self._env = env
+        self._get_pos_vel_info()
         self.quadruped = self._env.robot.quadruped
         return
 
