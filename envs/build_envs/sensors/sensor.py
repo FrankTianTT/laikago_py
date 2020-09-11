@@ -148,7 +148,7 @@ class BoxSpaceSensor(Sensor):
     else:
       self._lower_bound = np.array(lower_bound)
 
-    if isinstance(upper_bound, float):
+    if isinstance(upper_bound, float) or isinstance(upper_bound, int):
       self._upper_bound = np.full(shape, upper_bound, dtype=dtype)
     else:
       self._upper_bound = np.array(upper_bound)

@@ -26,13 +26,14 @@ def build_env(enable_randomizer, enable_rendering, mode='train',force=True):
     sensors = [
         sensor_wrappers.HistoricSensorWrapper(
             wrapped_sensor=robot_sensors.MotorAngleSensor(num_motors=laikago.NUM_MOTORS), num_history=3),
+        sensor_wrappers.HistoricSensorWrapper(
+            wrapped_sensor=robot_sensors.MotorVelocitiySensor(num_motors=laikago.NUM_MOTORS), num_history=3),
         sensor_wrappers.HistoricSensorWrapper(wrapped_sensor=robot_sensors.IMUSensor(), num_history=3),
         sensor_wrappers.HistoricSensorWrapper(
             wrapped_sensor=environment_sensors.LastActionSensor(num_actions=laikago.NUM_MOTORS), num_history=3)
     ]
 
-    task = standuppush_task.StanduppushTask(mode=mode,force=force)
-    #task = singgleforce_task.SingleforceTask(mode=mode, force=force)
+    task = standuppush_task.StanduppushTask(mode=mode, force=force)
 
     randomizers = []
     if enable_randomizer:

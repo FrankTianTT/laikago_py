@@ -3,7 +3,7 @@ from stable_baselines3.common.callbacks import EvalCallback
 import standuppush.standuppush_env_builder as env_builder
 
 TASK_NAME = "Stand-Up-Push"
-TIME_STEPS = 1000000
+TIME_STEPS = 5000000
 
 env = env_builder.build_env(enable_randomizer=True, enable_rendering=False)
 eval_env = env_builder.build_env(enable_randomizer=True, enable_rendering=False)

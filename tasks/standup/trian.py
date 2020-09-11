@@ -4,7 +4,7 @@ import standup.standup_env_builder as env_builder
 import torch
 
 TASK_NAME = "Stand-Up"
-TIME_STEPS = 1000000
+TIME_STEPS = 5000000
 
 env = env_builder.build_env(enable_randomizer=True, enable_rendering=False)
 eval_env = env_builder.build_env(enable_randomizer=True, enable_rendering=False)

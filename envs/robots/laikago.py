@@ -87,8 +87,8 @@ URDF_FILENAME = ROOT_DIR + "/laikago_model/laikago_toes_limits.urdf"
 _BODY_B_FIELD_NUMBER = 2
 _LINK_A_FIELD_NUMBER = 3
 
-UPPER_BOUND = 6.28318548203
-LOWER_BOUND = -6.28318548203
+UPPER_BOUND = math.pi
+LOWER_BOUND = - math.pi
 
 class Laikago(minitaur.Minitaur):
   """A simulation for the Laikago robot."""

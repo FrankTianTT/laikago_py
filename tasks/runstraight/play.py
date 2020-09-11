@@ -12,6 +12,12 @@ model = SAC.load("logs/best_model")
 total_reward = 0
 obs = env.reset()
 for i in range(100000):
+
+    pyb = env._pybullet_client
+    quadruped = env.robot.quadruped
+    body_ang_vel = pyb.getBaseVelocity(quadruped)[1]
+    print(body_ang_vel)
+
     action, _states = model.predict(obs, deterministic=True)
     obs, reward, done, info = env.step(action)
     total_reward += reward

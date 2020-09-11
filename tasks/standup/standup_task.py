@@ -69,6 +69,7 @@ class StandupTask(object):
         E = sum([abs(p[0]*p[1]) for p in zip(self.joint_tor,self.joint_vel)])
         reward = -E
         return reward
+
     def reward(self, env):
         del env
         ori_r = self._reward_of_ori()

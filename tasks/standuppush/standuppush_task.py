@@ -37,7 +37,7 @@ class StanduppushTask(object):
         self.force = force
         self.force_id = 0
         self._get_force_ori()
-        self.max_force = 10000
+        self.max_force = 3000
         self.force_delay_steps = 3
         return
 

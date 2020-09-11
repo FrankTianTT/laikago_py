@@ -90,8 +90,8 @@ class MotorVelocitiySensor(sensor.BoxSpaceSensor):
                num_motors: int,
                noisy_reading: bool = True,
                observe_sine_cosine: bool = False,
-               lower_bound: _FLOAT_OR_ARRAY = -np.pi,
-               upper_bound: _FLOAT_OR_ARRAY = np.pi,
+               lower_bound: _FLOAT_OR_ARRAY = -70,
+               upper_bound: _FLOAT_OR_ARRAY = 70,
                name: typing.Text = "MotorAngle",
                dtype: typing.Type[typing.Any] = np.float64) -> None:
     """Constructs MotorAngleSensor.
@@ -127,9 +127,9 @@ class MotorVelocitiySensor(sensor.BoxSpaceSensor):
 
   def _get_observation(self) -> _ARRAY:
     if self._noisy_reading:
-      motor_angles = self._robot.GetMotorAngles()
+      motor_angles = self._robot.GetMotorVelocities()
     else:
-      motor_angles = self._robot.GetTrueMotorAngles()
+      motor_angles = self._robot.GetTrueMotorVelocities()
 
     if self._observe_sine_cosine:
       return np.hstack((np.cos(motor_angles), np.sin(motor_angles)))
