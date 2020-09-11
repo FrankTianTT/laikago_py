@@ -87,25 +87,31 @@ URDF_FILENAME = ROOT_DIR + "/laikago_model/laikago_toes_limits.urdf"
 _BODY_B_FIELD_NUMBER = 2
 _LINK_A_FIELD_NUMBER = 3
 
-UPPER_BOUND = math.pi
-LOWER_BOUND = - math.pi
+L_HIP_UPPER_BOUND = 60*math.pi /180
+L_HIP_LOWER_BOUND = -50*math.pi /180
+R_HIP_UPPER_BOUND = 50*math.pi /180
+R_HIP_LOWER_BOUND = -60*math.pi /180
+UPPER_LEG_UPPER_BOUND = 225*math.pi /180
+UPPER_LEG_LOWER_BOUND = -30*math.pi /180
+LOWER_LEG_UPPER_BOUND = -35*math.pi /180
+LOWER_LEG_LOWER_BOUND = -159*math.pi /180
 
 class Laikago(minitaur.Minitaur):
   """A simulation for the Laikago robot."""
   
   ACTION_CONFIG = [
-      locomotion_gym_config.ScalarField(name="motor_angle_0", upper_bound=UPPER_BOUND, lower_bound=LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_1", upper_bound=UPPER_BOUND, lower_bound=LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_2", upper_bound=UPPER_BOUND, lower_bound=LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_3", upper_bound=UPPER_BOUND, lower_bound=LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_4", upper_bound=UPPER_BOUND, lower_bound=LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_5", upper_bound=UPPER_BOUND, lower_bound=LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_6", upper_bound=UPPER_BOUND, lower_bound=LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_7", upper_bound=UPPER_BOUND, lower_bound=LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_8", upper_bound=UPPER_BOUND, lower_bound=LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_9", upper_bound=UPPER_BOUND, lower_bound=LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_10", upper_bound=UPPER_BOUND, lower_bound=LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_11", upper_bound=UPPER_BOUND, lower_bound=LOWER_BOUND)
+      locomotion_gym_config.ScalarField(name="motor_angle_0", upper_bound=R_HIP_UPPER_BOUND, lower_bound=R_HIP_LOWER_BOUND),
+      locomotion_gym_config.ScalarField(name="motor_angle_1", upper_bound=UPPER_LEG_UPPER_BOUND, lower_bound=UPPER_LEG_LOWER_BOUND),
+      locomotion_gym_config.ScalarField(name="motor_angle_2", upper_bound=LOWER_LEG_UPPER_BOUND, lower_bound=LOWER_LEG_LOWER_BOUND),
+      locomotion_gym_config.ScalarField(name="motor_angle_3", upper_bound=L_HIP_UPPER_BOUND, lower_bound=L_HIP_LOWER_BOUND),
+      locomotion_gym_config.ScalarField(name="motor_angle_4", upper_bound=UPPER_LEG_UPPER_BOUND, lower_bound=UPPER_LEG_LOWER_BOUND),
+      locomotion_gym_config.ScalarField(name="motor_angle_5", upper_bound=LOWER_LEG_UPPER_BOUND, lower_bound=LOWER_LEG_LOWER_BOUND),
+      locomotion_gym_config.ScalarField(name="motor_angle_6", upper_bound=R_HIP_UPPER_BOUND, lower_bound=R_HIP_LOWER_BOUND),
+      locomotion_gym_config.ScalarField(name="motor_angle_7", upper_bound=UPPER_LEG_UPPER_BOUND, lower_bound=UPPER_LEG_LOWER_BOUND),
+      locomotion_gym_config.ScalarField(name="motor_angle_8", upper_bound=LOWER_LEG_UPPER_BOUND, lower_bound=LOWER_LEG_LOWER_BOUND),
+      locomotion_gym_config.ScalarField(name="motor_angle_9", upper_bound=L_HIP_UPPER_BOUND, lower_bound=L_HIP_LOWER_BOUND),
+      locomotion_gym_config.ScalarField(name="motor_angle_10", upper_bound=UPPER_LEG_UPPER_BOUND, lower_bound=UPPER_LEG_LOWER_BOUND),
+      locomotion_gym_config.ScalarField(name="motor_angle_11", upper_bound=LOWER_LEG_UPPER_BOUND, lower_bound=LOWER_LEG_LOWER_BOUND)
   ]
 
   def __init__(self,

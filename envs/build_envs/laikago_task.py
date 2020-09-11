@@ -106,7 +106,8 @@ class LaikagoTask(object):
         self.joint_pos = []  # float: the position value of this joint
         self.joint_vel = []  # float: the velocity value of this joint
         self.joint_tor = []  # float: the torque value of this joint
-        for i in range(12):
-            self.joint_pos.append(pyb.getJointState(quadruped, i)[0])
-            self.joint_vel.append(pyb.getJointState(quadruped, i)[1])
-            self.joint_tor.append(pyb.getJointState(quadruped, i)[3])
+        for i in range(16):
+            if i % 4 != 3:
+                self.joint_pos.append(pyb.getJointState(quadruped, i)[0])
+                self.joint_vel.append(pyb.getJointState(quadruped, i)[1])
+                self.joint_tor.append(pyb.getJointState(quadruped, i)[3])
