@@ -374,7 +374,6 @@ class LocomotionGymEnv(gym.Env):
     sensors_dict = {}
     for s in self.all_sensors():
       sensors_dict[s.get_name()] = s.get_observation()
-
     observations = collections.OrderedDict(sorted(list(sensors_dict.items())))
     return observations
 

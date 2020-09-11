@@ -4,10 +4,11 @@
 from build_envs import locomotion_gym_env
 from build_envs import locomotion_gym_config
 from build_envs.env_wrappers import observation_dictionary_to_array_wrapper
-from standuppush import standuppush_task
+from standupheight import standupheight_task
 from build_envs.sensors import environment_sensors
 from build_envs.sensors import sensor_wrappers
 from build_envs.sensors import robot_sensors
+from tasks.standupheight import height_sensor
 from build_envs.utilities import controllable_env_randomizer_from_config
 from robots import laikago
 
@@ -26,9 +27,11 @@ def build_env(enable_randomizer, enable_rendering, mode='train', version=0, forc
             wrapped_sensor=robot_sensors.MotorVelocitiySensor(num_motors=laikago.NUM_MOTORS), num_history=3),
         sensor_wrappers.HistoricSensorWrapper(wrapped_sensor=robot_sensors.IMUSensor(), num_history=3),
         sensor_wrappers.HistoricSensorWrapper(
-            wrapped_sensor=environment_sensors.LastActionSensor(num_actions=laikago.NUM_MOTORS), num_history=3)]
+            wrapped_sensor=environment_sensors.LastActionSensor(num_actions=laikago.NUM_MOTORS), num_history=3),
+        height_sensor.HeightSensor(random_height=True)
+    ]
 
-    task = eval('standuppush_task.StanduppushTaskV{}'.format(version))(mode=mode, force=force)
+    task = eval('standupheight_task.StandupheightTaskV{}'.format(version))(mode=mode, force=force)
 
     randomizers = []
     if enable_randomizer:
