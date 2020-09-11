@@ -4,7 +4,7 @@ import standup.standup_env_builder as env_builder
 
 ENV_NAME = "Stand-Up"
 TIME_STEPS = 100000
-VERSION = 0
+VERSION = 1
 
 env = env_builder.build_env(enable_randomizer=True, version=VERSION, enable_rendering=True)
 

@@ -42,9 +42,9 @@ class StandupTaskV0(LaikagoTask):
 
     def _bad_end(self):
         back_ori = self._cal_current_back_ori()
-        if back_ori[2] < 0.7:
+        if back_ori[2] < 0.75:
             return True
-        if self.body_pos[2] < 0.2:
+        if self.body_pos[2] < 0.25:
             return True
         else:
             return False
@@ -55,7 +55,7 @@ Stand Up Task Version 1
 reward: motor velocities penalty + alive bonus + collision detection penalty
 done: body height too low or body having deviation or no collision detection time too long
 '''
-class StandupTaskV1(LaikagoTask):
+class StandupTaskV1(StandupTaskV0):
     def __init__(self,
                  weight=1.0,
                  pose_weight=0.5,
@@ -83,41 +83,26 @@ class StandupTaskV1(LaikagoTask):
     def _reward_of_collision(self):
         reward = 0
         collision_info = self._get_collision_info()
+        num = [0,0,0,0]
         for i in range(16):
+            if collision_info[i]:
+                num[i%4] += 1
             if i % 4 == 3:
                 if collision_info[i]:
                     reward += 1
-            else:
-                if not collision_info[i]:
-                    reward += 0.3
+            elif i % 4 == 1:
+                if collision_info[i]:
+                    reward -= 2
         return reward
 
     def reward(self, env):
         del env
-
         collision_r = self._reward_of_collision()
-        reward = - sum([abs(v) for v in self.joint_vel]) * 0.1 + collision_r + 3
+        alive_r = 10
+        reward = - sum([abs(v) for v in self.joint_vel]) * 0.1 + collision_r + alive_r
         return reward
 
-    def done(self, env):
-        """Checks if the episode is over."""
-        del env
-        if self.mode == 'never_done': #only use in test mode
-            return False
-        if self.mode == 'train' and self._env.env_step_counter > 300:
-            return True
-        return self._bad_end()
-
-    def _bad_end(self):
-        back_ori = self._cal_current_back_ori()
-        if back_ori[2] < 0.7:
-            return True
-        if self.body_pos[2] < 0.2:
-            return True
-        else:
-            return False
-
-class StandupTaskV2(LaikagoTask):
+class StandupTaskV2(StandupTaskV1):
     def __init__(self,
                  weight=1.0,
                  pose_weight=0.5,
@@ -140,13 +125,12 @@ class StandupTaskV2(LaikagoTask):
         face_ori = self._cal_current_face_ori()
         # 理想的back_ori为[0,0,1]
         back_ori = self._cal_current_back_ori()
-        face_reward = - (1 - face_ori[0]) ** 2
-        back_reward = - (1 - back_ori[2]) ** 2 * 3
-        return face_reward + back_reward
+        back_reward = - (1 - back_ori[2]) ** 2
+        return back_reward
 
     def _reward_of_pos(self):
         self._get_pos_vel_info()
-        reward = math.exp(1 + self.body_pos[2]) - math.e
+        reward = self.body_pos[2]
         return reward
 
     def _reward_of_energy(self):
@@ -155,38 +139,21 @@ class StandupTaskV2(LaikagoTask):
         reward = -E
         return reward
 
-    def _reward_of_collision(self):
-        pyb = self._get_pybullet_client()
-        ContactPoints = pyb.getContactPoints()
-        print(ContactPoints)
-        return 0
-
     def reward(self, env):
         del env
-        ori_r = self._reward_of_ori()
+        collision_r = self._reward_of_collision()
+        ori_r = self._reward_of_ori() * 20
         pos_r = self._reward_of_pos() * 5
-        energy_r = self._reward_of_energy()
-        reward = ori_r + pos_r + energy_r
-        if self._bad_end():
-            reward = reward - 100
-        if self.mode == 'test' and self._env.env_step_counter % 50 == 0:
-            print('ori_r', round(ori_r), 'pos:', round(pos_r), 'energy:', round(energy_r))
+        energy_r = self._reward_of_energy() * 10
+        alive_r = 10
+        reward = collision_r + ori_r + pos_r + energy_r + alive_r
         return reward
-
-    def done(self, env):
-        """Checks if the episode is over."""
-        del env
-        if self.mode == 'never_done':  # only use in test mode
-            return False
-        if self.mode == 'train' and self._env.env_step_counter > 300:
-            return True
-        return self._bad_end()
 
     def _bad_end(self):
         back_ori = self._cal_current_back_ori()
-        if back_ori[2] < 0.7:
+        if back_ori[2] < 0.75:
             return True
-        if self.body_pos[2] < 0.2:
+        if self.body_pos[2] < 0.25:
             return True
         else:
             return False
