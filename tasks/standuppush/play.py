@@ -2,13 +2,12 @@ from stable_baselines3 import SAC
 from stable_baselines3.common.callbacks import EvalCallback
 import standuppush.standuppush_env_builder as env_builder
 
-TASK_NAME = "Stand-Up-Push"
-TIME_STEPS = 100000
+VERSION = 0
+FORCE = True
 
-force = True
-env = env_builder.build_env(enable_randomizer=True, enable_rendering=True, force=force)
+env = env_builder.build_env(enable_randomizer=True, version=VERSION, enable_rendering=True, force=FORCE)
 
-model = SAC.load("logs/best_model")
+model = SAC.load("logs/v{}/best_model".format(VERSION))
 
 total_reward = 0
 obs = env.reset()

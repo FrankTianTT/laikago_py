@@ -10,16 +10,12 @@ from build_envs.sensors import sensor_wrappers
 from build_envs.sensors import robot_sensors
 from build_envs.utilities import controllable_env_randomizer_from_config
 from robots import laikago
-from standuppush import singgleforce_task
 
-def build_env(enable_randomizer, enable_rendering, mode='train',force=True):
+def build_env(enable_randomizer, enable_rendering, mode='train', version=0, force=True):
 
     sim_params = locomotion_gym_config.SimulationParameters()
     sim_params.enable_rendering = enable_rendering
-    #sim_params.robot_on_rack = True
-
     gym_config = locomotion_gym_config.LocomotionGymConfig(simulation_parameters=sim_params)
-
 
     robot_class = laikago.Laikago
 
@@ -33,7 +29,7 @@ def build_env(enable_randomizer, enable_rendering, mode='train',force=True):
             wrapped_sensor=environment_sensors.LastActionSensor(num_actions=laikago.NUM_MOTORS), num_history=3)
     ]
 
-    task = standuppush_task.StanduppushTask(mode=mode, force=force)
+    task = eval('standuppush_task.StanduppushTaskV{}'.format(version))(mode=mode, force=force)
 
     randomizers = []
     if enable_randomizer:
@@ -44,6 +40,4 @@ def build_env(enable_randomizer, enable_rendering, mode='train',force=True):
                                               env_randomizers=randomizers, robot_sensors=sensors, task=task)
 
     env = observation_dictionary_to_array_wrapper.ObservationDictionaryToArrayWrapper(env)
-
-
     return env
