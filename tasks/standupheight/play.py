@@ -5,7 +5,7 @@ import standupheight.standupheight_env_builder as env_builder
 VERSION = 0
 FORCE = True
 
-env = env_builder.build_env(enable_randomizer=True, version=VERSION, enable_rendering=False, force=FORCE)
+env = env_builder.build_env(enable_randomizer=True, version=VERSION, enable_rendering=True, force=FORCE)
 
 model = SAC.load("logs/v{}/best_model".format(VERSION))
 
