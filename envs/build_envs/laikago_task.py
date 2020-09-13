@@ -9,8 +9,7 @@ class LaikagoTask(object):
                  end_effector_weight=0.2,
                  root_pose_weight=0.15,
                  root_velocity_weight=0.1,
-                 mode='train',
-                 max_episode_steps=300):
+                 mode='train'):
         self._env = None
         self._weight = weight
 
@@ -21,7 +20,6 @@ class LaikagoTask(object):
         self._root_pose_weight = root_pose_weight
         self._root_velocity_weight = root_velocity_weight
         self.mode = mode
-        self.max_episode_steps = max_episode_steps
 
         self.body_pos = None
         self.body_ori = None
@@ -41,7 +39,6 @@ class LaikagoTask(object):
         self._get_body_pos_vel_info()
         return
 
-
     def normalize_reward(self, reward, min_reward, max_reward):
         return (reward - min_reward)/(max_reward - min_reward)
 
@@ -58,26 +55,46 @@ class LaikagoTask(object):
         reward = 0
         for i in range(16):
             if i % 4 == 1 and collision_info[i]:
-                    reward -= 1
+                reward -= 1
         return self.normalize_reward(reward, -4, 0)
 
     def _reward_of_upward_ori(self):
-        # the expect value of back_ori is [0,0,1]
-        back_ori = self._get_current_back_ori()
-        reward = - (1 - back_ori[2]) ** 2
+        # the expect value of toward_ori is [0,0,1].
+        toward_ori = self._get_toward_ori()
+        reward = - (1 - toward_ori[2]) ** 2
         return self.normalize_reward(reward, -4, 0)
 
     def _reward_of_stand_height(self, max_height=0.4):
         self._get_body_pos_vel_info()
         reward = self.body_pos[2]
-        return self.normalize_reward(reward, 0, 0.5)
-
+        return self.normalize_reward(reward, 0, 0.5)  # the initial height of laikago is 0.5.
 
     def _reward_of_energy(self):
         self._get_joint_pos_vel_info()
-        E = sum([abs(p[0] * p[1]) for p in zip(self.joint_tor, self.joint_vel)])
-        reward = -E
-        return reward
+        reward = - sum([abs(p[0] * p[1]) for p in zip(self.joint_tor, self.joint_vel)])
+        return self.normalize_reward(reward, -5, 0)  # the min reward by sample action is -4.
+
+    def _reward_of_sum_vel(self):
+        self._get_joint_pos_vel_info()
+        reward = - sum([abs(v) for v in self.joint_vel])
+        return self.normalize_reward(reward, -300, 0)  # the min reward by sample action is -275.
+
+    # use it when try to stand up.
+    def _reward_of_toes_height(self):
+        toes_height = self._get_height_of_toes()
+        reward = - sum(h**2 for h in toes_height)
+        return self.normalize_reward(reward, -1, 0)  # the min reward by sample action is -0.8.
+
+    def _done_of_wrong_toward_ori(self, threshold=0.6):
+        toward_ori = self._get_toward_ori()
+        return toward_ori[2] < threshold
+
+    def _done_of_low_height(self, threshold=0.25):
+        self._get_body_pos_vel_info()
+        return self.body_pos[2] < threshold
+
+    def _done_of_too_long(self, threshold=300):
+        return self._env.env_step_counter > threshold
 
     def reward(self, env):
         del env
@@ -85,7 +102,8 @@ class LaikagoTask(object):
 
     def done(self, env):
         del env
-        return
+        if self.mode == 'never_done':  # only use in test mode
+            return False
 
     def update(self, env):
         pass
@@ -95,11 +113,11 @@ class LaikagoTask(object):
         return False
 
     def _get_pybullet_client(self):
-        """Get bullet client from the environment"""
+       #Get bullet client from the environmen.
         return self._env._pybullet_client
 
     def _get_num_joints(self):
-        """Get the number of joints in the character's body."""
+        #Get the number of joints in the character's body.
         pyb = self._get_pybullet_client()
         return pyb.getNumJoints(self._env.robot.quadruped)
 
@@ -153,6 +171,6 @@ class LaikagoTask(object):
         return bq(self.body_ori).ori([0, 0, 1])
 
     # This direction is not concerning rotation, which is the direction the back faces
-    def _get_current_back_ori(self):
+    def _get_toward_ori(self):
         self._get_body_pos_vel_info()
         return bq(self.body_ori).ori([0, 1, 0])
