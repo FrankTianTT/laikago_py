@@ -26,6 +26,7 @@ def build_env(enable_randomizer, enable_rendering, version=0, mode='train', max_
         sensor_wrappers.HistoricSensorWrapper(
             wrapped_sensor=robot_sensors.MotorVelocitiySensor(num_motors=laikago.NUM_MOTORS), num_history=3),
         sensor_wrappers.HistoricSensorWrapper(wrapped_sensor=robot_sensors.IMUSensor(), num_history=3),
+        sensor_wrappers.HistoricSensorWrapper(wrapped_sensor=robot_sensors.ToeTouchSensor(), num_history=3),
         sensor_wrappers.HistoricSensorWrapper(
             wrapped_sensor=environment_sensors.LastActionSensor(num_actions=laikago.NUM_MOTORS), num_history=3)
     ]

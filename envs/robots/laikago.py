@@ -192,7 +192,7 @@ class Laikago(minitaur.Minitaur):
     def GetHipPositionsInBaseFrame(self):
         return _DEFAULT_HIP_POSITIONS
 
-    def GetFootContacts(self):
+    def GetToeContacts(self):
         all_contacts = self._pybullet_client.getContactPoints(bodyA=self.quadruped)
 
         contacts = [False, False, False, False]

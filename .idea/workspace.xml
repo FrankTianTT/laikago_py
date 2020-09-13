@@ -2,18 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ac2a714c-ac66-4ca3-8352-84ffed4e5d18" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/tasks/standup/train_v1_from_v0.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tasks/standup/tuning/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tasks/standup/tuning/train_t1.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tasks/standup/tuning/train_t2.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tasks/standup/tuning/train_t3.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tasks/standup/tuning/trian_t0.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/envs/build_envs/laikago_task.py" beforeDir="false" afterPath="$PROJECT_DIR$/envs/build_envs/laikago_task.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/envs/build_envs/sensors/robot_sensors.py" beforeDir="false" afterPath="$PROJECT_DIR$/envs/build_envs/sensors/robot_sensors.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/envs/robots/laikago.py" beforeDir="false" afterPath="$PROJECT_DIR$/envs/robots/laikago.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/envs/robots/try.py" beforeDir="false" afterPath="$PROJECT_DIR$/envs/robots/try.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tasks/standup/standup_env_builder.py" beforeDir="false" afterPath="$PROJECT_DIR$/tasks/standup/standup_env_builder.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tasks/standup/standup_task.py" beforeDir="false" afterPath="$PROJECT_DIR$/tasks/standup/standup_task.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tasks/standupheight/play.py" beforeDir="false" afterPath="$PROJECT_DIR$/tasks/standupheight/play.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tasks/standuppush/play.py" beforeDir="false" afterPath="$PROJECT_DIR$/tasks/standuppush/play.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,8 +49,8 @@
       <recent name="C:\Users\TianTT\Documents\GitHub\laikago_py\tasks\runwithcoord" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.train_t3">
-    <configuration name="__init__" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.try">
+    <configuration name="laikago" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="laikago_py" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -65,34 +58,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tasks/standup/tuning" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/envs/robots" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tasks/standup/tuning/__init__.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="play (2)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="laikago_py" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tasks/standup" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tasks/standup/play.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/envs/robots/laikago.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -123,7 +94,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="train_t1" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="sat" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="laikago_py" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -131,12 +102,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tasks/standup/tuning" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/envs" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tasks/standup/tuning/train_t1.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/envs/sat.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -189,13 +160,35 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="try" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="laikago_py" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/envs/robots" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/envs/robots/try.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.try" />
+        <item itemvalue="Python.laikago" />
+        <item itemvalue="Python.sat" />
         <item itemvalue="Python.train_t3" />
         <item itemvalue="Python.train_t2" />
-        <item itemvalue="Python.__init__" />
-        <item itemvalue="Python.play (2)" />
-        <item itemvalue="Python.train_t1" />
       </list>
     </recent_temporary>
   </component>
@@ -208,7 +201,7 @@
       <option name="presentableId" value="Default" />
       <updated>1599729301863</updated>
       <workItem from="1599729303046" duration="1547000" />
-      <workItem from="1599731089955" duration="52710000" />
+      <workItem from="1599731089955" duration="73209000" />
     </task>
     <task id="LOCAL-00001" summary="use stable-baselines3 and reconstruct project. SBNB!">
       <created>1599744463856</created>
@@ -252,7 +245,21 @@
       <option name="project" value="LOCAL" />
       <updated>1599830690336</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="update stand-up envs">
+      <created>1599974580371</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1599974580371</updated>
+    </task>
+    <task id="LOCAL-00008" summary="fix robot.GetFootContacts function">
+      <created>1599998937494</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1599998937494</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -265,41 +272,59 @@
     <MESSAGE value="update stand-up reward" />
     <MESSAGE value="stand-up task finish" />
     <MESSAGE value="stand-up-push task finish and delete two tasks" />
-    <option name="LAST_COMMIT_MESSAGE" value="stand-up-push task finish and delete two tasks" />
+    <MESSAGE value="update stand-up envs" />
+    <MESSAGE value="fix robot.GetFootContacts function" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix robot.GetFootContacts function" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="551" y="320" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1599752401519">
+    <state x="551" y="320" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1599980985855">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="551" y="320" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1599752401519" />
+    <state x="551" y="320" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1599980985855" />
     <state x="690" y="266" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1599828542550">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="690" y="266" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1599828542549" />
-    <state x="558" y="86" key="CommitChangelistDialog2" timestamp="1599830689832">
+    <state x="558" y="86" key="CommitChangelistDialog2" timestamp="1599998937059">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="558" y="86" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1599830689832" />
-    <state width="1877" height="288" key="GridCell.Tab.0.bottom" timestamp="1599973562665">
+    <state x="558" y="86" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1599998937059" />
+    <state width="1877" height="268" key="GridCell.Tab.0.bottom" timestamp="1599999552472">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="288" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1599973562665" />
-    <state width="1877" height="288" key="GridCell.Tab.0.center" timestamp="1599973562665">
+    <state width="1877" height="268" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1599999552472" />
+    <state width="1877" height="268" key="GridCell.Tab.0.center" timestamp="1599999552472">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="288" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1599973562665" />
-    <state width="1877" height="288" key="GridCell.Tab.0.left" timestamp="1599973562665">
+    <state width="1877" height="268" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1599999552472" />
+    <state width="1877" height="268" key="GridCell.Tab.0.left" timestamp="1599999552472">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="288" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1599973562665" />
-    <state width="1877" height="288" key="GridCell.Tab.0.right" timestamp="1599973562665">
+    <state width="1877" height="268" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1599999552472" />
+    <state width="1877" height="268" key="GridCell.Tab.0.right" timestamp="1599999552472">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="288" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1599973562665" />
-    <state x="552" y="252" key="Vcs.Push.Dialog.v2" timestamp="1599830692938">
+    <state width="1877" height="268" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1599999552472" />
+    <state width="1877" height="348" key="GridCell.Tab.1.bottom" timestamp="1599995641825">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="552" y="252" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1599830692938" />
+    <state width="1877" height="348" key="GridCell.Tab.1.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1599995641825" />
+    <state width="1877" height="348" key="GridCell.Tab.1.center" timestamp="1599995641824">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="348" key="GridCell.Tab.1.center/0.0.1920.1040@0.0.1920.1040" timestamp="1599995641824" />
+    <state width="1877" height="348" key="GridCell.Tab.1.left" timestamp="1599995641824">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="348" key="GridCell.Tab.1.left/0.0.1920.1040@0.0.1920.1040" timestamp="1599995641824" />
+    <state width="1877" height="348" key="GridCell.Tab.1.right" timestamp="1599995641825">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="348" key="GridCell.Tab.1.right/0.0.1920.1040@0.0.1920.1040" timestamp="1599995641825" />
+    <state x="552" y="252" key="Vcs.Push.Dialog.v2" timestamp="1599998943415">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="552" y="252" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1599998943415" />
     <state x="764" y="432" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1599842677368">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -308,11 +333,12 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/laikago_py$trian_v0.coverage" NAME="trian_v0 Coverage Results" MODIFIED="1599965686136" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tasks/standup" />
     <SUITE FILE_PATH="coverage/laikago_py$trian_sac.coverage" NAME="trian_sac Coverage Results" MODIFIED="1599741894212" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tasks/runstraight" />
-    <SUITE FILE_PATH="coverage/laikago_py$try.coverage" NAME="try Coverage Results" MODIFIED="1599827452062" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tasks/standup" />
+    <SUITE FILE_PATH="coverage/laikago_py$try.coverage" NAME="try Coverage Results" MODIFIED="1599999552469" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/envs/robots" />
     <SUITE FILE_PATH="coverage/laikago_py$train_t1.coverage" NAME="train_t1 Coverage Results" MODIFIED="1599968509473" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tasks/standup/tuning" />
     <SUITE FILE_PATH="coverage/laikago_py$trian.coverage" NAME="trian Coverage Results" MODIFIED="1599755977220" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tasks/standup" />
     <SUITE FILE_PATH="coverage/laikago_py$standup_task.coverage" NAME="standup_task Coverage Results" MODIFIED="1599826263168" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tasks/standup" />
     <SUITE FILE_PATH="coverage/laikago_py$play__1_.coverage" NAME="play (1) Coverage Results" MODIFIED="1599923438425" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tasks/standupheight" />
+    <SUITE FILE_PATH="coverage/laikago_py$laikago.coverage" NAME="laikago Coverage Results" MODIFIED="1599997225586" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/envs/robots" />
     <SUITE FILE_PATH="coverage/laikago_py$play__3_.coverage" NAME="play (3) Coverage Results" MODIFIED="1599750523592" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tasks/standup" />
     <SUITE FILE_PATH="coverage/laikago_py$train_t2.coverage" NAME="train_t2 Coverage Results" MODIFIED="1599969575918" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tasks/standup/tuning" />
     <SUITE FILE_PATH="coverage/laikago_py$play_v0__1_.coverage" NAME="play_v0 (1) Coverage Results" MODIFIED="1599797226553" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tasks/standup" />
@@ -330,6 +356,7 @@
     <SUITE FILE_PATH="coverage/laikago_py$play__2_.coverage" NAME="play (2) Coverage Results" MODIFIED="1599968664743" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tasks/standup" />
     <SUITE FILE_PATH="coverage/laikago_py$trian__1_.coverage" NAME="trian (1) Coverage Results" MODIFIED="1599792556000" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tasks/standuppush" />
     <SUITE FILE_PATH="coverage/laikago_py$train_v1_from_v0.coverage" NAME="train_v1_from_v0 Coverage Results" MODIFIED="1599929495329" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tasks/standup" />
+    <SUITE FILE_PATH="coverage/laikago_py$sat.coverage" NAME="sat Coverage Results" MODIFIED="1599982911393" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/envs" />
     <SUITE FILE_PATH="coverage/laikago_py$play__4_.coverage" NAME="play (4) Coverage Results" MODIFIED="1599752729426" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/deeprl/HalfCheetah" />
     <SUITE FILE_PATH="coverage/laikago_py$trian_t0.coverage" NAME="trian_t0 Coverage Results" MODIFIED="1599968507411" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tasks/standup/tuning" />
   </component>
