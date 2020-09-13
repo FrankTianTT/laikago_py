@@ -37,7 +37,7 @@ class MotorAngleSensor(sensor.BoxSpaceSensor):
                num_motors: int,
                noisy_reading: bool = True,
                observe_sine_cosine: bool = False,
-               lower_bound: _FLOAT_OR_ARRAY = -np.pi,
+               lower_bound: _FLOAT_OR_ARRAY = - np.pi,
                upper_bound: _FLOAT_OR_ARRAY = np.pi,
                name: typing.Text = "MotorAngle",
                dtype: typing.Type[typing.Any] = np.float64) -> None:
@@ -89,100 +89,47 @@ class MotorVelocitiySensor(sensor.BoxSpaceSensor):
   def __init__(self,
                num_motors: int,
                noisy_reading: bool = True,
-               observe_sine_cosine: bool = False,
                lower_bound: _FLOAT_OR_ARRAY = -70,
                upper_bound: _FLOAT_OR_ARRAY = 70,
                name: typing.Text = "MotorAngle",
                dtype: typing.Type[typing.Any] = np.float64) -> None:
-    """Constructs MotorAngleSensor.
 
-    Args:
-      num_motors: the number of motors in the robot
-      noisy_reading: whether values are true observations
-      observe_sine_cosine: whether to convert readings to sine/cosine values for
-        continuity
-      lower_bound: the lower bound of the motor angle
-      upper_bound: the upper bound of the motor angle
-      name: the name of the sensor
-      dtype: data type of sensor value
-    """
     self._num_motors = num_motors
     self._noisy_reading = noisy_reading
-    self._observe_sine_cosine = observe_sine_cosine
 
-    if observe_sine_cosine:
-      super(MotorVelocitiySensor, self).__init__(
-          name=name,
-          shape=(self._num_motors * 2,),
-          lower_bound=-np.ones(self._num_motors * 2),
-          upper_bound=np.ones(self._num_motors * 2),
-          dtype=dtype)
-    else:
-      super(MotorVelocitiySensor, self).__init__(
-          name=name,
-          shape=(self._num_motors,),
-          lower_bound=lower_bound,
-          upper_bound=upper_bound,
-          dtype=dtype)
+    super(MotorVelocitiySensor, self).__init__(
+      name=name,
+      shape=(self._num_motors,),
+      lower_bound=lower_bound,
+      upper_bound=upper_bound,
+      dtype=dtype)
 
   def _get_observation(self) -> _ARRAY:
-    if self._noisy_reading:
-      motor_angles = self._robot.GetMotorVelocities()
-    else:
-      motor_angles = self._robot.GetTrueMotorVelocities()
-
-    if self._observe_sine_cosine:
-      return np.hstack((np.cos(motor_angles), np.sin(motor_angles)))
-    else:
-      return motor_angles
+    toes_contact = self._robot.GetFootContacts()
+    contact_info = [1 if contact else -1 for contact in toes_contact]
+    return contact_info
 
 class ToeTouchSensor(sensor.BoxSpaceSensor):
   """A sensor that reads motor angles from the robot."""
 
   def __init__(self,
-               num_motors: int,
-               noisy_reading: bool = True,
-               observe_sine_cosine: bool = False,
-               lower_bound: _FLOAT_OR_ARRAY = -70,
-               upper_bound: _FLOAT_OR_ARRAY = 70,
-               name: typing.Text = "MotorAngle",
+               num_toes: int,
+               lower_bound: _FLOAT_OR_ARRAY = -1,
+               upper_bound: _FLOAT_OR_ARRAY = 1,
+               name: typing.Text = "ToeTouch",
                dtype: typing.Type[typing.Any] = np.float64) -> None:
-    """Constructs MotorAngleSensor.
 
-    Args:
-      num_motors: the number of motors in the robot
-      noisy_reading: whether values are true observations
-      observe_sine_cosine: whether to convert readings to sine/cosine values for
-        continuity
-      lower_bound: the lower bound of the motor angle
-      upper_bound: the upper bound of the motor angle
-      name: the name of the sensor
-      dtype: data type of sensor value
-    """
-    self._num_motors = num_motors
-    self._noisy_reading = noisy_reading
-    self._observe_sine_cosine = observe_sine_cosine
+    self._num_toes = num_toes
 
-    if observe_sine_cosine:
-      super(ToeTouchSensor, self).__init__(
-          name=name,
-          shape=(self._num_motors * 2,),
-          lower_bound=-np.ones(self._num_motors * 2),
-          upper_bound=np.ones(self._num_motors * 2),
-          dtype=dtype)
-    else:
-      super(ToeTouchSensor, self).__init__(
-          name=name,
-          shape=(self._num_motors,),
-          lower_bound=lower_bound,
-          upper_bound=upper_bound,
-          dtype=dtype)
+    super(ToeTouchSensor, self).__init__(
+      name=name,
+      shape=(self._num_toes,),
+      lower_bound=lower_bound,
+      upper_bound=upper_bound,
+      dtype=dtype)
 
   def _get_observation(self) -> _ARRAY:
-    if self._noisy_reading:
-      motor_angles = self._robot.GetMotorVelocities()
-    else:
-      motor_angles = self._robot.GetTrueMotorVelocities()
+    motor_angles = self._robot.GetTrueMotorVelocities()
 
     if self._observe_sine_cosine:
       return np.hstack((np.cos(motor_angles), np.sin(motor_angles)))

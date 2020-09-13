@@ -70,16 +70,14 @@ KNEE_P_GAIN = 220.0
 KNEE_D_GAIN = 2.0
 
 # Bases on the readings from Laikago's default pose.
-INIT_MOTOR_ANGLES = np.array([
-    laikago_pose_utils.LAIKAGO_DEFAULT_ABDUCTION_ANGLE,
-    laikago_pose_utils.LAIKAGO_DEFAULT_HIP_ANGLE,
-    laikago_pose_utils.LAIKAGO_DEFAULT_KNEE_ANGLE
-] * NUM_LEGS)
+INIT_MOTOR_ANGLES = np.array([laikago_pose_utils.LAIKAGO_DEFAULT_ABDUCTION_ANGLE,
+                              laikago_pose_utils.LAIKAGO_DEFAULT_HIP_ANGLE,
+                              laikago_pose_utils.LAIKAGO_DEFAULT_KNEE_ANGLE] * NUM_LEGS)
 
-_CHASSIS_NAME_PATTERN = re.compile(r"\w+_chassis_\w+")
-_MOTOR_NAME_PATTERN = re.compile(r"\w+_hip_motor_\w+")
-_KNEE_NAME_PATTERN = re.compile(r"\w+_lower_leg_\w+")
-_TOE_NAME_PATTERN = re.compile(r"jtoe\d*")
+_UPPER_NAME_PATTERN = re.compile(r"\w{2}_hip_motor_2_chassis_joint")
+_LOWER_NAME_PATTERN = re.compile(r"\w{2}_upper_leg_2_hip_motor_joint")
+_FOOT_NAME_PATTERN = re.compile(r"\w{2}_lower_leg_2_upper_leg_joint")
+_TOE_NAME_PATTERN = re.compile(r"jtoe\w{2}")
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 URDF_FILENAME = ROOT_DIR + "/laikago_model/laikago_toes_limits.urdf"
@@ -97,260 +95,254 @@ LOWER_LEG_UPPER_BOUND = -35*math.pi /180
 LOWER_LEG_LOWER_BOUND = -159*math.pi /180
 
 class Laikago(minitaur.Minitaur):
-  """A simulation for the Laikago robot."""
-  
-  ACTION_CONFIG = [
-      locomotion_gym_config.ScalarField(name="motor_angle_0", upper_bound=R_HIP_UPPER_BOUND, lower_bound=R_HIP_LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_1", upper_bound=UPPER_LEG_UPPER_BOUND, lower_bound=UPPER_LEG_LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_2", upper_bound=LOWER_LEG_UPPER_BOUND, lower_bound=LOWER_LEG_LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_3", upper_bound=L_HIP_UPPER_BOUND, lower_bound=L_HIP_LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_4", upper_bound=UPPER_LEG_UPPER_BOUND, lower_bound=UPPER_LEG_LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_5", upper_bound=LOWER_LEG_UPPER_BOUND, lower_bound=LOWER_LEG_LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_6", upper_bound=R_HIP_UPPER_BOUND, lower_bound=R_HIP_LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_7", upper_bound=UPPER_LEG_UPPER_BOUND, lower_bound=UPPER_LEG_LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_8", upper_bound=LOWER_LEG_UPPER_BOUND, lower_bound=LOWER_LEG_LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_9", upper_bound=L_HIP_UPPER_BOUND, lower_bound=L_HIP_LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_10", upper_bound=UPPER_LEG_UPPER_BOUND, lower_bound=UPPER_LEG_LOWER_BOUND),
-      locomotion_gym_config.ScalarField(name="motor_angle_11", upper_bound=LOWER_LEG_UPPER_BOUND, lower_bound=LOWER_LEG_LOWER_BOUND)
-  ]
+    """A simulation for the Laikago robot."""
 
-  def __init__(self,
-      pybullet_client,
-      urdf_filename=URDF_FILENAME,
-      enable_clip_motor_commands=True,
-      time_step=0.001,
-      action_repeat=33,
-      sensors=None,
-      control_latency=0.002,
-      on_rack=False,
-      enable_action_interpolation=True,
-      enable_action_filter=True
-  ):
-    self._urdf_filename = urdf_filename
+    ACTION_CONFIG = [
+        locomotion_gym_config.ScalarField(name="motor_angle_0", upper_bound=R_HIP_UPPER_BOUND, lower_bound=R_HIP_LOWER_BOUND),
+        locomotion_gym_config.ScalarField(name="motor_angle_1", upper_bound=UPPER_LEG_UPPER_BOUND, lower_bound=UPPER_LEG_LOWER_BOUND),
+        locomotion_gym_config.ScalarField(name="motor_angle_2", upper_bound=LOWER_LEG_UPPER_BOUND, lower_bound=LOWER_LEG_LOWER_BOUND),
+        locomotion_gym_config.ScalarField(name="motor_angle_3", upper_bound=L_HIP_UPPER_BOUND, lower_bound=L_HIP_LOWER_BOUND),
+        locomotion_gym_config.ScalarField(name="motor_angle_4", upper_bound=UPPER_LEG_UPPER_BOUND, lower_bound=UPPER_LEG_LOWER_BOUND),
+        locomotion_gym_config.ScalarField(name="motor_angle_5", upper_bound=LOWER_LEG_UPPER_BOUND, lower_bound=LOWER_LEG_LOWER_BOUND),
+        locomotion_gym_config.ScalarField(name="motor_angle_6", upper_bound=R_HIP_UPPER_BOUND, lower_bound=R_HIP_LOWER_BOUND),
+        locomotion_gym_config.ScalarField(name="motor_angle_7", upper_bound=UPPER_LEG_UPPER_BOUND, lower_bound=UPPER_LEG_LOWER_BOUND),
+        locomotion_gym_config.ScalarField(name="motor_angle_8", upper_bound=LOWER_LEG_UPPER_BOUND, lower_bound=LOWER_LEG_LOWER_BOUND),
+        locomotion_gym_config.ScalarField(name="motor_angle_9", upper_bound=L_HIP_UPPER_BOUND, lower_bound=L_HIP_LOWER_BOUND),
+        locomotion_gym_config.ScalarField(name="motor_angle_10", upper_bound=UPPER_LEG_UPPER_BOUND, lower_bound=UPPER_LEG_LOWER_BOUND),
+        locomotion_gym_config.ScalarField(name="motor_angle_11", upper_bound=LOWER_LEG_UPPER_BOUND, lower_bound=LOWER_LEG_LOWER_BOUND)
+    ]
 
-    self._enable_clip_motor_commands = enable_clip_motor_commands
+    def __init__(self,
+                 pybullet_client,
+                 urdf_filename=URDF_FILENAME,
+                 enable_clip_motor_commands=True,
+                 time_step=0.001,
+                 action_repeat=33,
+                 sensors=None,
+                 control_latency=0.002,
+                 on_rack=False,
+                 enable_action_interpolation=True,
+                 enable_action_filter=True
+                 ):
+        self._urdf_filename = urdf_filename
 
-    motor_kp = [ABDUCTION_P_GAIN, HIP_P_GAIN, KNEE_P_GAIN,
-                ABDUCTION_P_GAIN, HIP_P_GAIN, KNEE_P_GAIN,
-                ABDUCTION_P_GAIN, HIP_P_GAIN, KNEE_P_GAIN,
-                ABDUCTION_P_GAIN, HIP_P_GAIN, KNEE_P_GAIN]
-    motor_kd = [ABDUCTION_D_GAIN, HIP_D_GAIN, KNEE_D_GAIN,
-                ABDUCTION_D_GAIN, HIP_D_GAIN, KNEE_D_GAIN,
-                ABDUCTION_D_GAIN, HIP_D_GAIN, KNEE_D_GAIN,
-                ABDUCTION_D_GAIN, HIP_D_GAIN, KNEE_D_GAIN]
+        self._enable_clip_motor_commands = enable_clip_motor_commands
 
-    motor_torque_limits = None # jp hack
-    
-    super(Laikago, self).__init__(
-        pybullet_client=pybullet_client,
-        time_step=time_step,
-        action_repeat=action_repeat,
-        num_motors=NUM_MOTORS,
-        dofs_per_leg=DOFS_PER_LEG,
-        motor_direction=JOINT_DIRECTIONS,
-        motor_offset=JOINT_OFFSETS,
-        motor_overheat_protection=False,
-        motor_model_class=laikago_motor.LaikagoMotorModel,
-        sensors=sensors,
-        motor_kp=motor_kp,
-        motor_kd=motor_kd,
-        control_latency=control_latency,
-        on_rack=on_rack,
-        enable_action_interpolation=enable_action_interpolation,
-        enable_action_filter=enable_action_filter)
+        motor_kp = [ABDUCTION_P_GAIN, HIP_P_GAIN, KNEE_P_GAIN,
+                    ABDUCTION_P_GAIN, HIP_P_GAIN, KNEE_P_GAIN,
+                    ABDUCTION_P_GAIN, HIP_P_GAIN, KNEE_P_GAIN,
+                    ABDUCTION_P_GAIN, HIP_P_GAIN, KNEE_P_GAIN]
+        motor_kd = [ABDUCTION_D_GAIN, HIP_D_GAIN, KNEE_D_GAIN,
+                    ABDUCTION_D_GAIN, HIP_D_GAIN, KNEE_D_GAIN,
+                    ABDUCTION_D_GAIN, HIP_D_GAIN, KNEE_D_GAIN,
+                    ABDUCTION_D_GAIN, HIP_D_GAIN, KNEE_D_GAIN]
 
-    return
+        motor_torque_limits = None # jp hack
 
-  def _LoadRobotURDF(self):
-    laikago_urdf_path = self.GetURDFFile()
-    if self._self_collision_enabled:
-      self.quadruped = self._pybullet_client.loadURDF(
-          laikago_urdf_path,
-          self._GetDefaultInitPosition(),
-          self._GetDefaultInitOrientation(),
-          flags=self._pybullet_client.URDF_USE_SELF_COLLISION)
-    else:
-      self.quadruped = self._pybullet_client.loadURDF(
-          laikago_urdf_path, self._GetDefaultInitPosition(),
-          self._GetDefaultInitOrientation())
+        super(Laikago, self).__init__(
+            pybullet_client=pybullet_client,
+            time_step=time_step,
+            action_repeat=action_repeat,
+            num_motors=NUM_MOTORS,
+            dofs_per_leg=DOFS_PER_LEG,
+            motor_direction=JOINT_DIRECTIONS,
+            motor_offset=JOINT_OFFSETS,
+            motor_overheat_protection=False,
+            motor_model_class=laikago_motor.LaikagoMotorModel,
+            sensors=sensors,
+            motor_kp=motor_kp,
+            motor_kd=motor_kd,
+            control_latency=control_latency,
+            on_rack=on_rack,
+            enable_action_interpolation=enable_action_interpolation,
+            enable_action_filter=enable_action_filter)
 
-  def _SettleDownForReset(self, default_motor_angles, reset_time):
-    self.ReceiveObservation()
+        return
 
-    if reset_time <= 0:
-      return
+    def _LoadRobotURDF(self):
+        laikago_urdf_path = self.GetURDFFile()
+        if self._self_collision_enabled:
+            self.quadruped = self._pybullet_client.loadURDF(
+                laikago_urdf_path,
+                self._GetDefaultInitPosition(),
+                self._GetDefaultInitOrientation(),
+                flags=self._pybullet_client.URDF_USE_SELF_COLLISION)
+        else:
+            self.quadruped = self._pybullet_client.loadURDF(
+                laikago_urdf_path, self._GetDefaultInitPosition(),
+                self._GetDefaultInitOrientation())
 
-    for _ in range(500):
-      self._StepInternal(
-          INIT_MOTOR_ANGLES,
-          motor_control_mode=robot_config.MotorControlMode.POSITION)
-    if default_motor_angles is not None:
-      num_steps_to_reset = int(reset_time / self.time_step)
-      for _ in range(num_steps_to_reset):
-        self._StepInternal(
-            default_motor_angles,
-            motor_control_mode=robot_config.MotorControlMode.POSITION)
+    def _SettleDownForReset(self, default_motor_angles, reset_time):
+        self.ReceiveObservation()
 
-  def GetHipPositionsInBaseFrame(self):
-    return _DEFAULT_HIP_POSITIONS
+        if reset_time <= 0:
+            return
 
-  def GetFootContacts(self):
-    all_contacts = self._pybullet_client.getContactPoints(bodyA=self.quadruped)
+        for _ in range(500):
+            self._StepInternal(
+                INIT_MOTOR_ANGLES,
+                motor_control_mode=robot_config.MotorControlMode.POSITION)
+        if default_motor_angles is not None:
+            num_steps_to_reset = int(reset_time / self.time_step)
+            for _ in range(num_steps_to_reset):
+                self._StepInternal(
+                    default_motor_angles,
+                    motor_control_mode=robot_config.MotorControlMode.POSITION)
 
-    contacts = [False, False, False, False]
-    for contact in all_contacts:
-      # Ignore self contacts
-      if contact[_BODY_B_FIELD_NUMBER] == self.quadruped:
-        continue
-      try:
-        toe_link_index = self._foot_link_ids.index(
-            contact[_LINK_A_FIELD_NUMBER])
-        contacts[toe_link_index] = True
-      except ValueError:
-        continue
+    def GetHipPositionsInBaseFrame(self):
+        return _DEFAULT_HIP_POSITIONS
 
-    return contacts
+    def GetFootContacts(self):
+        all_contacts = self._pybullet_client.getContactPoints(bodyA=self.quadruped)
 
-  def ComputeJacobian(self, leg_id):
-    """Compute the Jacobian for a given leg."""
-    # Because of the default rotation in the Laikago URDF, we need to reorder
-    # the rows in the Jacobian matrix.
-    return super(Laikago, self).ComputeJacobian(leg_id)[(2, 0, 1), :]
+        contacts = [False, False, False, False]
+        for contact in all_contacts:
+            # Ignore self contacts
+            if contact[_BODY_B_FIELD_NUMBER] == self.quadruped:
+                continue
+            try:
+                toe_link_index = self._toe_link_ids.index(
+                    contact[_LINK_A_FIELD_NUMBER])
+                contacts[toe_link_index] = True
+            except ValueError:
+                continue
 
-  def ResetPose(self, add_constraint):
-    del add_constraint
-    for name in self._joint_name_to_id:
-      joint_id = self._joint_name_to_id[name]
-      self._pybullet_client.setJointMotorControl2(
-          bodyIndex=self.quadruped,
-          jointIndex=(joint_id),
-          controlMode=self._pybullet_client.VELOCITY_CONTROL,
-          targetVelocity=0,
-          force=0)
-    for name, i in zip(MOTOR_NAMES, range(len(MOTOR_NAMES))):
-      if "hip_motor_2_chassis_joint" in name:
-        angle = INIT_MOTOR_ANGLES[i] + HIP_JOINT_OFFSET
-      elif "upper_leg_2_hip_motor_joint" in name:
-        angle = INIT_MOTOR_ANGLES[i] + UPPER_LEG_JOINT_OFFSET
-      elif "lower_leg_2_upper_leg_joint" in name:
-        angle = INIT_MOTOR_ANGLES[i] + KNEE_JOINT_OFFSET
-      else:
-        raise ValueError("The name %s is not recognized as a motor joint." %
-                         name)
-      self._pybullet_client.resetJointState(
-          self.quadruped, self._joint_name_to_id[name], angle, targetVelocity=0)
+        return contacts
 
-  def GetURDFFile(self):
-    return self._urdf_filename
+    def ComputeJacobian(self, leg_id):
+        """Compute the Jacobian for a given leg."""
+        # Because of the default rotation in the Laikago URDF, we need to reorder
+        # the rows in the Jacobian matrix.
+        return super(Laikago, self).ComputeJacobian(leg_id)[(2, 0, 1), :]
 
-  def _BuildUrdfIds(self):
-    """Build the link Ids from its name in the URDF file.
+    def ResetPose(self, add_constraint):
+        del add_constraint
+        for name in self._joint_name_to_id:
+            joint_id = self._joint_name_to_id[name]
+            self._pybullet_client.setJointMotorControl2(
+                bodyIndex=self.quadruped,
+                jointIndex=(joint_id),
+                controlMode=self._pybullet_client.VELOCITY_CONTROL,
+                targetVelocity=0,
+                force=0)
+        for name, i in zip(MOTOR_NAMES, range(len(MOTOR_NAMES))):
+            if "hip_motor_2_chassis_joint" in name:
+                angle = INIT_MOTOR_ANGLES[i] + HIP_JOINT_OFFSET
+            elif "upper_leg_2_hip_motor_joint" in name:
+                angle = INIT_MOTOR_ANGLES[i] + UPPER_LEG_JOINT_OFFSET
+            elif "lower_leg_2_upper_leg_joint" in name:
+                angle = INIT_MOTOR_ANGLES[i] + KNEE_JOINT_OFFSET
+            else:
+                raise ValueError("The name %s is not recognized as a motor joint." %
+                                 name)
+            self._pybullet_client.resetJointState(
+                self.quadruped, self._joint_name_to_id[name], angle, targetVelocity=0)
 
-    Raises:
-      ValueError: Unknown category of the joint name.
-    """
-    num_joints = self._pybullet_client.getNumJoints(self.quadruped)
-    self._chassis_link_ids = [-1]
-    self._leg_link_ids = []
-    self._motor_link_ids = []
-    self._knee_link_ids = []
-    self._foot_link_ids = []
+    def GetURDFFile(self):
+        return self._urdf_filename
 
-    for i in range(num_joints):
-      joint_info = self._pybullet_client.getJointInfo(self.quadruped, i)
-      joint_name = joint_info[1].decode("UTF-8")
-      joint_id = self._joint_name_to_id[joint_name]
-      if _CHASSIS_NAME_PATTERN.match(joint_name):
-        self._chassis_link_ids.append(joint_id)
-      elif _MOTOR_NAME_PATTERN.match(joint_name):
-        self._motor_link_ids.append(joint_id)
-      # We either treat the lower leg or the toe as the foot link, depending on
-      # the urdf version used.
-      elif _KNEE_NAME_PATTERN.match(joint_name):
-        self._knee_link_ids.append(joint_id)
-      elif _TOE_NAME_PATTERN.match(joint_name):
-        self._foot_link_ids.append(joint_id)
-      else:
-        raise ValueError("Unknown category of joint %s" % joint_name)
+    def _BuildUrdfIds(self):
+        """Build the link Ids from its name in the URDF file.
 
-    self._leg_link_ids.extend(self._knee_link_ids)
-    self._leg_link_ids.extend(self._foot_link_ids)
-    self._foot_link_ids.extend(self._knee_link_ids)
+        Raises:
+          ValueError: Unknown category of the joint name.
+        """
+        num_joints = self._pybullet_client.getNumJoints(self.quadruped)
+        self._chassis_link_ids = [-1]
+        self._upper_link_ids = []
+        self._lower_link_ids = []
+        self._foot_link_ids = []
+        self._toe_link_ids = []
 
-    self._chassis_link_ids.sort()
-    self._motor_link_ids.sort()
-    self._foot_link_ids.sort()
-    self._leg_link_ids.sort()
+        for i in range(num_joints):
+            joint_info = self._pybullet_client.getJointInfo(self.quadruped, i)
+            joint_name = joint_info[1].decode("UTF-8")
+            joint_id = self._joint_name_to_id[joint_name]
+            if _UPPER_NAME_PATTERN.match(joint_name):
+                self._upper_link_ids.append(joint_id)
+            elif _LOWER_NAME_PATTERN.match(joint_name):
+                self._lower_link_ids.append(joint_id)
+            elif _FOOT_NAME_PATTERN.match(joint_name):
+                self._foot_link_ids.append(joint_id)
+            elif _TOE_NAME_PATTERN.match(joint_name):
+                self._toe_link_ids.append(joint_id)
+            else:
+                raise ValueError("Unknown category of joint %s" % joint_name)
 
-    return
+        self._chassis_link_ids.sort()
+        self._motor_link_ids.sort()
+        self._foot_link_ids.sort()
+        self._leg_link_ids.sort()
 
-  def _GetMotorNames(self):
-    return MOTOR_NAMES
+        return
 
-  def _GetDefaultInitPosition(self):
-    if self._on_rack:
-      return INIT_RACK_POSITION
-    else:
-      return INIT_POSITION
+    def _GetMotorNames(self):
+        return MOTOR_NAMES
 
-  def _GetDefaultInitOrientation(self):
-    # The Laikago URDF assumes the initial pose of heading towards z axis,
-    # and belly towards y axis. The following transformation is to transform
-    # the Laikago initial orientation to our commonly used orientation: heading
-    # towards -x direction, and z axis is the up direction.
-    init_orientation = pyb.getQuaternionFromEuler([math.pi / 2.0, 0, math.pi / 2.0])
-    return init_orientation
+    def _GetDefaultInitPosition(self):
+        if self._on_rack:
+            return INIT_RACK_POSITION
+        else:
+            return INIT_POSITION
 
-  def GetDefaultInitPosition(self):
-    """Get default initial base position."""
-    return self._GetDefaultInitPosition()
+    def _GetDefaultInitOrientation(self):
+        # The Laikago URDF assumes the initial pose of heading towards z axis,
+        # and belly towards y axis. The following transformation is to transform
+        # the Laikago initial orientation to our commonly used orientation: heading
+        # towards -x direction, and z axis is the up direction.
+        init_orientation = pyb.getQuaternionFromEuler([math.pi / 2.0, 0, math.pi / 2.0])
+        return init_orientation
 
-  def GetDefaultInitOrientation(self):
-    """Get default initial base orientation."""
-    return self._GetDefaultInitOrientation()
+    def GetDefaultInitPosition(self):
+        """Get default initial base position."""
+        return self._GetDefaultInitPosition()
 
-  def GetDefaultInitJointPose(self):
-    """Get default initial joint pose."""
-    joint_pose = (INIT_MOTOR_ANGLES + JOINT_OFFSETS) * JOINT_DIRECTIONS
-    return joint_pose
+    def GetDefaultInitOrientation(self):
+        """Get default initial base orientation."""
+        return self._GetDefaultInitOrientation()
 
-  def ApplyAction(self, motor_commands, motor_control_mode=None):
-    """Clips and then apply the motor commands using the motor model.
+    def GetDefaultInitJointPose(self):
+        """Get default initial joint pose."""
+        joint_pose = (INIT_MOTOR_ANGLES + JOINT_OFFSETS) * JOINT_DIRECTIONS
+        return joint_pose
 
-    Args:
-      motor_commands: np.array. Can be motor angles, torques, hybrid commands,
-        or motor pwms (for Minitaur only).N
-      motor_control_mode: A MotorControlMode enum.
-    """
-    if self._enable_clip_motor_commands:
-      motor_commands = self._ClipMotorCommands(motor_commands)
+    def ApplyAction(self, motor_commands, motor_control_mode=None):
+        """Clips and then apply the motor commands using the motor model.
 
-    super(Laikago, self).ApplyAction(motor_commands, motor_control_mode)
-    return
+        Args:
+          motor_commands: np.array. Can be motor angles, torques, hybrid commands,
+            or motor pwms (for Minitaur only).N
+          motor_control_mode: A MotorControlMode enum.
+        """
+        if self._enable_clip_motor_commands:
+            motor_commands = self._ClipMotorCommands(motor_commands)
 
-  def _ClipMotorCommands(self, motor_commands):
-    """Clips motor commands.
+        super(Laikago, self).ApplyAction(motor_commands, motor_control_mode)
+        return
 
-    Args:
-      motor_commands: np.array. Can be motor angles, torques, hybrid commands,
-        or motor pwms (for Minitaur only).
+    def _ClipMotorCommands(self, motor_commands):
+        """Clips motor commands.
 
-    Returns:
-      Clipped motor commands.
-    """
+        Args:
+          motor_commands: np.array. Can be motor angles, torques, hybrid commands,
+            or motor pwms (for Minitaur only).
 
-    # clamp the motor command by the joint limit, in case weired things happens
-    max_angle_change = MAX_MOTOR_ANGLE_CHANGE_PER_STEP
-    current_motor_angles = self.GetMotorAngles()
-    motor_commands = np.clip(motor_commands,
-                             current_motor_angles - max_angle_change,
-                             current_motor_angles + max_angle_change)
-    return motor_commands
+        Returns:
+          Clipped motor commands.
+        """
 
-  @classmethod
-  def GetConstants(cls):
-    del cls
-    return laikago_constants
+        # clamp the motor command by the joint limit, in case weired things happens
+        max_angle_change = MAX_MOTOR_ANGLE_CHANGE_PER_STEP
+        current_motor_angles = self.GetMotorAngles()
+        motor_commands = np.clip(motor_commands,
+                                 current_motor_angles - max_angle_change,
+                                 current_motor_angles + max_angle_change)
+        return motor_commands
+
+    @classmethod
+    def GetConstants(cls):
+        del cls
+        return laikago_constants
 
 if __name__ == "__main__":
     import pybullet_utils.bullet_client as bc
