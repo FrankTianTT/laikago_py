@@ -24,20 +24,21 @@ chassis_link_ids = [-1]
 action = [-1,0,0,1,0,0,-1,0,0,1,0,0]
 
 
-while True:
-    robot.Step(np.array(action))
-    body_pos = pyb.getBasePositionAndOrientation(quadruped)[0]
-    aver = sum([pyb.getLinkState(quadruped, i)[0][2] for i in [0,3,6,9]])/4
-    body_state = pyb.getLinkState(quadruped, 0)[0]
-    height = body_pos[2]
-    body_h = body_state[2]
-    action[0] += 0.001
-    action[3] -= 0.001
-    action[6] += 0.001
-    action[9] -= 0.001
-    print(height, aver)
-
-
+# while True:
+    # robot.Step(np.array(action))
+    # body_pos = pyb.getBasePositionAndOrientation(quadruped)[0]
+    # aver = sum([pyb.getLinkState(quadruped, i)[0][2] for i in [0,3,6,9]])/4
+    # aver_ = sum([pyb.getLinkState(quadruped, i)[2][2] for i in [0, 3, 6, 9]]) / 4
+    # toe_indexes = [3, 7, 11, 15]
+    # heights = [pyb.getLinkState(quadruped, i)[0][2] for i in toe_indexes]
+    # body_state = pyb.getLinkState(quadruped, 0)[0]
+    # height = body_pos[2]
+    # body_h = body_state[2]
+    # action[0] += 0.001
+    # action[3] -= 0.001
+    # action[6] += 0.001
+    # action[9] -= 0.001
+    # print(heights)
 
 
 

@@ -6,14 +6,13 @@ ENV_NAME = "Stand-Up"
 TIME_STEPS = 100000
 VERSION = 2
 
-env = env_builder.build_env(enable_randomizer=True, version=VERSION, enable_rendering=True)
+env = env_builder.build_env(enable_randomizer=True, version=VERSION, enable_rendering=True, mode='never_done')
 
-model = SAC.load("logs/v0/best_model")
 
 total_reward = 0
 obs = env.reset()
 for i in range(100000):
-    action, _states = model.predict(obs, deterministic=True)
+    action = env.action_space.sample()
     obs, reward, done, info = env.step(action)
     total_reward += reward
     if done:

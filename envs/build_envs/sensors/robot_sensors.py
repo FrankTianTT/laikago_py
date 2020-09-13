@@ -105,9 +105,11 @@ class MotorVelocitiySensor(sensor.BoxSpaceSensor):
       dtype=dtype)
 
   def _get_observation(self) -> _ARRAY:
-    toes_contact = self._robot.GetFootContacts()
-    contact_info = [1 if contact else -1 for contact in toes_contact]
-    return contact_info
+    if self._noisy_reading:
+      motor_velocities = self._robot.GetMotorVelocities()
+    else:
+      motor_velocities = self._robot.GetTrueMotorVelocities()
+    return motor_velocities
 
 
 class ToeTouchSensor(sensor.BoxSpaceSensor):

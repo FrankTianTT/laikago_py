@@ -37,8 +37,8 @@ class LaikagoTask(object):
 
     def reset(self,env):
         self._env = env
-        self._get_body_pos_vel_info()
         self.quadruped = self._env.robot.quadruped
+        self._get_body_pos_vel_info()
         return
 
 
@@ -72,8 +72,9 @@ class LaikagoTask(object):
         reward = self.body_pos[2]
         return self.normalize_reward(reward, 0, 0.5)
 
+
     def _reward_of_energy(self):
-        self._get_body_pos_vel_info()
+        self._get_joint_pos_vel_info()
         E = sum([abs(p[0] * p[1]) for p in zip(self.joint_tor, self.joint_vel)])
         reward = -E
         return reward
@@ -139,6 +140,12 @@ class LaikagoTask(object):
             else:
                 collision_info.append(False)
         return collision_info
+
+    def _get_height_of_toes(self):
+        pyb = self._get_pybullet_client()
+        toe_indexes = [3, 7, 11, 15]
+        heights = [pyb.getLinkState(self.quadruped, i)[0][2] for i in toe_indexes]
+        return heights
 
     # This direction is concerning rotation, which is the direction the head faces
     def _get_current_face_ori(self):
