@@ -12,7 +12,7 @@ from build_envs.utilities import controllable_env_randomizer_from_config
 from robots import laikago
 
 
-def build_env(enable_randomizer, enable_rendering, version=0, mode='train'):
+def build_env(enable_randomizer, enable_rendering, version=0, mode='train', max_episode_steps=300):
 
     sim_params = locomotion_gym_config.SimulationParameters()
     sim_params.enable_rendering = enable_rendering
@@ -30,7 +30,7 @@ def build_env(enable_randomizer, enable_rendering, version=0, mode='train'):
             wrapped_sensor=environment_sensors.LastActionSensor(num_actions=laikago.NUM_MOTORS), num_history=3)
     ]
 
-    task = eval('standup_task.StandupTaskV{}'.format(version))(mode=mode)
+    task = eval('standup_task.StandupTaskV{}'.format(version))(mode=mode, max_episode_steps=max_episode_steps)
 
     randomizers = []
     if enable_randomizer:
@@ -42,5 +42,3 @@ def build_env(enable_randomizer, enable_rendering, version=0, mode='train'):
 
     env = observation_dictionary_to_array_wrapper.ObservationDictionaryToArrayWrapper(env)
     return env
-
-

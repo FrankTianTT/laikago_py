@@ -9,7 +9,8 @@ class LaikagoTask(object):
                  end_effector_weight=0.2,
                  root_pose_weight=0.15,
                  root_velocity_weight=0.1,
-                 mode='train'):
+                 mode='train',
+                 max_episode_steps=300):
         self._env = None
         self._weight = weight
 
@@ -20,6 +21,7 @@ class LaikagoTask(object):
         self._root_pose_weight = root_pose_weight
         self._root_velocity_weight = root_velocity_weight
         self.mode = mode
+        self.max_episode_steps = max_episode_steps
 
         self.body_pos = None
         self.body_ori = None
