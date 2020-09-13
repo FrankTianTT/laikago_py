@@ -37,42 +37,46 @@ class LaikagoTask(object):
 
     def reset(self,env):
         self._env = env
-        self._get_pos_vel_info()
+        self._get_body_pos_vel_info()
         self.quadruped = self._env.robot.quadruped
         return
 
-    # This direction is concerning rotation, which is the direction the head faces
-    def _cal_current_face_ori(self):
-        self._get_pos_vel_info()
-        return bq(self.body_ori).ori([0, 0, 1])
 
-    # This direction is not concerning rotation, which is the direction the back faces
-    def _cal_current_back_ori(self):
-        self._get_pos_vel_info()
-        return bq(self.body_ori).ori([0, 1, 0])
+    def normalize_reward(self, reward, min_reward, max_reward):
+        return (reward - min_reward)/(max_reward - min_reward)
 
-    '''
-    There are 16 joints in the laikago.
-    No.0, 4, 8, 12 are joints between hip-motor and chassis
-    No.1, 5, 9, 13 are joints between upper-leg and hip-motor
-    No.2, 6, 10, 14 are joints between lower_leg and upper-leg
-    No,3, 7, 11, 15 are joints of toes
-    '''
-    def _get_collision_info(self):
-        pyb = self._get_pybullet_client()
-        quadruped = self._env.robot.quadruped
-        ground = self._env._world_dict["ground"]
-        contact_points = pyb.getContactPoints(bodyA=quadruped, bodyB=ground)
-        contact_ids = [point[3] for point in contact_points]
-        collision_info = []
-        num_joints = pyb.getNumJoints(self.quadruped)
-        for i in range(num_joints):
-            if i in contact_ids:
-                collision_info.append(True)
-            else:
-                collision_info.append(False)
-        return collision_info
+    def _reward_of_toe_collision(self):
+        collision_info = self._get_collision_info()
+        reward = 0
+        for i in range(16):
+            if i % 4 == 3 and collision_info[i]:
+                reward += 1
+        return self.normalize_reward(reward, 0, 4)
 
+    def _reward_of_leg_collision(self):
+        collision_info = self._get_collision_info()
+        reward = 0
+        for i in range(16):
+            if i % 4 == 1 and collision_info[i]:
+                    reward -= 1
+        return self.normalize_reward(reward, -4, 0)
+
+    def _reward_of_upward_ori(self):
+        # the expect value of back_ori is [0,0,1]
+        back_ori = self._get_current_back_ori()
+        reward = - (1 - back_ori[2]) ** 2
+        return self.normalize_reward(reward, -4, 0)
+
+    def _reward_of_stand_height(self, max_height=0.4):
+        self._get_body_pos_vel_info()
+        reward = self.body_pos[2]
+        return self.normalize_reward(reward, 0, 0.5)
+
+    def _reward_of_energy(self):
+        self._get_body_pos_vel_info()
+        E = sum([abs(p[0] * p[1]) for p in zip(self.joint_tor, self.joint_vel)])
+        reward = -E
+        return reward
 
     def reward(self, env):
         del env
@@ -98,18 +102,50 @@ class LaikagoTask(object):
         pyb = self._get_pybullet_client()
         return pyb.getNumJoints(self._env.robot.quadruped)
 
-    def _get_pos_vel_info(self):
+    def _get_body_pos_vel_info(self):
         pyb = self._get_pybullet_client()
-        quadruped = self._env.robot.quadruped
-        self.body_pos = pyb.getBasePositionAndOrientation(quadruped)[0]  # 3 list: position list of 3 floats
-        self.body_ori = pyb.getBasePositionAndOrientation(quadruped)[1]  # 4 list: orientation as list of 4 floats in [x,y,z,w] order
-        self.body_lin_vel = pyb.getBaseVelocity(quadruped)[0]  # 3 list: linear velocity [x,y,z]
-        self.body_ang_vel = pyb.getBaseVelocity(quadruped)[1]  # 3 list: angular velocity [wx,wy,wz]
+        self.body_pos = pyb.getBasePositionAndOrientation(self.quadruped)[0]  # 3 list: position list of 3 floats
+        self.body_ori = pyb.getBasePositionAndOrientation(self.quadruped)[1]  # 4 list: orientation as list of 4 floats in [x,y,z,w] order
+        self.body_lin_vel = pyb.getBaseVelocity(self.quadruped)[0]  # 3 list: linear velocity [x,y,z]
+        self.body_ang_vel = pyb.getBaseVelocity(self.quadruped)[1]  # 3 list: angular velocity [wx,wy,wz]
+
+    def _get_joint_pos_vel_info(self):
+        pyb = self._get_pybullet_client()
         self.joint_pos = []  # float: the position value of this joint
         self.joint_vel = []  # float: the velocity value of this joint
         self.joint_tor = []  # float: the torque value of this joint
+        # No.3, 7, 11, 15 are all joints between foot and toe, which is no motor in it.
         for i in range(16):
             if i % 4 != 3:
-                self.joint_pos.append(pyb.getJointState(quadruped, i)[0])
-                self.joint_vel.append(pyb.getJointState(quadruped, i)[1])
-                self.joint_tor.append(pyb.getJointState(quadruped, i)[3])
+                self.joint_pos.append(pyb.getJointState(self.quadruped, i)[0])
+                self.joint_vel.append(pyb.getJointState(self.quadruped, i)[1])
+                self.joint_tor.append(pyb.getJointState(self.quadruped, i)[3])
+
+    # There are 16 links in the laikago.
+    # No.0, 4, 8, 12 are upper legs
+    # No.1, 5, 9, 13 are lower legs
+    # No.2, 6, 10, 14 are feet
+    # No,3, 7, 11, 15 are toes
+    def _get_collision_info(self):
+        pyb = self._get_pybullet_client()
+        ground = self._env._world_dict["ground"]
+        contact_points = pyb.getContactPoints(bodyA=self.quadruped, bodyB=ground)
+        contact_ids = [point[3] for point in contact_points]
+        collision_info = []
+        num_joints = pyb.getNumJoints(self.quadruped)
+        for i in range(num_joints):
+            if i in contact_ids:
+                collision_info.append(True)
+            else:
+                collision_info.append(False)
+        return collision_info
+
+    # This direction is concerning rotation, which is the direction the head faces
+    def _get_current_face_ori(self):
+        self._get_body_pos_vel_info()
+        return bq(self.body_ori).ori([0, 0, 1])
+
+    # This direction is not concerning rotation, which is the direction the back faces
+    def _get_current_back_ori(self):
+        self._get_body_pos_vel_info()
+        return bq(self.body_ori).ori([0, 1, 0])

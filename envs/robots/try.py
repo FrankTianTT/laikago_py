@@ -10,10 +10,7 @@ import time
 
 sensors = [
         sensor_wrappers.HistoricSensorWrapper(
-            wrapped_sensor=robot_sensors.MotorAngleSensor(num_motors=laikago.NUM_MOTORS), num_history=3),
-        sensor_wrappers.HistoricSensorWrapper(
-            wrapped_sensor=robot_sensors.MotorVelocitiySensor(num_motors=laikago.NUM_MOTORS), num_history=3),
-        sensor_wrappers.HistoricSensorWrapper(wrapped_sensor=robot_sensors.IMUSensor(), num_history=3)
+            wrapped_sensor=robot_sensors.ToeTouchSensor(4), num_history=3)
     ]
 
 pyb = bullet_client.BulletClient(connection_mode=pybullet.GUI)
@@ -24,27 +21,37 @@ robot = Laikago(pybullet_client=pyb, sensors=sensors, on_rack=False)
 quadruped = robot.quadruped
 num_joints = pyb.getNumJoints(quadruped)
 chassis_link_ids = [-1]
+action = [-1,0,0,1,0,0,-1,0,0,1,0,0]
+
+
 while True:
-    robot.Step(np.array([0,0,0,0,0,0,0,0,0,0,0,0]))
-    quadruped = robot.quadruped
+    robot.Step(np.array(action))
+    body_pos = pyb.getBasePositionAndOrientation(quadruped)[0]
+    aver = sum([pyb.getLinkState(quadruped, i)[0][2] for i in [0,3,6,9]])/4
+    body_state = pyb.getLinkState(quadruped, 0)[0]
+    height = body_pos[2]
+    body_h = body_state[2]
+    action[0] += 0.001
+    action[3] -= 0.001
+    action[6] += 0.001
+    action[9] -= 0.001
+    print(height, aver)
 
-    joint_pos = []  # float: the position value of this joint
-    joint_vel = []  # float: the velocity value of this joint
-    joint_tor = []  # float: the torque value of this joint
-    for i in range(16):
-        joint_pos.append(pyb.getJointState(quadruped, i)[0])
-        joint_vel.append(pyb.getJointState(quadruped, i)[1])
-        joint_tor.append(pyb.getJointState(quadruped, i)[3])
-    joint_pos = np.array(joint_pos)/np.pi * 180
 
-    '''
-    There are 16 joints in the laikago.
-    No.0, 4, 8, 12 are joints between hip-motor and chassis
-    No.1, 5, 9, 13 are joints between upper-leg and hip-motor
-    No.2, 6, 10, 14 are joints between lower_leg and upper-leg
-    No,3, 7, 11, 15 are joints of toes
-    '''
 
-    toes_contact = robot.GetFootContacts()
-    time.sleep(0.1)
-    print(toes_contact)
+
+
+    # contact_points = pyb.getContactPoints(bodyA=quadruped, bodyB=ground)
+    # contact_ids = [point[3] for point in contact_points]
+    # collision_info = []
+    # num_joints = pyb.getNumJoints(quadruped)
+    # for i in range(num_joints):
+    #     if i in contact_ids:
+    #         collision_info.append(True)
+    #     else:
+    #         collision_info.append(False)
+    #
+    # info = [[],[],[],[]]
+    # for i, c in enumerate(collision_info):
+    #     info[i % 4].append(c)
+    # print(info)

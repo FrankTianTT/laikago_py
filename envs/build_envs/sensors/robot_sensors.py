@@ -85,7 +85,7 @@ class MotorAngleSensor(sensor.BoxSpaceSensor):
 
 
 class MotorVelocitiySensor(sensor.BoxSpaceSensor):
-  """A sensor that reads motor angles from the robot."""
+  """A sensor that reads motor velocitiy from the robot."""
 
   def __init__(self,
                num_motors: int,
@@ -111,7 +111,7 @@ class MotorVelocitiySensor(sensor.BoxSpaceSensor):
 
 
 class ToeTouchSensor(sensor.BoxSpaceSensor):
-  """A sensor that reads motor angles from the robot."""
+  """A sensor that reads toe contact from the robot."""
 
   def __init__(self,
                num_toes: int,
