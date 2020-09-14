@@ -1,6 +1,7 @@
 import math
 from envs.build_envs.utilities.quaternion import bullet_quaternion as bq
 import random
+import numpy as np
 class LaikagoTask(object):
     def __init__(self,
                  weight=1.0,
@@ -81,9 +82,23 @@ class LaikagoTask(object):
 
     # use it when try to stand up.
     def _reward_of_toes_height(self):
-        toes_height = self._get_height_of_toes()
-        reward = - sum(h**2 for h in toes_height)
+        toes_height = self._get_pos_of_toes()
+        reward = - sum([pos[2] for pos in toes_height])
         return self.normalize_reward(reward, -1, 0)  # the min reward by sample action is -0.8.
+
+    def _reward_of_toe_upper_distance(self):
+        distances = self._get_toe_upper_distance()
+        reward = np.sum(distances)
+        return self.normalize_reward(reward, 0, 2)
+
+    def _not_done_of_too_short(self, threshold=20):
+        return self._env.env_step_counter < threshold  # if in this case, return True to prevent to die.
+
+    def _not_done_of_mode(self, mode):
+        if mode == 'never_done':
+            return True
+        else:
+            return False
 
     def _done_of_wrong_toward_ori(self, threshold=0.6):
         toward_ori = self._get_toward_ori()
@@ -107,7 +122,6 @@ class LaikagoTask(object):
 
     def update(self, env):
         pass
-
 
     def _bad_end(self):
         return False
@@ -159,11 +173,35 @@ class LaikagoTask(object):
                 collision_info.append(False)
         return collision_info
 
-    def _get_height_of_toes(self):
+    def _get_pos_of_upper(self):
+        pyb = self._get_pybullet_client()
+        upper_indexes = [0, 4, 8, 12]
+        pos = [pyb.getLinkState(self.quadruped, i)[0] for i in upper_indexes]
+        return pos
+
+    def _get_pos_of_lower(self):
+        pyb = self._get_pybullet_client()
+        lower_indexes = [1, 5, 9, 13]
+        pos = [pyb.getLinkState(self.quadruped, i)[0] for i in lower_indexes]
+        return pos
+
+    def _get_pos_of_feet(self):
+        pyb = self._get_pybullet_client()
+        foot_indexes = [2, 6, 10, 14]
+        pos = [pyb.getLinkState(self.quadruped, i)[0] for i in foot_indexes]
+        return pos
+
+    def _get_pos_of_toes(self):
         pyb = self._get_pybullet_client()
         toe_indexes = [3, 7, 11, 15]
-        heights = [pyb.getLinkState(self.quadruped, i)[0][2] for i in toe_indexes]
-        return heights
+        pos = [pyb.getLinkState(self.quadruped, i)[0] for i in toe_indexes]
+        return pos
+
+    def _get_toe_upper_distance(self):
+        pos_toe = np.array(self._get_pos_of_toes())
+        pos_upper = np.array(self._get_pos_of_upper())
+        distances = np.sqrt(np.sum((pos_toe - pos_upper) ** 2, axis=1))
+        return distances
 
     # This direction is concerning rotation, which is the direction the head faces
     def _get_current_face_ori(self):

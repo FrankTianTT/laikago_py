@@ -1,22 +1,13 @@
 from stable_baselines3 import SAC
 from stable_baselines3.common.callbacks import EvalCallback
 import standup.standup_env_builder as env_builder
+import numpy as np
 
-ENV_NAME = "Stand-Up"
-TIME_STEPS = 100000
-VERSION = 0
+a=np.array([[1,2],[3,4]])
+print(np.sum(a**2))
 
-env = env_builder.build_env(enable_randomizer=True, version=VERSION, enable_rendering=True, mode='never_done')
+print(a**2)
 
+print(np.sum(a**2, axis=1))
 
-total_reward = 0
-obs = env.reset()
-for i in range(100000):
-    action = env.action_space.sample()
-    obs, reward, done, info = env.step(action)
-    total_reward += reward
-    if done:
-      obs = env.reset()
-      print('Test reward is {:.3f}.'.format(total_reward))
-      total_reward = 0
-env.close()
+print(np.sqrt(np.sum(a**2, axis=1)))

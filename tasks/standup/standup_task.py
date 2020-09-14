@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # by frank tian on 7.9.2020
 
-import math
+import time
 from envs.build_envs.laikago_task import LaikagoTask
 '''
 Stand Up Task Version 0
@@ -26,6 +26,11 @@ class StandupTaskV0(LaikagoTask):
                                           mode)
         return
 
+    def update(self, env):
+        del env
+
+        time.sleep(.1)
+
     def reward(self, env):
         del env
         sum_vel_r = self._reward_of_sum_vel()
@@ -35,11 +40,10 @@ class StandupTaskV0(LaikagoTask):
 
     def done(self, env):
         del env
-        if self.mode == 'never_done':  # only use in test mode
+        if self._not_done_of_too_short() or self._not_done_of_mode(self.mode):
             return False
-
-        done = self._done_of_wrong_toward_ori() or self._done_of_low_height() or self._done_of_too_long()
-        return done
+        else:
+            return self._done_of_wrong_toward_ori() or self._done_of_low_height() or self._done_of_too_long()
 
 '''
 Stand Up Task Version 1
@@ -69,17 +73,18 @@ class StandupTaskV1(LaikagoTask):
         del env
         sum_vel_r = self._reward_of_sum_vel()
         collision_r = self._reward_of_toe_collision()
+        height_r = self._reward_of_stand_height()
+        toe_upper_r = self._reward_of_toe_upper_distance()
 
-        reward = sum_vel_r + collision_r
-        return reward
+        reward = sum_vel_r + collision_r + height_r + toe_upper_r
+        return reward/4
 
     def done(self, env):
         del env
-        if self.mode == 'never_done':  # only use in test mode
+        if self._not_done_of_too_short() or self._not_done_of_mode(self.mode):
             return False
-
-        done = self._done_of_wrong_toward_ori() or self._done_of_low_height() or self._done_of_too_long()
-        return done
+        else:
+            return self._done_of_wrong_toward_ori() or self._done_of_low_height() or self._done_of_too_long()
 
 class StandupTaskV2(LaikagoTask):
     def __init__(self,
@@ -102,17 +107,17 @@ class StandupTaskV2(LaikagoTask):
     def reward(self, env):
         del env
         ori_r = self._reward_of_upward_ori()
-        pos_r = self._reward_of_stand_height()
+        height_r = self._reward_of_stand_height()
         energy_r = self._reward_of_energy()
         collision_r = self._reward_of_toe_collision()
+        toe_upper_r = self._reward_of_toe_upper_distance()
 
-        reward = ori_r + pos_r + energy_r + collision_r
-        return reward
+        reward = ori_r + height_r + energy_r + collision_r + toe_upper_r
+        return reward/5
 
     def done(self, env):
         del env
-        if self.mode == 'never_done':  # only use in test mode
+        if self._not_done_of_too_short() or self._not_done_of_mode(self.mode):
             return False
-
-        done = self._done_of_wrong_toward_ori() or self._done_of_low_height() or self._done_of_too_long()
-        return done
+        else:
+            return self._done_of_wrong_toward_ori() or self._done_of_low_height() or self._done_of_too_long()

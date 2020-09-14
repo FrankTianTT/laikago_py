@@ -21,38 +21,44 @@ robot = Laikago(pybullet_client=pyb, sensors=sensors, on_rack=False)
 quadruped = robot.quadruped
 num_joints = pyb.getNumJoints(quadruped)
 chassis_link_ids = [-1]
-action = [-1,0,0,1,0,0,-1,0,0,1,0,0]
+action = [0,0,0,0,0,0,0,0,0,0,0,0]
 
 
-# while True:
-    # robot.Step(np.array(action))
-    # body_pos = pyb.getBasePositionAndOrientation(quadruped)[0]
-    # aver = sum([pyb.getLinkState(quadruped, i)[0][2] for i in [0,3,6,9]])/4
-    # aver_ = sum([pyb.getLinkState(quadruped, i)[2][2] for i in [0, 3, 6, 9]]) / 4
-    # toe_indexes = [3, 7, 11, 15]
-    # heights = [pyb.getLinkState(quadruped, i)[0][2] for i in toe_indexes]
-    # body_state = pyb.getLinkState(quadruped, 0)[0]
-    # height = body_pos[2]
-    # body_h = body_state[2]
-    # action[0] += 0.001
-    # action[3] -= 0.001
-    # action[6] += 0.001
-    # action[9] -= 0.001
-    # print(heights)
+def _get_pos_of_upper(  ):
+    global pyb
+    upper_indexes = [0, 4, 8, 12]
+    pos = [pyb.getLinkState( quadruped, i)[0] for i in upper_indexes]
+    return pos
 
 
+def _get_pos_of_lower(  ):
+    global pyb
+    lower_indexes = [1, 5, 9, 13]
+    pos = [pyb.getLinkState( quadruped, i)[0] for i in lower_indexes]
+    return pos
 
-    # contact_points = pyb.getContactPoints(bodyA=quadruped, bodyB=ground)
-    # contact_ids = [point[3] for point in contact_points]
-    # collision_info = []
-    # num_joints = pyb.getNumJoints(quadruped)
-    # for i in range(num_joints):
-    #     if i in contact_ids:
-    #         collision_info.append(True)
-    #     else:
-    #         collision_info.append(False)
-    #
-    # info = [[],[],[],[]]
-    # for i, c in enumerate(collision_info):
-    #     info[i % 4].append(c)
-    # print(info)
+
+def _get_pos_of_feet(  ):
+    global pyb
+    foot_indexes = [2, 6, 10, 14]
+    pos = [pyb.getLinkState( quadruped, i)[0] for i in foot_indexes]
+    return pos
+
+
+def _get_pos_of_toes(  ):
+    global pyb
+    toe_indexes = [3, 7, 11, 15]
+    pos = [pyb.getLinkState( quadruped, i)[0] for i in toe_indexes]
+    return pos
+
+
+def _get_toe_upper_distance(  ):
+    pos_toe = np.array( _get_pos_of_toes())
+    pos_upper = np.array( _get_pos_of_upper())
+    distances = np.sqrt(np.sum((pos_toe - pos_upper) ** 2, axis=1))
+    return distances
+
+while True:
+    robot.Step(np.array(action))
+    distances = _get_toe_upper_distance()
+    print(distances)
