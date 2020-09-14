@@ -72,7 +72,7 @@ class StanduppushTaskV0(LaikagoTask):
         return self._bad_end()
 
     def _bad_end(self):
-        back_ori = self._cal_current_back_ori()
+        back_ori = self._get_toward_ori()
         if back_ori[2] < 0.7:
             return True
         if self.body_pos[2] < 0.2:
@@ -113,21 +113,21 @@ class StanduppushTaskV1(StanduppushTaskV0):
                                           mode,
                                           force)
 
-    def _reward_of_ori(self):
+    def _reward_of_upward_ori(self):
         # 理想的face_ori为[1,0,0]
-        face_ori = self._cal_current_face_ori()
+        face_ori = self._get_current_face_ori()
         # 理想的back_ori为[0,0,1]
-        back_ori = self._cal_current_back_ori()
+        back_ori = self._get_toward_ori()
         back_reward = - (1 - back_ori[2]) ** 2
         return back_reward
 
-    def _reward_of_pos(self):
-        self._get_pos_vel_info()
+    def _reward_of_stand_height(self):
+        self._get_body_pos_vel_info()
         reward = self.body_pos[2]
         return reward
 
     def _reward_of_energy(self):
-        self._get_pos_vel_info()
+        self._get_body_pos_vel_info()
         E = sum([abs(p[0] * p[1]) for p in zip(self.joint_tor, self.joint_vel)])
         reward = -E
         return reward
@@ -135,15 +135,15 @@ class StanduppushTaskV1(StanduppushTaskV0):
     def reward(self, env):
         del env
         collision_r = self._reward_of_collision()
-        ori_r = self._reward_of_ori() * 20
-        pos_r = self._reward_of_pos() * 5
+        ori_r = self._reward_of_upward_ori() * 20
+        pos_r = self._reward_of_stand_height() * 5
         energy_r = self._reward_of_energy() * 10
         alive_r = 10
         reward = collision_r + ori_r + pos_r + energy_r + alive_r
         return reward
 
     def _bad_end(self):
-        back_ori = self._cal_current_back_ori()
+        back_ori = self._get_toward_ori()
         if back_ori[2] < 0.7:
             return True
         if self.body_pos[2] < 0.2:

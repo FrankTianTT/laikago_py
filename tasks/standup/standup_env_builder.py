@@ -19,16 +19,24 @@ def build_env(enable_randomizer, enable_rendering, version=0, mode='train'):
     gym_config = locomotion_gym_config.LocomotionGymConfig(simulation_parameters=sim_params)
 
     robot_class = laikago.Laikago
-
+    '''
+    MotorAngleSensor
+    MotorVelocitiySensor
+    IMUSensor
+    ToeTouchSensor
+    LastActionSensor
+    '''
     sensors = [
         sensor_wrappers.HistoricSensorWrapper(
             wrapped_sensor=robot_sensors.MotorAngleSensor(num_motors=laikago.NUM_MOTORS), num_history=3),
         sensor_wrappers.HistoricSensorWrapper(
             wrapped_sensor=robot_sensors.MotorVelocitiySensor(num_motors=laikago.NUM_MOTORS), num_history=3),
         sensor_wrappers.HistoricSensorWrapper(wrapped_sensor=robot_sensors.IMUSensor(), num_history=3),
+        sensor_wrappers.HistoricSensorWrapper(wrapped_sensor=robot_sensors.ToeTouchSensor(laikago.NUM_LEGS), num_history=3),
         sensor_wrappers.HistoricSensorWrapper(
             wrapped_sensor=environment_sensors.LastActionSensor(num_actions=laikago.NUM_MOTORS), num_history=3)
     ]
+
 
     task = eval('standup_task.StandupTaskV{}'.format(version))(mode=mode)
 
@@ -42,5 +50,4 @@ def build_env(enable_randomizer, enable_rendering, version=0, mode='train'):
 
     env = observation_dictionary_to_array_wrapper.ObservationDictionaryToArrayWrapper(env)
     return env
-
 
