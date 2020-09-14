@@ -14,7 +14,7 @@ eval_callback = EvalCallback(eval_env, best_model_save_path='./logs/v{}/'.format
                              log_path='./logs/v{}/'.format(VERSION), eval_freq=1000,
                              deterministic=True, render=False)
 policy_kwargs = dict(activation_fn=torch.nn.ReLU, net_arch=[256, 256])
-model = SAC('MlpPolicy', env, verbose=1, tensorboard_log="./log/v{}/".format(VERSION), policy_kwargs=policy_kwargs)
+model = SAC('MlpPolicy', env, verbose=1, tensorboard_log="./log/v{}/".format(VERSION), policy_kwargs=policy_kwargs, learning_starts=int(5e4))
 model.learn(total_timesteps=TIME_STEPS, callback=eval_callback)
 
 env.render()

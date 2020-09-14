@@ -20,4 +20,4 @@ def delete_log():
 
 if __name__ == "__main__":
     #delete_log()
-    print_tensoroard()
+    print_tensoroard(6007)

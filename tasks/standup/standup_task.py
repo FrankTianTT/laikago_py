@@ -29,8 +29,6 @@ class StandupTaskV0(LaikagoTask):
     def update(self, env):
         del env
 
-        time.sleep(.1)
-
     def reward(self, env):
         del env
         sum_vel_r = self._reward_of_sum_vel()

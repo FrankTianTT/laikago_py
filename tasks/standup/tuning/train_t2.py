@@ -8,9 +8,9 @@ TIME_STEPS = 5000000
 VERSION = 0
 TUNING = 2
 
-# learning_rate = 1e-4
-# buffer_size = 1e5
-# learning_starts = 1e5
+learning_rate = 1e-4
+buffer_size = int(1e5)
+learning_starts = int(1e5)
 
 env = env_builder.build_env(enable_randomizer=True, version=VERSION, enable_rendering=False)
 eval_env = env_builder.build_env(enable_randomizer=True, version=VERSION, enable_rendering=False)
@@ -20,9 +20,9 @@ eval_callback = EvalCallback(eval_env, best_model_save_path='./logs/t{}/'.format
                              deterministic=True, render=False)
 policy_kwargs = dict(activation_fn=torch.nn.ReLU, net_arch=[256, 256])
 model = SAC('MlpPolicy', env, verbose=1, tensorboard_log="./log/t{}/".format(TUNING), policy_kwargs=policy_kwargs,
-            learning_rate=1e-4,
-            buffer_size=int(1e5),
-            learning_starts=int(1e5))
+            learning_rate=learning_rate,
+            buffer_size=buffer_size,
+            learning_starts=learning_starts)
 model.learn(total_timesteps=TIME_STEPS,
             callback=eval_callback,)
 
