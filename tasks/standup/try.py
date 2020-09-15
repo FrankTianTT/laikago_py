@@ -2,12 +2,13 @@ from stable_baselines3 import SAC
 from stable_baselines3.common.callbacks import EvalCallback
 import standup.standup_env_builder as env_builder
 import numpy as np
+VERSION = 1
 
-a=np.array([[1,2],[3,4]])
-print(np.sum(a**2))
+env = env_builder.build_env(enable_randomizer=True, version=VERSION, enable_rendering=True)
 
-print(a**2)
 
-print(np.sum(a**2, axis=1))
+target_entropy = -np.prod(env.action_space.shape).astype(np.float32)
 
-print(np.sqrt(np.sum(a**2, axis=1)))
+print(target_entropy)
+
+print(env.action_space.shape)

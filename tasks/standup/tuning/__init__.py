@@ -6,8 +6,8 @@ LOG_DIR = os.path.join(TASK_DIR, 'log')
 
 
 def print_tensoroard(port=None):
+    print('conda activate laikago_py')
     if port is not None:
-        print('conda activate laikago_py')
         print('tensorboard --logdir ' + LOG_DIR + ' --port ' + str(port))
     else:
         print('tensorboard --logdir ' + LOG_DIR)
@@ -20,4 +20,4 @@ def delete_log():
 
 if __name__ == "__main__":
     #delete_log()
-    print_tensoroard(6007)
+    print_tensoroard()

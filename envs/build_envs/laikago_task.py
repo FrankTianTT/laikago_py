@@ -29,6 +29,9 @@ class LaikagoTask(object):
         self.joint_pos = None
         self.joint_vel = None
         self.joint_tor = None
+
+        self.sum_reward = 0
+        self.sum_p = 0
         return
 
     def __call__(self, env):
@@ -39,6 +42,16 @@ class LaikagoTask(object):
         self.quadruped = self._env.robot.quadruped
         self._get_body_pos_vel_info()
         return
+
+    def _add_reward(self, reward, p=1):
+        self.sum_reward += reward
+        self.sum_p += p
+
+    def _get_sum_reward(self):
+        reward = self.sum_reward / self.sum_p
+        self.sum_reward= 0
+        self.sum_p = 0
+        return reward
 
     def normalize_reward(self, reward, min_reward, max_reward):
         return (reward - min_reward)/(max_reward - min_reward)

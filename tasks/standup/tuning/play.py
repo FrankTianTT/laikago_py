@@ -3,7 +3,7 @@ from stable_baselines3.common.callbacks import EvalCallback
 import standup.standup_env_builder as env_builder
 
 VERSION = 0
-TUNING = 0
+TUNING = 3
 
 env = env_builder.build_env(enable_randomizer=True, version=VERSION, enable_rendering=True)
 
