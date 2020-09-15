@@ -90,7 +90,7 @@ def update(self, env):
 
 在这个函数中完成task和env的绑定，例如
 ```python
-task = runstraight_task.RunstraightTask(mode = mode)
+task = runstraight_task.RunstraightTaskV0(mode = mode)
 env = locomotion_gym_env.LocomotionGymEnv(gym_config=gym_config, robot_class=robot_class,
                                               env_randomizers=randomizers, robot_sensors=sensors, task=task)
 ```
@@ -112,7 +112,7 @@ env = observation_dictionary_to_array_wrapper.ObservationDictionaryToArrayWrappe
 ```python
 ################################
 #change these when changing task
-import runstraight.runstraight_env_builder as env_builder
+import runstraight.env_builder as env_builder
 TASK_NAME = "runstraight"
 FILE_NAME = 'runslow_ppo_128.dat'
 ################################
@@ -131,7 +131,7 @@ FILE_NAME = 'runslow_ppo_128.dat'
 ```python
 ################################
 #change these when changing task
-import runstraight.runstraight_env_builder as env_builder
+import runstraight.env_builder as env_builder
 TASK_NAME = "runstraight"
 FILE_NAME = "best_-31.401_40000.dat"
 DONE = True

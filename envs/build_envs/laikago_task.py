@@ -3,23 +3,8 @@ from envs.build_envs.utilities.quaternion import bullet_quaternion as bq
 import random
 import numpy as np
 class LaikagoTask(object):
-    def __init__(self,
-                 weight=1.0,
-                 pose_weight=0.5,
-                 velocity_weight=0.05,
-                 end_effector_weight=0.2,
-                 root_pose_weight=0.15,
-                 root_velocity_weight=0.1,
-                 mode='train'):
+    def __init__(self, mode='train'):
         self._env = None
-        self._weight = weight
-
-        # reward function parameters
-        self._pose_weight = pose_weight
-        self._velocity_weight = velocity_weight
-        self._end_effector_weight = end_effector_weight
-        self._root_pose_weight = root_pose_weight
-        self._root_velocity_weight = root_velocity_weight
         self.mode = mode
 
         self.body_pos = None
@@ -225,3 +210,42 @@ class LaikagoTask(object):
     def _get_toward_ori(self):
         self._get_body_pos_vel_info()
         return bq(self.body_ori).ori([0, 1, 0])
+
+class PushTask(LaikagoTask):
+    def __init__(self,
+                 mode='train',
+                 force=True,
+                 max_force=3000,
+                 force_delay_steps=3):
+        super(PushTask, self).__init__(mode)
+        self.force = force
+        self._get_force_ori()
+        self.max_force = max_force
+        self.force_delay_steps = force_delay_steps
+
+        self.now_force = None
+        return
+
+
+    def _get_force_ori(self):
+        self.force_ori = []
+        f_ori = [[1, 0, 0], [0, 1, 0], [-1, 0, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]]
+        for i in f_ori:
+            for j in f_ori:
+                ori = [o[0]+o[1] for o in zip(i,j)]
+                self.force_ori.append(ori)
+
+    def _give_force(self):
+        if self._env.env_step_counter % self.force_delay_steps == 0:
+            force_id = random.randint(0, len(self.force_ori) - 1)
+            ori = self.force_ori[force_id]
+            self.now_force = [f * random.random() * self.max_force for f in ori]
+        return self.now_force
+
+    def update(self, env):
+        if not self.force:
+            return
+        force = self._give_force()
+        self.body_pos = env._pybullet_client.getBasePositionAndOrientation(self.quadruped)[0]
+        env._pybullet_client.applyExternalForce(objectUniqueId=self.quadruped, linkIndex=-1,
+                             forceObj=force, posObj=self.body_pos, flags=env._pybullet_client.WORLD_FRAME)
