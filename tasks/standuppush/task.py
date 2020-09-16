@@ -12,3 +12,16 @@ class StanduppushTaskV0(PushTask):
                                                 max_force=max_force,
                                                 force_delay_steps=force_delay_steps)
         return
+
+    def reward(self, env):
+        del env
+        self._add_reward(self._reward_of_stand_height(), 1)
+
+        return self._get_sum_reward()
+
+    def done(self, env):
+        del env
+        if self._not_done_of_too_short() or self._not_done_of_mode(self.mode):
+            return False
+        else:
+            return self._done_of_wrong_toward_ori() or self._done_of_low_height(0.2) or self._done_of_too_long()

@@ -7,6 +7,7 @@ from build_envs.sensors import robot_sensors
 from tasks.standupheight import height_sensor
 from build_envs.utilities import controllable_env_randomizer_from_config
 from robots import laikago
+from tasks.standuppush import task
 
 def build_env(enable_randomizer, enable_rendering, mode='train', version=0, force=True):
 
@@ -27,7 +28,7 @@ def build_env(enable_randomizer, enable_rendering, mode='train', version=0, forc
         height_sensor.HeightSensor(random_height=True)
     ]
 
-    task = eval('standupheight_task.StandupheightTaskV{}'.format(version))(mode=mode, force=force)
+    task = eval('task.StanduppushTaskV{}'.format(version))(mode=mode, force=force)
 
     randomizers = []
     if enable_randomizer:

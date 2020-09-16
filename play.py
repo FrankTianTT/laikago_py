@@ -9,25 +9,39 @@ from stable_baselines3.common.callbacks import EvalCallback
 import tasks
 import torch
 
-
+def print_sensor(sensors):
+    for s in sensors:
+        print(s.get_name())
+        print(s.get_observation())
+    print()
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-n", "--name", required=True, help="Name of task")
-    parser.add_argument("-v", "--version", required=True,  help="Version of task")
-    args = parser.parse_args()
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument("-n", "--name", required=True, help="Name of task")
+    # parser.add_argument("-v", "--version", required=True,  help="Version of task")
+    # args = parser.parse_args()
+    #
+    # name = args.name
+    # version = args.version
 
-    tasks.check_name(args.name)
+    name = 'standup'
+    version = '0'
+    tasks.check_name(name)
 
-    env_builder = importlib.import_module('{}.env_builder'.format(args.name))
+    env_builder = importlib.import_module('{}.env_builder'.format(name))
 
-    env = env_builder.build_env(enable_randomizer=True, version=args.version, enable_rendering=False)
-    model = SAC.load('./tasks/{}/best_model/v{}/'.format(args.name, args.version))
-
+    env = env_builder.build_env(enable_randomizer=True, version=version, enable_rendering=True)
+    model = SAC.load('./tasks/{}/best_model/v{}/best_model.zip'.format(name, version))
     total_reward = 0
     obs = env.reset()
-    for i in range(1000):
+
+    sensors = env.all_sensors()
+
+
+    for i in range(10000):
         action, _states = model.predict(obs, deterministic=True)
         obs, reward, done, info = env.step(action)
+        # print_sensor(sensors)
+
         total_reward += reward
         if done:
           obs = env.reset()

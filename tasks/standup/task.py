@@ -15,7 +15,7 @@ class StandupTaskV0(LaikagoTask):
 
     def reward(self, env):
         del env
-        self._add_reward(self._reward_of_energy(), 1)
+        self._add_reward(self._reward_of_stand_height(), 1)
 
         return self._get_sum_reward()
 

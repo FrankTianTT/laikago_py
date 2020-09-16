@@ -34,7 +34,7 @@ class LaikagoTask(object):
 
     def _get_sum_reward(self):
         reward = self.sum_reward / self.sum_p
-        self.sum_reward= 0
+        self.sum_reward = 0
         self.sum_p = 0
         return reward
 

@@ -26,137 +26,154 @@ import typing
 
 from build_envs.sensors import sensor
 
-
 _ARRAY = typing.Iterable[float]
 
 
 class SensorWrapper(sensor.BoxSpaceSensor):
-  """A base interface for sensor wrappers."""
+    """A base interface for sensor wrappers."""
 
-  def __init__(self,
-               wrapped_sensor: sensor.BoxSpaceSensor,
-               **kwargs) -> None:
-    """A base wrapper interface.
+    def __init__(self,
+                 wrapped_sensor: sensor.BoxSpaceSensor,
+                 **kwargs) -> None:
+        """A base wrapper interface.
 
-    Args:
-      wrapped_sensor: an inner sensor that you wrap around
-      **kwargs: keyword arguments to the parent class
-    """
-    super(SensorWrapper, self).__init__(**kwargs)
-    self._wrapped_sensor = wrapped_sensor
+        Args:
+          wrapped_sensor: an inner sensor that you wrap around
+          **kwargs: keyword arguments to the parent class
+        """
+        super(SensorWrapper, self).__init__(**kwargs)
+        self._wrapped_sensor = wrapped_sensor
 
-  def __call__(self, env):
-    return self._wrapped_sensor(env)
+    def __call__(self, env):
+        return self._wrapped_sensor(env)
 
-  def __getattr__(self, attr):
-    return getattr(self._wrapped_sensor, attr)
+    def __getattr__(self, attr):
+        return getattr(self._wrapped_sensor, attr)
 
-  def set_robot(self, robot) -> None:
-    """Set a robot instance."""
-    self._wrapped_sensor.set_robot(robot)
+    def set_robot(self, robot) -> None:
+        """Set a robot instance."""
+        self._wrapped_sensor.set_robot(robot)
 
-  def get_robot(self):
-    """Returns the robot instance."""
-    return self._wrapped_sensor.get_robot()
+    def get_robot(self):
+        """Returns the robot instance."""
+        return self._wrapped_sensor.get_robot()
 
-  def on_reset(self, env) -> None:
-    """A callback function for the reset event.
+    def on_reset(self, env) -> None:
+        """A callback function for the reset event.
 
-    Args:
-      env: the environment who invokes this callback function.
-    """
-    self._wrapped_sensor.on_reset(env)
+        Args:
+          env: the environment who invokes this callback function.
+        """
+        self._wrapped_sensor.on_reset(env)
 
-  def on_step(self, env) -> None:
-    """A callback function for the step event.
+    def on_step(self, env) -> None:
+        """A callback function for the step event.
 
-    Args:
-      env: the environment who invokes this callback function.
-    """
-    self._wrapped_sensor.on_step(env)
+        Args:
+          env: the environment who invokes this callback function.
+        """
+        self._wrapped_sensor.on_step(env)
 
-  def on_terminate(self, env) -> None:
-    """A callback function for the terminate event.
+    def on_terminate(self, env) -> None:
+        """A callback function for the terminate event.
 
-    Args:
-      env: the environment who invokes this callback function.
-    """
-    self._wrapped_sensor.on_terminate(env)
+        Args:
+          env: the environment who invokes this callback function.
+        """
+        self._wrapped_sensor.on_terminate(env)
 
+
+class NormalizeSensorWrapper(SensorWrapper):
+    def __init__(self,
+                 wrapped_sensor: sensor.BoxSpaceSensor,
+                 name: typing.Text = None) -> None:
+        name = name or "NormalizeSensorWrapper(%s)" % wrapped_sensor.get_name()
+        lower_bound = - np.ones(wrapped_sensor.get_shape())
+        upper_bound = np.ones(wrapped_sensor.get_shape())
+        shape = lower_bound.shape
+        super(NormalizeSensorWrapper, self).__init__(name=name,
+                                                     shape=shape,
+                                                     lower_bound=lower_bound,
+                                                     upper_bound=upper_bound,
+                                                     wrapped_sensor=wrapped_sensor)
+
+    def get_observation(self) -> _ARRAY:
+        """Returns the observation by concatenating the history buffer."""
+        return self._wrapped_sensor.get_observation()/self._wrapped_sensor._upper_bound
 class HistoricSensorWrapper(SensorWrapper):
-  """A sensor wrapper for maintaining the history of the sensor."""
+    """A sensor wrapper for maintaining the history of the sensor."""
 
-  def __init__(self,
-               wrapped_sensor: sensor.BoxSpaceSensor,
-               num_history: int,
-               append_history_axis: bool = False,
-               name: typing.Text = None) -> None:
-    """Constructs HistoricSensorWrapper.
+    def __init__(self,
+                 wrapped_sensor: sensor.BoxSpaceSensor,
+                 num_history: int,
+                 append_history_axis: bool = False,
+                 name: typing.Text = None) -> None:
+        """Constructs HistoricSensorWrapper.
 
-    Note that the history begins with the recent one and becomes older. In
-    other world, the most recent observation is the first item in the
-    history buffer.
+        Note that the history begins with the recent one and becomes older. In
+        other world, the most recent observation is the first item in the
+        history buffer.
 
-    Args:
-      wrapped_sensor: an inner sensor that you wrap around
-      num_history: the history of sensors want to maintain
-      append_history_axis: if True, add an extra axis at the end of the
-        observation array for history. If False, stack the historical
-        observations without adding an axis.
-      name: label for the sensor. Defaults to HistoricSensorWrapper(<wrapped
-        sensor name>).
-    """
-    self._num_history = num_history
-    self._append_history_axis = append_history_axis
-    name = name or "HistoricSensorWrapper(%s)" % wrapped_sensor.get_name()
-    if self._append_history_axis:
-      lower_bound = np.tile(
-          np.expand_dims(wrapped_sensor.get_lower_bound(), -1),
-          (1, self._num_history))
-      upper_bound = np.tile(
-          np.expand_dims(wrapped_sensor.get_upper_bound(), -1),
-          (1, self._num_history))
-    else:
-      lower_bound = np.tile(wrapped_sensor.get_lower_bound(), self._num_history)
-      upper_bound = np.tile(wrapped_sensor.get_upper_bound(), self._num_history)
-    shape = lower_bound.shape
+        Args:
+          wrapped_sensor: an inner sensor that you wrap around
+          num_history: the history of sensors want to maintain
+          append_history_axis: if True, add an extra axis at the end of the
+            observation array for history. If False, stack the historical
+            observations without adding an axis.
+          name: label for the sensor. Defaults to HistoricSensorWrapper(<wrapped
+            sensor name>).
+        """
+        self._num_history = num_history
+        self._append_history_axis = append_history_axis
+        name = name or "HistoricSensorWrapper(%s)" % wrapped_sensor.get_name()
+        if self._append_history_axis:
+            lower_bound = np.tile(
+                np.expand_dims(wrapped_sensor.get_lower_bound(), -1),
+                (1, self._num_history))
+            upper_bound = np.tile(
+                np.expand_dims(wrapped_sensor.get_upper_bound(), -1),
+                (1, self._num_history))
+        else:
+            lower_bound = np.tile(wrapped_sensor.get_lower_bound(), self._num_history)
+            upper_bound = np.tile(wrapped_sensor.get_upper_bound(), self._num_history)
+        shape = lower_bound.shape
 
-    self._history_buffer = None
-    super(HistoricSensorWrapper, self).__init__(name=name,
-                                                shape=shape,
-                                                lower_bound=lower_bound,
-                                                upper_bound=upper_bound,
-                                                wrapped_sensor=wrapped_sensor)
+        self._history_buffer = None
+        super(HistoricSensorWrapper, self).__init__(name=name,
+                                                    shape=shape,
+                                                    lower_bound=lower_bound,
+                                                    upper_bound=upper_bound,
+                                                    wrapped_sensor=wrapped_sensor)
 
-  def on_reset(self, env) -> None:
-    """A callback for the reset event that initializes the history buffer.
+    def on_reset(self, env) -> None:
+        """A callback for the reset event that initializes the history buffer.
 
-    Args:
-      env: the environment who invokes this callback function (unused)
-    """
-    super(HistoricSensorWrapper, self).on_reset(env)
+        Args:
+          env: the environment who invokes this callback function (unused)
+        """
+        super(HistoricSensorWrapper, self).on_reset(env)
 
-    self._history_buffer = collections.deque(maxlen=self._num_history)
-    for _ in range(self._num_history):
-      self._history_buffer.appendleft(self._wrapped_sensor.get_observation())
+        self._history_buffer = collections.deque(maxlen=self._num_history)
+        for _ in range(self._num_history):
+            self._history_buffer.appendleft(self._wrapped_sensor.get_observation())
 
-  def on_step(self, env):
-    """A callback for the step event that updates the history buffer.
+    def on_step(self, env):
+        """A callback for the step event that updates the history buffer.
 
-    Args:
-      env: the environment who invokes this callback function (unused)
-    """
-    super(HistoricSensorWrapper, self).on_step(env)
-    self._history_buffer.appendleft(self._wrapped_sensor.get_observation())
+        Args:
+          env: the environment who invokes this callback function (unused)
+        """
+        super(HistoricSensorWrapper, self).on_step(env)
+        self._history_buffer.appendleft(self._wrapped_sensor.get_observation())
 
-  def get_observation(self) -> _ARRAY:
-    """Returns the observation by concatenating the history buffer."""
-    if self._append_history_axis:
-      return np.stack(self._history_buffer, axis=-1)
-    else:
-      return np.concatenate(self._history_buffer)
+    def get_observation(self) -> _ARRAY:
+        """Returns the observation by concatenating the history buffer."""
+        if self._append_history_axis:
+            return np.stack(self._history_buffer, axis=-1)
+        else:
+            return np.concatenate(self._history_buffer)
 
-  @property
-  def history_buffer(self):
-    """Returns the raw history buffer."""
-    return self._history_buffer
+    @property
+    def history_buffer(self):
+        """Returns the raw history buffer."""
+        return self._history_buffer
