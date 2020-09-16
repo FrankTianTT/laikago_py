@@ -15,17 +15,13 @@ def print_sensor(sensors):
         print(s.get_observation())
     print()
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument("-n", "--name", required=True, help="Name of task")
-    # parser.add_argument("-v", "--version", required=True,  help="Version of task")
-    # args = parser.parse_args()
-    #
-    # name = args.name
-    # version = args.version
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-n", "--name", required=True, help="Name of task")
+    parser.add_argument("-v", "--version", required=True,  help="Version of task")
+    args = parser.parse_args()
 
-    name = 'standup'
-    version = '0'
-    tasks.check_name(name)
+    name = args.name
+    version = args.version
 
     env_builder = importlib.import_module('{}.env_builder'.format(name))
 
