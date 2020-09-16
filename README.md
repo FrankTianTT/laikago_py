@@ -1,14 +1,12 @@
 # laikago_py
 
-
-
 ## 文件目录
 
 - `envs`目录下的是环境文件;
-- `algorithms`目录下单是算法文件，主要是不同DRL算法的网络模型;
-- `tasks`目录下的是任务文件.
-
-
+- `deeprl`目录下的是算法的测试文件，使用stable baselines 3在几个连续状态动作环境中进行了测试;
+- `tasks`目录下的是任务文件;
+- `train.py`训练任务的文件;
+- `play.py`执行训练好的模型.
 
 ### envs
 
@@ -18,46 +16,46 @@
 ├─build_envs
 │  ├─env_wrappers
 │  ├─sensors
-│  └─utilities
+│  ├─utilities
+│  └─laikago_task.py
 ├─laikago_model
 ├─robots
 └─utilities
 ```
 
-`laikago_model`目录下的是laikago的模型文件，不需要任何改动。
-`robots`目录下的是laikago的仿真模型，包括动力学参数。
-`build_envs`负责将模型封装为gym模型。使用`locomotion_gym_env`封装。
+- `laikago_model`目录下的是laikago的模型文件，不需要任何改动。
+- `robots`目录下的是laikago的仿真模型，包括动力学参数。
+- `build_envs`负责将模型封装为gym模型。使用`locomotion_gym_env`封装。
 
-### algorithms
+`laikago_task.py`是task类的基类，提供了各种计算reward的函数，之后在介绍tasks的部分详细介绍。
 
-部分代码来自[Deep-Reinforcement-Learning-Hands-On](https://github.com/Shmuma/Deep-Reinforcement-Learning-Hands-On).
+### deeprl
+
+[这个项目](https://github.com/FrankTianTT/laikago_py) 使用[stable-baseline3](https://github.com/DLR-RM/stable-baselines3) 作为训练算法。
+
+我们在HalfCheetah, Hopper和Walker三个环境中对算法进行了测试。
 
 ### tasks
 
-主要的训练文件，每个task代表一个任务，理论上每个任务对应一套reward机制。
+主要的训练文件，每个task代表一个任务，理论上每个任务对应一套reward机制，但是在实践中，为了尽可能对找到合适的reward，我们往往会设计多种reward机制。
 
-## 训练
 
 新建每个task，你需要:
 
 - 在`tasks`目录下新建对应的文件夹；
-- 建立对应的`_task`文件，用于配置强化学习算法的逻辑；
+- 建立对应的`xxx_task`文件，用于配置强化学习算法的逻辑；
 - 建立对应的`xxx_env_builder.py`文件，用于链接`xxx_task.py`文件和`locomotion_gym_env.py`文件，以及完成其他更高级的配置。
 
 `_task`目录的文件如下：
 
 ```
-├─play
-├─saves
-├─train
-│  ├─train_xxx.py
-│  ├─...
-│  └─runs
-├─xxx_env_builder.py
-└─xxx_task.py
+├─best_model
+├─log
+├─env_builder.py
+└─task.py
 
 ```
-### 配置_task文件
+#### 配置task文件
 
 你需要新建一个Task类，例如`StandupTask`，你可以继承自`envs/build_envs/laikago_task.py`，也可以自己写。
 
@@ -84,13 +82,13 @@ def update(self, env):
                          forceObj=force, posObj=self.body_pos, flags=env._pybullet_client.WORLD_FRAME)
 ```
 
-### 配置_env_builder文件
+#### 配置env_builder文件
 
 在这个文件中定义`build_env()`函数，返回一个从gym继承的`ENV`类，你可以直接使用locomotion_gym_env文件的`LocomotionGymEnv`完成这个功能，但是这个函数存在的意义在于完成更高级的设置。
 
 在这个函数中完成task和env的绑定，例如
 ```python
-task = runstraight_task.RunstraightTaskV0(mode = mode)
+task = runstraight_task.RunstraightTask(mode = mode)
 env = locomotion_gym_env.LocomotionGymEnv(gym_config=gym_config, robot_class=robot_class,
                                               env_randomizers=randomizers, robot_sensors=sensors, task=task)
 ```
@@ -103,38 +101,88 @@ env = observation_dictionary_to_array_wrapper.ObservationDictionaryToArrayWrappe
 
 通过引入`locomotion_gym_config.py`文件进行环境的基本参数设置。
 
-### 开始训练
+## 重要的类
 
-在`train_`开头的文件中执行训练。
+### LaikagoTask
 
-不同的任务只需要更改开头定义的常量内容，例如：
+laikago_task.py文件下LaikagoTask类的封装了基本的reward机制和done机制，直接继承这个类可以让你的task更简洁。
+
+- `_reward_of_toe_collision(self)`给出**鼓励**机器人脚趾与地面接触的奖赏
+- `_reward_of_leg_collision(self)`给出**阻止**机器人大腿与地面接触的奖赏
+- `_reward_of_upward_ori(self)`给出**鼓励**机器人身体端正的奖赏
+- `_reward_of_stand_height(self, max_height=0.4)`给出**鼓励**机器人身体高度
+- `_reward_of_energy(self)`给出**阻止**机器人消耗能量
+- `_reward_of_sum_vel(self)`给出**阻止**机器人关节角速度过快的奖赏
+- `_reward_of_toes_height(self)`给出**阻止**机器人脚趾位置过高
+- `_reward_of_toe_upper_distance(self)`给出**鼓励**机器人脚趾与大腿尽可能远的奖赏
+
+上述的奖赏都经过了`normalize_reward`函数归一化，近似分布在(0,1)之间。
+
+同时集成了一些`done`和`not_done`的机制。
+
+一个继承自这个类的reward函数可以写作：
 
 ```python
-################################
-#change these when changing task
-import runstraight.env_builder as env_builder
-TASK_NAME = "runstraight"
-FILE_NAME = 'runslow_ppo_128.dat'
-################################
+def reward(self, env):
+    del env
+    sum_vel_r = self._reward_of_sum_vel()
+    collision_r = self._reward_of_toe_collision()
+    height_r = self._reward_of_stand_height()
+    toe_upper_r = self._reward_of_toe_upper_distance()
+
+    reward = sum_vel_r + collision_r + height_r + toe_upper_r
+    return reward/4
 ```
 
-默认将训练保存的模型存储在相应`task`目录下的`saves`目录里。
-
-默认将训练日志存储在相应`task`目录下的`trian/runs`目录里。
-
-### 测试
-
-在`task/play`目录里的`play_xxx.py`文件中测试，只需要更改`FILE_NAME`即可，`FILE_NAME`即储存在`saves`目录下的`.dat`文件。
-
-例如：
+一个继承自这个类的done函数可以写作：
 
 ```python
-################################
-#change these when changing task
-import runstraight.env_builder as env_builder
-TASK_NAME = "runstraight"
-FILE_NAME = "best_-31.401_40000.dat"
-DONE = True
-HID_SIZE = 256
-################################
+def done(self, env):
+    del env
+    if self._not_done_of_too_short() or self._not_done_of_mode(self.mode):
+        return False
+    else:
+        return self._done_of_wrong_toward_ori() or self._done_of_low_height() or self._done_of_too_long()
+```
+
+### Sensor
+
+Sensor类下有许多可以用来作为环境obs的传感器。
+
+可以分为environment-sensor和robot-sensor，environment-sensor是环境记录下来的信息，robot-sensor是robot自身读取的信息。
+
+具体的sensor主要有：
+- MotorAngleSensor
+- MotorVelocitiySensor
+- ToeTouchSensor
+- IMUSensor
+- LastActionSensor
+
+也可以继承`BoxSpaceSensor`类写自己的Sensor，通过xxx_env_builder.py文件绑定到env中。
+
+### SensorWrapper
+
+SensorWrapper类可以对sensor的数据进行处理，例如NormalizeSensorWrapper将obs做了归一化，使算法训练的难度减小。
+
+## 训练
+
+进入根目录，执行`train.py`文件并确定task的名称和版本，即可开始训练。
+
+例如
+```
+python train.py -n standup -v 0
+```
+
+也可以设置SAC的算法参数，例如
+```
+python train.py -n standup -v 0 --ent_coef 0.05
+```
+
+## 测试
+
+进入根目录，执行`play.py`文件并确定task的名称和版本，即可开始测试。
+
+例如
+```
+python play.py -n standup -v 0
 ```
