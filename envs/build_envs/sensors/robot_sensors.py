@@ -90,9 +90,9 @@ class MotorVelocitiySensor(sensor.BoxSpaceSensor):
   def __init__(self,
                num_motors: int,
                noisy_reading: bool = True,
-               lower_bound: _FLOAT_OR_ARRAY = -70,
-               upper_bound: _FLOAT_OR_ARRAY = 70,
-               name: typing.Text = "MotorAngle",
+               lower_bound: _FLOAT_OR_ARRAY = - 20.0 * np.pi,
+               upper_bound: _FLOAT_OR_ARRAY = 20.0 * np.pi,
+               name: typing.Text = "MotorVelocity",
                dtype: typing.Type[typing.Any] = np.float64) -> None:
     self._num_motors = num_motors
     self._noisy_reading = noisy_reading
@@ -308,8 +308,8 @@ class IMUSensor(sensor.BoxSpaceSensor):
           lower_bound.append(-1.)
           upper_bound.append(1.)
         elif channel in ["dR", "dP", "dY"]:
-          lower_bound.append(-2000.0 * np.pi)
-          upper_bound.append(2000.0 * np.pi)
+          lower_bound.append(-20.0 * np.pi)
+          upper_bound.append(20.0 * np.pi)
 
     super(IMUSensor, self).__init__(
       name=name,

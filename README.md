@@ -29,7 +29,7 @@
 
 ### deeprl
 
-[这个项目](https://github.com/FrankTianTT/laikago_py)使用[stable-baseline3](https://github.com/DLR-RM/stable-baselines3)作为训练算法。
+[这个项目](https://github.com/FrankTianTT/laikago_py) 使用[stable-baseline3](https://github.com/DLR-RM/stable-baselines3) 作为训练算法。
 
 我们在HalfCheetah, Hopper和Walker三个环境中对算法进行了测试。
 
@@ -44,20 +44,16 @@
 - 建立对应的`xxx_task`文件，用于配置强化学习算法的逻辑；
 - 建立对应的`xxx_env_builder.py`文件，用于链接`xxx_task.py`文件和`locomotion_gym_env.py`文件，以及完成其他更高级的配置。
 
-`_task`目录的文件如下：
+`task`目录的文件如下：
 
 ```
-├─play.py
-├─train_v0.py
-├─train_v1.py
-├─train_v...
-├─logs
-├─log
-├─xxx_env_builder.py
-└─xxx_task.py
+├─log&model
+├─env_builder.py
+└─task.py
 
 ```
-#### 配置xxx_task文件
+#### 配置task文件
+
 
 你需要新建一个Task类，例如`StandupTask`，你可以继承自`envs/build_envs/laikago_task.py`，也可以自己写。
 
@@ -84,7 +80,8 @@ def update(self, env):
                          forceObj=force, posObj=self.body_pos, flags=env._pybullet_client.WORLD_FRAME)
 ```
 
-#### 配置xxx_env_builder文件
+#### 配置env_builder文件
+
 
 在这个文件中定义`build_env()`函数，返回一个从gym继承的`ENV`类，你可以直接使用locomotion_gym_env文件的`LocomotionGymEnv`完成这个功能，但是这个函数存在的意义在于完成更高级的设置。
 
@@ -108,6 +105,7 @@ env = observation_dictionary_to_array_wrapper.ObservationDictionaryToArrayWrappe
 ### LaikagoTask
 
 laikago_task.py文件下LaikagoTask类的封装了基本的reward机制和done机制，直接继承这个类可以让你的task更简洁。
+
 
 - `_reward_of_toe_collision(self)`给出**鼓励**机器人脚趾与地面接触的奖赏
 - `_reward_of_leg_collision(self)`给出**阻止**机器人大腿与地面接触的奖赏
@@ -162,11 +160,38 @@ Sensor类下有许多可以用来作为环境obs的传感器。
 
 也可以继承`BoxSpaceSensor`类写自己的Sensor，通过xxx_env_builder.py文件绑定到env中。
 
+### SensorWrapper
+
+SensorWrapper类可以对sensor的数据进行处理，例如NormalizeSensorWrapper将obs做了归一化，使算法训练的难度减小。
+
 ## 训练
 
-创建`train_vxxx.py`文件开始训练。
+进入根目录，执行`train.py`文件并确定task的名称和版本，即可开始训练。
 
+例如
+```
+python train.py -n standup -v 0
+```
 
+也可以设置SAC的算法参数，例如
+```
+python train.py -n standup -v 0 --ent_coef auto_0.1
+```
+或者在之前best model的基础之上继续训练
+
+```
+python train.py -n standup -v 0 -l True
+```
 ## 测试
 
-创建`play.py`文件开始训练。
+进入根目录，执行`play.py`文件并确定task的名称和版本，即可开始测试。
+
+例如
+```
+python play.py -n standup -v 0
+```
+
+可以选择让agent永远不会死亡，例如
+```
+python play.py -n standup -m never_done -v 0
+```
