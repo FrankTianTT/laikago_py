@@ -12,7 +12,9 @@ from stable_baselines3.common import logger, utils
 import tasks
 import torch
 
-def get_file_no(file_path,algo_name='SAC'):
+def get_file_no(file_path, algo_name='SAC'):
+    if not os.path.exists(file_path):
+        os.makedirs(file_path)
     files = os.listdir(file_path)
     nums = []
     for f in files:
@@ -47,29 +49,18 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", default=64)
     parser.add_argument("--ent_coef", default=0.1)
     parser.add_argument("--net_arch", default=[256, 256], nargs='+', type=int)
-    parser.add_argument("--log_path")
-    parser.add_argument("--save_model_path")
-    parser.add_argument("--load_model_path")
 
     args = parser.parse_args()
 
     name = args.name
     version = args.version
     net_arch = args.net_arch
-    if args.save_model_path is None:
-        save_model_path = './tasks/{}/log&model/v{}/'.format(name, version)
-    else:
-        save_model_path = args.save_model_path
+    save_model_path = './tasks/{}/log_model/v{}/'.format(name, version)
     save_model_path = save_model_path + get_file_no(save_model_path)
-    if args.load_model_path is None:
-        load_model_path = './tasks/{}/log&model/v{}'.format(name, version)
-    else:
-        load_model_path = args.load_model_path
+    load_model_path = './tasks/{}/log_model/v{}'.format(name, version)
     load_model_path = load_model_path + get_file_no(load_model_path) + '/best_model.zip'
-    if args.log_path is None:
-        log_path = "./tasks/{}/log&model/v{}/".format(name, version)
-    else:
-        log_path = args.log_path
+    log_path = "./tasks/{}/log_model/v{}/".format(name, version)
+
     buffer_size = args.buffer_size
     batch_size = args.batch_size
     learning_starts = args.learning_starts

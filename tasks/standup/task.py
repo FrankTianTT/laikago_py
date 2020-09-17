@@ -15,7 +15,9 @@ class StandupTaskV0(LaikagoTask):
 
     def reward(self, env):
         del env
-        self._add_reward(self._reward_of_stand_height(), 1)
+        self._add_reward(self._reward_of_stand_height(), 3)
+        self._add_reward(self._reward_of_sum_vel(), 1)
+        self._add_reward(self._reward_of_toes_height(), 1)
 
         return self._get_sum_reward()
 
@@ -26,6 +28,18 @@ class StandupTaskV0(LaikagoTask):
         else:
             return self._done_of_wrong_toward_ori() or self._done_of_low_height() or self._done_of_too_long()
 
+class StandupTaskV0_1(StandupTaskV0):
+    def __init__(self, mode='train'):
+        super(StandupTaskV0_1, self).__init__(mode)
+        return
+
+    def reward(self, env):
+        del env
+        self._add_reward(self._reward_of_stand_height(), 3)
+        self._add_reward(self._reward_of_sum_vel(), 3)
+        self._add_reward(self._reward_of_toes_height(), 1)
+
+        return self._get_sum_reward()
 '''
 Stand Up Task Version 1
 
@@ -55,12 +69,26 @@ class StandupTaskV1(LaikagoTask):
 
 class StandupTaskV1_1(StandupTaskV1):
     def __init__(self, mode='train'):
-        super(StandupTaskV1, self).__init__(mode)
+        super(StandupTaskV1_1, self).__init__(mode)
         return
 
     def reward(self, env):
         del env
         self._add_reward(self._reward_of_energy(), 3)
+        self._add_reward(self._reward_of_toe_collision(), 1)
+        self._add_reward(self._reward_of_stand_height(), 3)
+        self._add_reward(self._reward_of_toe_upper_distance(), 1)
+
+        return self._get_sum_reward()
+
+class StandupTaskV1_2(StandupTaskV1):
+    def __init__(self, mode='train'):
+        super(StandupTaskV1_2, self).__init__(mode)
+        return
+
+    def reward(self, env):
+        del env
+        self._add_reward(self._reward_of_energy(), 10)
         self._add_reward(self._reward_of_toe_collision(), 1)
         self._add_reward(self._reward_of_stand_height(), 3)
         self._add_reward(self._reward_of_toe_upper_distance(), 1)
