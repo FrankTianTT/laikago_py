@@ -4,9 +4,7 @@
 
 - `envs`目录下的是环境文件;
 - `deeprl`目录下的是算法的测试文件，使用stable baselines 3在几个连续状态动作环境中进行了测试;
-- `tasks`目录下的是任务文件;
-- `train.py`训练任务的文件;
-- `play.py`执行训练好的模型.
+- `tasks`目录下的是任务文件.
 
 ### envs
 
@@ -56,6 +54,7 @@
 ```
 #### 配置task文件
 
+
 你需要新建一个Task类，例如`StandupTask`，你可以继承自`envs/build_envs/laikago_task.py`，也可以自己写。
 
 无论如何，为了强化学习算法运行正常，请确保你的类中包括以下函数:
@@ -83,6 +82,7 @@ def update(self, env):
 
 #### 配置env_builder文件
 
+
 在这个文件中定义`build_env()`函数，返回一个从gym继承的`ENV`类，你可以直接使用locomotion_gym_env文件的`LocomotionGymEnv`完成这个功能，但是这个函数存在的意义在于完成更高级的设置。
 
 在这个函数中完成task和env的绑定，例如
@@ -105,6 +105,7 @@ env = observation_dictionary_to_array_wrapper.ObservationDictionaryToArrayWrappe
 ### LaikagoTask
 
 laikago_task.py文件下LaikagoTask类的封装了基本的reward机制和done机制，直接继承这个类可以让你的task更简洁。
+
 
 - `_reward_of_toe_collision(self)`给出**鼓励**机器人脚趾与地面接触的奖赏
 - `_reward_of_leg_collision(self)`给出**阻止**机器人大腿与地面接触的奖赏
