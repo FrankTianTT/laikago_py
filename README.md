@@ -175,9 +175,13 @@ python train.py -n standup -v 0
 
 也可以设置SAC的算法参数，例如
 ```
-python train.py -n standup -v 0 --ent_coef 0.05
+python train.py -n standup -v 0 --ent_coef auto_0.1
 ```
+或者在之前best model的基础之上继续训练
 
+```
+python train.py -n standup -v 0 -l True
+```
 ## 测试
 
 进入根目录，执行`play.py`文件并确定task的名称和版本，即可开始测试。
@@ -185,4 +189,9 @@ python train.py -n standup -v 0 --ent_coef 0.05
 例如
 ```
 python play.py -n standup -v 0
+```
+
+可以选择让agent永远不会死亡，例如
+```
+python play.py -n standup -m never_done -v 0
 ```

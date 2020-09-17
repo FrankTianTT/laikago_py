@@ -18,14 +18,16 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", "--name", required=True, help="Name of task")
     parser.add_argument("-v", "--version", required=True,  help="Version of task")
+    parser.add_argument("-m", "--mode", default='train', type=str)
     args = parser.parse_args()
 
     name = args.name
     version = args.version
+    mode = args.mode
 
     env_builder = importlib.import_module('{}.env_builder'.format(name))
 
-    env = env_builder.build_env(enable_randomizer=True, version=version, enable_rendering=True)
+    env = env_builder.build_env(enable_randomizer=True, version=version, enable_rendering=True, mode=mode)
     model = SAC.load('./tasks/{}/best_model/v{}/best_model.zip'.format(name, version))
     total_reward = 0
     obs = env.reset()

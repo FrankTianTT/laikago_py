@@ -1,0 +1,1 @@
+{"name": "standup", "version": "2", "load_from_best": false, "time_steps": 5000000, "buffer_size": 1000000, "learning_starts": 10000, "batch_size": 64, "ent_coef": 0.1, "net_arch": [256, 256], "log_path": null, "save_model_path": null, "load_model_path": null}
