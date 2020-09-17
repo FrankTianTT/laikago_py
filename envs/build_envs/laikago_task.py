@@ -89,6 +89,12 @@ class LaikagoTask(object):
         reward = np.sum(distances)
         return self.normalize_reward(reward, 0, 2)
 
+    def _reward_of_set_height(self, height=0.3):
+        assert height > 0 and height < 0.5
+        self._get_body_pos_vel_info()
+        reward = - abs(self.body_pos[2] - height)
+        return self.normalize_reward(reward, - max([0.5 - height, height - 0]), 0)
+
     def _not_done_of_too_short(self, threshold=20):
         return self._env.env_step_counter < threshold  # if in this case, return True to prevent to die.
 

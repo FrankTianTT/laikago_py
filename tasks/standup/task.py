@@ -88,3 +88,45 @@ class StandupTaskV2(LaikagoTask):
             return False
         else:
             return self._done_of_wrong_toward_ori() or self._done_of_low_height() or self._done_of_too_long()
+
+class StandupTaskV3(LaikagoTask):
+    def __init__(self, mode='train'):
+        super(StandupTaskV3, self).__init__(mode)
+        return
+
+    def reward(self, env):
+        del env
+        self._add_reward(self._reward_of_energy(), 5)
+        self._add_reward(self._reward_of_toe_collision(), 2)
+        self._add_reward(self._reward_of_toes_height(), 1)
+        self._add_reward(self._reward_of_stand_height(), 3)
+
+        return self._get_sum_reward()
+
+    def done(self, env):
+        del env
+        if self._not_done_of_too_short() or self._not_done_of_mode(self.mode):
+            return False
+        else:
+            return self._done_of_wrong_toward_ori() or self._done_of_low_height() or self._done_of_too_long()
+
+class StandupTaskV4(LaikagoTask):
+    def __init__(self, mode='train'):
+        super(StandupTaskV4, self).__init__(mode)
+        return
+
+    def reward(self, env):
+        del env
+        self._add_reward(self._reward_of_energy(), 3)
+        self._add_reward(self._reward_of_toe_collision(), 2)
+        self._add_reward(self._reward_of_toes_height(), 1)
+        self._add_reward(self._reward_of_set_height(), 3)
+
+        return self._get_sum_reward()
+
+    def done(self, env):
+        del env
+        if self._not_done_of_too_short() or self._not_done_of_mode(self.mode):
+            return False
+        else:
+            return self._done_of_wrong_toward_ori() or self._done_of_low_height() or self._done_of_too_long()
