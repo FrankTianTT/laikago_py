@@ -49,7 +49,7 @@ if __name__ == "__main__":
     env_builder = importlib.import_module('{}.env_builder'.format(name))
 
     env = env_builder.build_env(enable_randomizer=True, version=version, enable_rendering=True, mode=mode)
-    model = SAC.load('./tasks/{}/log&model/v{}/SAC_{}/best_model.zip'.format(name, version, train_version))
+    model = SAC.load('./tasks/{}/log_model/v{}/SAC_{}/best_model.zip'.format(name, version, train_version))
     total_reward = 0
     obs = env.reset()
 
