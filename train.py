@@ -62,9 +62,10 @@ if __name__ == "__main__":
         save_model_path = args.save_model_path
     save_model_path = save_model_path + get_file_no(save_model_path)
     if args.load_model_path is None:
-        load_model_path = './tasks/{}/log&model/v{}/best_model.zip'.format(name, version)
+        load_model_path = './tasks/{}/log&model/v{}'.format(name, version)
     else:
         load_model_path = args.load_model_path
+    load_model_path = load_model_path + get_file_no(load_model_path) + '/best_model.zip'
     if args.log_path is None:
         log_path = "./tasks/{}/log&model/v{}/".format(name, version)
     else:
