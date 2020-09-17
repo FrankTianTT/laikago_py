@@ -46,11 +46,10 @@
 - 建立对应的`xxx_task`文件，用于配置强化学习算法的逻辑；
 - 建立对应的`xxx_env_builder.py`文件，用于链接`xxx_task.py`文件和`locomotion_gym_env.py`文件，以及完成其他更高级的配置。
 
-`_task`目录的文件如下：
+`task`目录的文件如下：
 
 ```
-├─best_model
-├─log
+├─log&model
 ├─env_builder.py
 └─task.py
 
