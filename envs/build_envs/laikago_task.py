@@ -17,6 +17,8 @@ class LaikagoTask(object):
 
         self.sum_reward = 0
         self.sum_p = 0
+
+        self.max_r = 0
         return
 
     def __call__(self, env):
@@ -69,9 +71,10 @@ class LaikagoTask(object):
         return self.normalize_reward(reward, 0, 0.5)  # the initial height of laikago is 0.5.
 
     def _reward_of_energy(self):
-        self._get_joint_pos_vel_info()
-        reward = - sum([abs(p[0] * p[1]) for p in zip(self.joint_tor, self.joint_vel)])
-        return self.normalize_reward(reward, -5, 0)  # the min reward by sample action is -4.
+        motor_velocities = self._env.robot.GetTrueMotorVelocities()
+        motor_torques = self._env.robot.GetTrueMotorTorques()
+        reward = - float(np.abs(motor_torques * motor_velocities).mean())
+        return self.normalize_reward(reward, -1000, 0)
 
     def _reward_of_sum_vel(self):
         self._get_joint_pos_vel_info()
@@ -80,8 +83,8 @@ class LaikagoTask(object):
 
     # use it when try to stand up.
     def _reward_of_toes_height(self):
-        toes_height = self._get_pos_of_toes()
-        reward = - sum([pos[2] for pos in toes_height])
+        toes_pos = self._get_pos_of_toes()
+        reward = - sum([pos[2] for pos in toes_pos])
         return self.normalize_reward(reward, -1, 0)  # the min reward by sample action is -0.8.
 
     def _reward_of_toe_upper_distance(self):

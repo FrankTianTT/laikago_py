@@ -37,7 +37,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", "--name", required=True, help="Name of task")
     parser.add_argument("-v", "--version", required=True,  help="Version of task")
-    parser.add_argument("-tv", "--train_version", required=True, help="Version of train")
+    parser.add_argument("-tv", "--train_version", default=1, help="Version of train")
     parser.add_argument("-m", "--mode", default='train', type=str)
     args = parser.parse_args()
 
