@@ -94,10 +94,13 @@ UPPER_LEG_LOWER_BOUND = -30*math.pi /180
 LOWER_LEG_UPPER_BOUND = -35*math.pi /180
 LOWER_LEG_LOWER_BOUND = -159*math.pi /180
 
+UPPER_TORQUE = 40
+LOWER_TORQUE = - 40
+
 class Laikago(minitaur.Minitaur):
     """A simulation for the Laikago robot."""
 
-    ACTION_CONFIG = [
+    POSITION_ACTION_CONFIG = [
         locomotion_gym_config.ScalarField(name="motor_angle_0", upper_bound=R_HIP_UPPER_BOUND, lower_bound=R_HIP_LOWER_BOUND),
         locomotion_gym_config.ScalarField(name="motor_angle_1", upper_bound=UPPER_LEG_UPPER_BOUND, lower_bound=UPPER_LEG_LOWER_BOUND),
         locomotion_gym_config.ScalarField(name="motor_angle_2", upper_bound=LOWER_LEG_UPPER_BOUND, lower_bound=LOWER_LEG_LOWER_BOUND),
@@ -111,6 +114,20 @@ class Laikago(minitaur.Minitaur):
         locomotion_gym_config.ScalarField(name="motor_angle_10", upper_bound=UPPER_LEG_UPPER_BOUND, lower_bound=UPPER_LEG_LOWER_BOUND),
         locomotion_gym_config.ScalarField(name="motor_angle_11", upper_bound=LOWER_LEG_UPPER_BOUND, lower_bound=LOWER_LEG_LOWER_BOUND)
     ]
+    TORQUE_ACTION_CONFIG = [
+        locomotion_gym_config.ScalarField(name="motor_angle_0", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_1", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_2", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_3", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_4", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_5", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_6", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_7", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_8", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_9", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_10", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_11", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE)
+    ]
 
     def __init__(self,
                  pybullet_client,
@@ -122,8 +139,8 @@ class Laikago(minitaur.Minitaur):
                  control_latency=0.002,
                  on_rack=False,
                  enable_action_interpolation=True,
-                 enable_action_filter=True
-                 ):
+                 enable_action_filter=True,
+                 motor_control_mode=robot_config.MotorControlMode.TORQUE):
         self._urdf_filename = urdf_filename
 
         self._enable_clip_motor_commands = enable_clip_motor_commands
@@ -146,6 +163,7 @@ class Laikago(minitaur.Minitaur):
             num_motors=NUM_MOTORS,
             dofs_per_leg=DOFS_PER_LEG,
             motor_direction=JOINT_DIRECTIONS,
+            motor_control_mode=motor_control_mode,
             motor_offset=JOINT_OFFSETS,
             motor_overheat_protection=False,
             motor_model_class=laikago_motor.LaikagoMotorModel,

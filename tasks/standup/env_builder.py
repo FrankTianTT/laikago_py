@@ -6,6 +6,7 @@ from build_envs.sensors.sensor_wrappers import HistoricSensorWrapper, NormalizeS
 from build_envs.sensors import robot_sensors
 from build_envs.utilities import controllable_env_randomizer_from_config
 from robots import laikago
+from envs.robots.robot_config import MotorControlMode
 from tasks.standup import task
 
 def build_env(enable_randomizer, enable_rendering, version=0, mode='train'):
@@ -40,7 +41,9 @@ def build_env(enable_randomizer, enable_rendering, version=0, mode='train'):
         randomizer = controllable_env_randomizer_from_config.ControllableEnvRandomizerFromConfig(verbose=False)
         randomizers.append(randomizer)
 
+    motor_control_mode = MotorControlMode.TORQUE
     env = locomotion_gym_env.LocomotionGymEnv(gym_config=gym_config, robot_class=robot_class,
+                                              motor_control_mode=motor_control_mode,
                                               env_randomizers=randomizers, robot_sensors=sensors, task=task)
 
     env = observation_dictionary_to_array_wrapper.ObservationDictionaryToArrayWrapper(env)

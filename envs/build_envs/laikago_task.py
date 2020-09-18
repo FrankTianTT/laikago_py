@@ -71,8 +71,10 @@ class LaikagoTask(object):
         return self.normalize_reward(reward, 0, 0.5)  # the initial height of laikago is 0.5.
 
     def _reward_of_energy(self):
+
         motor_velocities = self._env.robot.GetTrueMotorVelocities()
         motor_torques = self._env.robot.GetTrueMotorTorques()
+        print(min(motor_torques), max(motor_torques))
         reward = - float(np.abs(motor_torques * motor_velocities).mean())
         return self.normalize_reward(reward, -1000, 0)
 
