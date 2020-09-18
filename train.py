@@ -43,6 +43,7 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--name", required=True, help="Name of task")
     parser.add_argument("-v", "--version", required=True,  help="Version of task")
     parser.add_argument("-l", "--load_from_best", default=False, type=bool)
+    parser.add_argument("-cm", "--control_mode", default='train', type=str)
     parser.add_argument("--time_steps", default=5000000)
     parser.add_argument("--buffer_size", default=1000000)
     parser.add_argument("--learning_starts", default=10000)
@@ -65,13 +66,14 @@ if __name__ == "__main__":
     learning_starts = args.learning_starts
     ent_coef = args.ent_coef
     time_steps = args.time_steps
+    control_mode = args.control_mode
 
     tasks.check_name(name)
     save_parameter(save_model_path, args)
 
     env_builder = importlib.import_module('{}.env_builder'.format(name))
-    env = env_builder.build_env(enable_randomizer=True, version=version, enable_rendering=False)
-    eval_env = env_builder.build_env(enable_randomizer=True, version=version, enable_rendering=False)
+    env = env_builder.build_env(enable_randomizer=True, version=version, enable_rendering=False, control_mode=control_mode)
+    eval_env = env_builder.build_env(enable_randomizer=True, version=version, enable_rendering=False, control_mode=control_mode)
 
     eval_callback = EvalCallback(eval_env,
                                  best_model_save_path=save_model_path,

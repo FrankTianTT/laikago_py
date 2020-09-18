@@ -26,6 +26,8 @@ from robots import laikago_motor
 from robots import minitaur
 from robots import robot_config
 from build_envs import locomotion_gym_config
+from envs.robots.robot_config import MotorControlMode
+
 
 NUM_MOTORS = 12
 NUM_LEGS = 4
@@ -332,9 +334,8 @@ class Laikago(minitaur.Minitaur):
             or motor pwms (for Minitaur only).N
           motor_control_mode: A MotorControlMode enum.
         """
-        if self._enable_clip_motor_commands:
+        if self._motor_control_mode == MotorControlMode.POSITION and self._enable_clip_motor_commands:
             motor_commands = self._ClipMotorCommands(motor_commands)
-
         super(Laikago, self).ApplyAction(motor_commands, motor_control_mode)
         return
 
