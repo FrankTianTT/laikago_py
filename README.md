@@ -195,3 +195,12 @@ python play.py -n standup -v 0
 ```
 python play.py -n standup -m never_done -v 0
 ```
+
+## 
+项目依赖
+
+```
+conda install pytorch torchvision cudatoolkit=10.1 -c pytorch
+
+
+```

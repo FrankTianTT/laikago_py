@@ -8,9 +8,9 @@ import importlib
 import argparse
 from stable_baselines3 import SAC
 from stable_baselines3.common.callbacks import EvalCallback
-from stable_baselines3.common import logger, utils
 import tasks
 import torch
+
 
 def get_file_no(file_path, algo_name='SAC'):
     if not os.path.exists(file_path):
@@ -59,7 +59,6 @@ if __name__ == "__main__":
     save_model_path = save_model_path + get_file_no(save_model_path)
     load_model_path = './tasks/{}/log_model/v{}'.format(name, version)
     load_model_path = load_model_path + get_file_no(load_model_path) + '/best_model.zip'
-    log_path = "./tasks/{}/log_model/v{}/".format(name, version)
 
     buffer_size = args.buffer_size
     batch_size = args.batch_size
