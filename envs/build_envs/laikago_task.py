@@ -155,6 +155,10 @@ class LaikagoTask(object):
         self.body_lin_vel = pyb.getBaseVelocity(self.quadruped)[0]  # 3 list: linear velocity [x,y,z]
         self.body_ang_vel = pyb.getBaseVelocity(self.quadruped)[1]  # 3 list: angular velocity [wx,wy,wz]
 
+    # There are 12 links in the laikago.
+    # No.0, 3, 6, 9 are upper legs
+    # No.1, 4, 7, 10 are lower legs
+    # No.2, 5, 8, 11 are feet
     def _get_joint_pos_vel_info(self):
         pyb = self._get_pybullet_client()
         self.joint_pos = []  # float: the position value of this joint

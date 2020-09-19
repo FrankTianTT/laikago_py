@@ -86,7 +86,7 @@ class Minitaur(object):
                time_step=0.01,
                action_repeat=1,
                self_collision_enabled=False,
-               motor_control_mode=robot_config.MotorControlMode.TORQUE,
+               motor_control_mode=robot_config.MotorControlMode.POSITION,
                motor_model_class=minitaur_motor.MotorModel,
                motor_kp=1.0,
                motor_kd=0.02,
@@ -414,6 +414,9 @@ class Minitaur(object):
       self._BuildMotorIdList()
       self._RecordMassInfoFromURDF()
       self._RecordInertiaInfoFromURDF()
+      self._pybullet_client.resetBasePositionAndOrientation(
+          self.quadruped, self._GetDefaultInitPosition(),
+          self._GetDefaultInitOrientation())
       self.ResetPose(add_constraint=True)
     else:
       self._pybullet_client.resetBasePositionAndOrientation(

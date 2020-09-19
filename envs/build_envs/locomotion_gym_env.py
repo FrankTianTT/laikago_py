@@ -32,7 +32,6 @@ _ACTION_EPS = 0.01
 _NUM_SIMULATION_ITERATION_STEPS = 300
 _LOG_BUFFER_LENGTH = 5000
 
-
 class LocomotionGymEnv(gym.Env):
     """The gym environment for the locomotion tasks."""
     metadata = {
@@ -44,6 +43,7 @@ class LocomotionGymEnv(gym.Env):
                  gym_config,
                  robot_class=None,
                  motor_control_mode=MotorControlMode.TORQUE,
+                 init_pose='stand',
                  env_sensors=None,
                  robot_sensors=None,
                  task=None,
@@ -72,7 +72,7 @@ class LocomotionGymEnv(gym.Env):
         self._robot_class = robot_class
         self._robot_sensors = robot_sensors
         self._motor_control_mode = motor_control_mode
-
+        self.init_pose = init_pose
         self._sensors = env_sensors if env_sensors is not None else list()
         if self._robot_class is None:
             raise ValueError('robot_class cannot be None.')
@@ -213,7 +213,8 @@ class LocomotionGymEnv(gym.Env):
                 pybullet_client=self._pybullet_client,
                 sensors=self._robot_sensors,
                 on_rack=self._on_rack,
-                motor_control_mode=self._motor_control_mode)
+                motor_control_mode=self._motor_control_mode,
+                init_pose=self.init_pose)
 
         # Reset the pose of the robot.
         self._robot.Reset(

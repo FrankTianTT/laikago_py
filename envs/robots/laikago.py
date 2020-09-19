@@ -46,7 +46,8 @@ MOTOR_NAMES = [
     "RL_lower_leg_2_upper_leg_joint",
 ]
 INIT_RACK_POSITION = [0, 0, 1]
-INIT_POSITION = [0, 0, 0.48]
+STAND_INIT_POSITION = [0, 0, 0.48]
+LIE_INIT_POSITION = [0, 0, 0.15]
 JOINT_DIRECTIONS = np.array([-1, 1, 1, 1, 1, 1, -1, 1, 1, 1, 1, 1])
 HIP_JOINT_OFFSET = 0.0
 UPPER_LEG_JOINT_OFFSET = -0.6
@@ -96,6 +97,15 @@ UPPER_LEG_LOWER_BOUND = -30*math.pi /180
 LOWER_LEG_UPPER_BOUND = -35*math.pi /180
 LOWER_LEG_LOWER_BOUND = -159*math.pi /180
 
+LIE_MOTOR_ANGLES = np.array([0, 90, -155,
+                   0, 90, -155,
+                   0, 180, -155,
+                   0, 180, -155]) * np.pi / 180 + JOINT_OFFSETS
+STAND_MOTOR_ANGLES = np.array([0, 40, -75,
+                   0, 40, -75,
+                   0, 40, -75,
+                   0, 40, -75]) * np.pi / 180 + JOINT_OFFSETS
+
 UPPER_TORQUE = 40
 LOWER_TORQUE = - 40
 
@@ -142,7 +152,8 @@ class Laikago(minitaur.Minitaur):
                  on_rack=False,
                  enable_action_interpolation=True,
                  enable_action_filter=True,
-                 motor_control_mode=robot_config.MotorControlMode.TORQUE):
+                 motor_control_mode=robot_config.MotorControlMode.POSITION,
+                 init_pose='stand'):
         self._urdf_filename = urdf_filename
 
         self._enable_clip_motor_commands = enable_clip_motor_commands
@@ -157,6 +168,11 @@ class Laikago(minitaur.Minitaur):
                     ABDUCTION_D_GAIN, HIP_D_GAIN, KNEE_D_GAIN]
 
         motor_torque_limits = None # jp hack
+        if init_pose == 'lie':
+            self.initial_motor_angles = LIE_MOTOR_ANGLES
+        else:
+            self.initial_motor_angles = STAND_MOTOR_ANGLES
+        self.init_pose = init_pose
 
         super(Laikago, self).__init__(
             pybullet_client=pybullet_client,
@@ -169,6 +185,7 @@ class Laikago(minitaur.Minitaur):
             motor_offset=JOINT_OFFSETS,
             motor_overheat_protection=False,
             motor_model_class=laikago_motor.LaikagoMotorModel,
+            motor_torque_limits=40,
             sensors=sensors,
             motor_kp=motor_kp,
             motor_kd=motor_kd,
@@ -197,7 +214,6 @@ class Laikago(minitaur.Minitaur):
 
         if reset_time <= 0:
             return
-
         for _ in range(500):
             self._StepInternal(
                 INIT_MOTOR_ANGLES,
@@ -214,7 +230,6 @@ class Laikago(minitaur.Minitaur):
 
     def GetToeContacts(self):
         all_contacts = self._pybullet_client.getContactPoints(bodyA=self.quadruped)
-
         contacts = [False, False, False, False]
         for contact in all_contacts:
             # Ignore self contacts
@@ -226,7 +241,6 @@ class Laikago(minitaur.Minitaur):
                 contacts[toe_link_index] = True
             except ValueError:
                 continue
-
         return contacts
 
     def ComputeJacobian(self, leg_id):
@@ -246,15 +260,7 @@ class Laikago(minitaur.Minitaur):
                 targetVelocity=0,
                 force=0)
         for name, i in zip(MOTOR_NAMES, range(len(MOTOR_NAMES))):
-            if "hip_motor_2_chassis_joint" in name:
-                angle = INIT_MOTOR_ANGLES[i] + HIP_JOINT_OFFSET
-            elif "upper_leg_2_hip_motor_joint" in name:
-                angle = INIT_MOTOR_ANGLES[i] + UPPER_LEG_JOINT_OFFSET
-            elif "lower_leg_2_upper_leg_joint" in name:
-                angle = INIT_MOTOR_ANGLES[i] + KNEE_JOINT_OFFSET
-            else:
-                raise ValueError("The name %s is not recognized as a motor joint." %
-                                 name)
+            angle = self.initial_motor_angles[i]
             self._pybullet_client.resetJointState(
                 self.quadruped, self._joint_name_to_id[name], angle, targetVelocity=0)
 
@@ -288,12 +294,10 @@ class Laikago(minitaur.Minitaur):
                 self._toe_link_ids.append(joint_id)
             else:
                 raise ValueError("Unknown category of joint %s" % joint_name)
-
         self._chassis_link_ids.sort()
         self._motor_link_ids.sort()
         self._foot_link_ids.sort()
         self._leg_link_ids.sort()
-
         return
 
     def _GetMotorNames(self):
@@ -302,8 +306,10 @@ class Laikago(minitaur.Minitaur):
     def _GetDefaultInitPosition(self):
         if self._on_rack:
             return INIT_RACK_POSITION
+        elif self.init_pose == 'lie':
+            return LIE_INIT_POSITION
         else:
-            return INIT_POSITION
+            return STAND_INIT_POSITION
 
     def _GetDefaultInitOrientation(self):
         # The Laikago URDF assumes the initial pose of heading towards z axis,

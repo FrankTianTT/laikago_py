@@ -43,7 +43,8 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--name", required=True, help="Name of task")
     parser.add_argument("-v", "--version", required=True,  help="Version of task")
     parser.add_argument("-l", "--load_from_best", default=False, type=bool)
-    parser.add_argument("-cm", "--control_mode", default='train', type=str)
+    parser.add_argument("-cm", "--control_mode", default='position', type=str)
+    
     parser.add_argument("--time_steps", default=5000000)
     parser.add_argument("--buffer_size", default=1000000)
     parser.add_argument("--learning_starts", default=10000)
