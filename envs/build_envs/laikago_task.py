@@ -104,6 +104,12 @@ class LaikagoTask(object):
         reward = - abs(self.body_pos[2] - height)
         return self.normalize_reward(reward, - max([0.5 - height, height - 0]), 0)
 
+    def _reward_of_base_move(self):
+        last_base_position = np.array(self._env._last_base_position)
+        now_base_position = np.array(self._env._robot.GetBasePosition())
+        reward = - np.sqrt(np.sum((last_base_position - now_base_position)**2))
+        return self.normalize_reward(reward, -0.1, 0)
+
     def _not_done_of_too_short(self, threshold=20):
         return self._env.env_step_counter < threshold  # if in this case, return True to prevent to die.
 

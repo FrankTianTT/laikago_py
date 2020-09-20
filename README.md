@@ -201,6 +201,4 @@ python play.py -n standup -m never_done -v 0
 
 ```
 conda install pytorch torchvision cudatoolkit=10.1 -c pytorch
-
-
 ```

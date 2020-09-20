@@ -51,7 +51,5 @@ def build_env(enable_randomizer, enable_rendering, version=0, mode='train', cont
                                               motor_control_mode=motor_control_mode,
                                               init_pose=init_pose,
                                               env_randomizers=randomizers, robot_sensors=sensors, task=task)
-
     env = observation_dictionary_to_array_wrapper.ObservationDictionaryToArrayWrapper(env)
     return env
-
