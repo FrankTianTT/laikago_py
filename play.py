@@ -62,7 +62,12 @@ if __name__ == "__main__":
 
     for i in range(10000):
         action, _states = model.predict(obs, deterministic=True)
+        # action = np.array([0, 40, -75,
+        #            0, 40, -75,
+        #            0, 40, -75,
+        #            0, 40, -75]) * np.pi / 180
         obs, reward, done, info = env.step(action)
+
         # print(env._robot.GetBasePosition())
         # print(env._robot.GetTrueMotorAngles()*180/np.pi)
         total_reward += reward

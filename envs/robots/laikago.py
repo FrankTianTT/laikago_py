@@ -196,19 +196,6 @@ class Laikago(minitaur.Minitaur):
 
         return
 
-    def _LoadRobotURDF(self):
-        laikago_urdf_path = self.GetURDFFile()
-        if self._self_collision_enabled:
-            self.quadruped = self._pybullet_client.loadURDF(
-                laikago_urdf_path,
-                self._GetDefaultInitPosition(),
-                self._GetDefaultInitOrientation(),
-                flags=self._pybullet_client.URDF_USE_SELF_COLLISION)
-        else:
-            self.quadruped = self._pybullet_client.loadURDF(
-                laikago_urdf_path, self._GetDefaultInitPosition(),
-                self._GetDefaultInitOrientation())
-
     def _SettleDownForReset(self, default_motor_angles, reset_time):
         self.ReceiveObservation()
 
@@ -297,7 +284,7 @@ class Laikago(minitaur.Minitaur):
         self._chassis_link_ids.sort()
         self._motor_link_ids.sort()
         self._foot_link_ids.sort()
-        self._leg_link_ids.sort()
+        self._toe_link_ids.sort()
         return
 
     def _GetMotorNames(self):
