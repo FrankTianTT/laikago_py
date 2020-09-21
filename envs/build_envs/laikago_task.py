@@ -2,6 +2,9 @@ import math
 from envs.build_envs.utilities.quaternion import bullet_quaternion as bq
 import random
 import numpy as np
+from envs.robots.robot_config import MotorControlMode
+
+
 class LaikagoTask(object):
     def __init__(self, mode='train'):
         self._env = None
@@ -71,8 +74,11 @@ class LaikagoTask(object):
         return self.normalize_reward(reward, 0, 0.5)  # the initial height of laikago is 0.5.
 
     def _reward_of_energy(self):
+        if self._env._motor_control_mode == MotorControlMode.TORQUE:
+            motor_torques = self._env._last_action
+        else:
+            motor_torques = self._env.robot.GetTrueMotorTorques()
         motor_velocities = self._env.robot.GetTrueMotorVelocities()
-        motor_torques = self._env.robot.GetTrueMotorTorques()
         reward = - float(np.abs(motor_torques * motor_velocities).mean())
         return self.normalize_reward(reward, -1000, 0)
 
@@ -97,6 +103,12 @@ class LaikagoTask(object):
         self._get_body_pos_vel_info()
         reward = - abs(self.body_pos[2] - height)
         return self.normalize_reward(reward, - max([0.5 - height, height - 0]), 0)
+
+    def _reward_of_base_move(self):
+        last_base_position = np.array(self._env._last_base_position)
+        now_base_position = np.array(self._env._robot.GetBasePosition())
+        reward = - np.sqrt(np.sum((last_base_position - now_base_position)**2))
+        return self.normalize_reward(reward, -0.1, 0)
 
     def _not_done_of_too_short(self, threshold=20):
         return self._env.env_step_counter < threshold  # if in this case, return True to prevent to die.
@@ -149,6 +161,10 @@ class LaikagoTask(object):
         self.body_lin_vel = pyb.getBaseVelocity(self.quadruped)[0]  # 3 list: linear velocity [x,y,z]
         self.body_ang_vel = pyb.getBaseVelocity(self.quadruped)[1]  # 3 list: angular velocity [wx,wy,wz]
 
+    # There are 12 links in the laikago.
+    # No.0, 3, 6, 9 are upper legs
+    # No.1, 4, 7, 10 are lower legs
+    # No.2, 5, 8, 11 are feet
     def _get_joint_pos_vel_info(self):
         pyb = self._get_pybullet_client()
         self.joint_pos = []  # float: the position value of this joint

@@ -26,6 +26,8 @@ from robots import laikago_motor
 from robots import minitaur
 from robots import robot_config
 from build_envs import locomotion_gym_config
+from envs.robots.robot_config import MotorControlMode
+
 
 NUM_MOTORS = 12
 NUM_LEGS = 4
@@ -44,7 +46,8 @@ MOTOR_NAMES = [
     "RL_lower_leg_2_upper_leg_joint",
 ]
 INIT_RACK_POSITION = [0, 0, 1]
-INIT_POSITION = [0, 0, 0.48]
+STAND_INIT_POSITION = [0, 0, 0.48]
+LIE_INIT_POSITION = [0, 0, 0.15]
 JOINT_DIRECTIONS = np.array([-1, 1, 1, 1, 1, 1, -1, 1, 1, 1, 1, 1])
 HIP_JOINT_OFFSET = 0.0
 UPPER_LEG_JOINT_OFFSET = -0.6
@@ -94,10 +97,22 @@ UPPER_LEG_LOWER_BOUND = -30*math.pi /180
 LOWER_LEG_UPPER_BOUND = -35*math.pi /180
 LOWER_LEG_LOWER_BOUND = -159*math.pi /180
 
+LIE_MOTOR_ANGLES = np.array([0, 90, -155,
+                   0, 90, -155,
+                   0, 180, -155,
+                   0, 180, -155]) * np.pi / 180 + JOINT_OFFSETS
+STAND_MOTOR_ANGLES = np.array([0, 40, -75,
+                   0, 40, -75,
+                   0, 40, -75,
+                   0, 40, -75]) * np.pi / 180 + JOINT_OFFSETS
+
+UPPER_TORQUE = 40
+LOWER_TORQUE = - 40
+
 class Laikago(minitaur.Minitaur):
     """A simulation for the Laikago robot."""
 
-    ACTION_CONFIG = [
+    POSITION_ACTION_CONFIG = [
         locomotion_gym_config.ScalarField(name="motor_angle_0", upper_bound=R_HIP_UPPER_BOUND, lower_bound=R_HIP_LOWER_BOUND),
         locomotion_gym_config.ScalarField(name="motor_angle_1", upper_bound=UPPER_LEG_UPPER_BOUND, lower_bound=UPPER_LEG_LOWER_BOUND),
         locomotion_gym_config.ScalarField(name="motor_angle_2", upper_bound=LOWER_LEG_UPPER_BOUND, lower_bound=LOWER_LEG_LOWER_BOUND),
@@ -111,6 +126,20 @@ class Laikago(minitaur.Minitaur):
         locomotion_gym_config.ScalarField(name="motor_angle_10", upper_bound=UPPER_LEG_UPPER_BOUND, lower_bound=UPPER_LEG_LOWER_BOUND),
         locomotion_gym_config.ScalarField(name="motor_angle_11", upper_bound=LOWER_LEG_UPPER_BOUND, lower_bound=LOWER_LEG_LOWER_BOUND)
     ]
+    TORQUE_ACTION_CONFIG = [
+        locomotion_gym_config.ScalarField(name="motor_angle_0", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_1", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_2", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_3", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_4", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_5", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_6", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_7", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_8", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_9", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_10", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE),
+        locomotion_gym_config.ScalarField(name="motor_angle_11", upper_bound=UPPER_TORQUE, lower_bound=LOWER_TORQUE)
+    ]
 
     def __init__(self,
                  pybullet_client,
@@ -122,8 +151,9 @@ class Laikago(minitaur.Minitaur):
                  control_latency=0.002,
                  on_rack=False,
                  enable_action_interpolation=True,
-                 enable_action_filter=True
-                 ):
+                 enable_action_filter=True,
+                 motor_control_mode=robot_config.MotorControlMode.POSITION,
+                 init_pose='stand'):
         self._urdf_filename = urdf_filename
 
         self._enable_clip_motor_commands = enable_clip_motor_commands
@@ -138,6 +168,11 @@ class Laikago(minitaur.Minitaur):
                     ABDUCTION_D_GAIN, HIP_D_GAIN, KNEE_D_GAIN]
 
         motor_torque_limits = None # jp hack
+        if init_pose == 'lie':
+            self.initial_motor_angles = LIE_MOTOR_ANGLES
+        else:
+            self.initial_motor_angles = STAND_MOTOR_ANGLES
+        self.init_pose = init_pose
 
         super(Laikago, self).__init__(
             pybullet_client=pybullet_client,
@@ -146,9 +181,11 @@ class Laikago(minitaur.Minitaur):
             num_motors=NUM_MOTORS,
             dofs_per_leg=DOFS_PER_LEG,
             motor_direction=JOINT_DIRECTIONS,
+            motor_control_mode=motor_control_mode,
             motor_offset=JOINT_OFFSETS,
             motor_overheat_protection=False,
             motor_model_class=laikago_motor.LaikagoMotorModel,
+            motor_torque_limits=40,
             sensors=sensors,
             motor_kp=motor_kp,
             motor_kd=motor_kd,
@@ -159,25 +196,11 @@ class Laikago(minitaur.Minitaur):
 
         return
 
-    def _LoadRobotURDF(self):
-        laikago_urdf_path = self.GetURDFFile()
-        if self._self_collision_enabled:
-            self.quadruped = self._pybullet_client.loadURDF(
-                laikago_urdf_path,
-                self._GetDefaultInitPosition(),
-                self._GetDefaultInitOrientation(),
-                flags=self._pybullet_client.URDF_USE_SELF_COLLISION)
-        else:
-            self.quadruped = self._pybullet_client.loadURDF(
-                laikago_urdf_path, self._GetDefaultInitPosition(),
-                self._GetDefaultInitOrientation())
-
     def _SettleDownForReset(self, default_motor_angles, reset_time):
         self.ReceiveObservation()
 
         if reset_time <= 0:
             return
-
         for _ in range(500):
             self._StepInternal(
                 INIT_MOTOR_ANGLES,
@@ -194,7 +217,6 @@ class Laikago(minitaur.Minitaur):
 
     def GetToeContacts(self):
         all_contacts = self._pybullet_client.getContactPoints(bodyA=self.quadruped)
-
         contacts = [False, False, False, False]
         for contact in all_contacts:
             # Ignore self contacts
@@ -206,7 +228,6 @@ class Laikago(minitaur.Minitaur):
                 contacts[toe_link_index] = True
             except ValueError:
                 continue
-
         return contacts
 
     def ComputeJacobian(self, leg_id):
@@ -226,15 +247,7 @@ class Laikago(minitaur.Minitaur):
                 targetVelocity=0,
                 force=0)
         for name, i in zip(MOTOR_NAMES, range(len(MOTOR_NAMES))):
-            if "hip_motor_2_chassis_joint" in name:
-                angle = INIT_MOTOR_ANGLES[i] + HIP_JOINT_OFFSET
-            elif "upper_leg_2_hip_motor_joint" in name:
-                angle = INIT_MOTOR_ANGLES[i] + UPPER_LEG_JOINT_OFFSET
-            elif "lower_leg_2_upper_leg_joint" in name:
-                angle = INIT_MOTOR_ANGLES[i] + KNEE_JOINT_OFFSET
-            else:
-                raise ValueError("The name %s is not recognized as a motor joint." %
-                                 name)
+            angle = self.initial_motor_angles[i]
             self._pybullet_client.resetJointState(
                 self.quadruped, self._joint_name_to_id[name], angle, targetVelocity=0)
 
@@ -268,12 +281,10 @@ class Laikago(minitaur.Minitaur):
                 self._toe_link_ids.append(joint_id)
             else:
                 raise ValueError("Unknown category of joint %s" % joint_name)
-
         self._chassis_link_ids.sort()
         self._motor_link_ids.sort()
         self._foot_link_ids.sort()
-        self._leg_link_ids.sort()
-
+        self._toe_link_ids.sort()
         return
 
     def _GetMotorNames(self):
@@ -282,8 +293,10 @@ class Laikago(minitaur.Minitaur):
     def _GetDefaultInitPosition(self):
         if self._on_rack:
             return INIT_RACK_POSITION
+        elif self.init_pose == 'lie':
+            return LIE_INIT_POSITION
         else:
-            return INIT_POSITION
+            return STAND_INIT_POSITION
 
     def _GetDefaultInitOrientation(self):
         # The Laikago URDF assumes the initial pose of heading towards z axis,
@@ -314,9 +327,8 @@ class Laikago(minitaur.Minitaur):
             or motor pwms (for Minitaur only).N
           motor_control_mode: A MotorControlMode enum.
         """
-        if self._enable_clip_motor_commands:
+        if self._motor_control_mode == MotorControlMode.POSITION and self._enable_clip_motor_commands:
             motor_commands = self._ClipMotorCommands(motor_commands)
-
         super(Laikago, self).ApplyAction(motor_commands, motor_control_mode)
         return
 

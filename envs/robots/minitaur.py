@@ -414,6 +414,11 @@ class Minitaur(object):
       self._BuildMotorIdList()
       self._RecordMassInfoFromURDF()
       self._RecordInertiaInfoFromURDF()
+      self._pybullet_client.resetBasePositionAndOrientation(
+          self.quadruped, self._GetDefaultInitPosition(),
+          self._GetDefaultInitOrientation())
+      self._pybullet_client.resetBaseVelocity(self.quadruped, [0, 0, 0],
+                                              [0, 0, 0])
       self.ResetPose(add_constraint=True)
     else:
       self._pybullet_client.resetBasePositionAndOrientation(

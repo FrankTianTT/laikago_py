@@ -120,6 +120,7 @@ class LaikagoMotorModel(object):
       observed_torque: The torque observed by the sensor.
     """
     del true_motor_velocity
+
     if not motor_control_mode:
       motor_control_mode = self._motor_control_mode
 
@@ -128,7 +129,8 @@ class LaikagoMotorModel(object):
           "{} is not a supported motor control mode".format(motor_control_mode))
 
     # No processing for motor torques
-    if motor_control_mode is robot_config.MotorControlMode.TORQUE:
+    if motor_control_mode.name is robot_config.MotorControlMode.TORQUE.name:
+
       assert len(motor_commands) == NUM_MOTORS
       motor_torques = self._strength_ratios * motor_commands
       return motor_torques, motor_torques
@@ -138,13 +140,13 @@ class LaikagoMotorModel(object):
     kp = None
     kd = None
     additional_torques = np.full(NUM_MOTORS, 0)
-    if motor_control_mode is robot_config.MotorControlMode.POSITION:
+    if motor_control_mode.name is robot_config.MotorControlMode.POSITION.name:
       assert len(motor_commands) == NUM_MOTORS
       kp = self._kp
       kd = self._kd
       desired_motor_angles = motor_commands
       desired_motor_velocities = np.full(NUM_MOTORS, 0)
-    elif motor_control_mode is robot_config.MotorControlMode.HYBRID:
+    elif motor_control_mode.name is robot_config.MotorControlMode.HYBRID.name:
       # The input should be a 60 dimension vector
       assert len(motor_commands) == MOTOR_COMMAND_DIMENSION * NUM_MOTORS
       kp = motor_commands[POSITION_GAIN_INDEX::MOTOR_COMMAND_DIMENSION]
