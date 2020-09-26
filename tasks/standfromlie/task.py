@@ -16,9 +16,7 @@ class StandfromlieTaskV0(LaikagoTask):
 
     def reward(self, env):
         del env
-        self._add_reward(self._reward_of_stand_height(), 3)
-        self._add_reward(self._reward_of_sum_vel(), 1)
-        self._add_reward(self._reward_of_toes_height(), 1)
+        self._add_reward(self._reward_of_stand_height(), 1)
 
         return self._get_sum_reward()
 
@@ -27,7 +25,7 @@ class StandfromlieTaskV0(LaikagoTask):
         if self._not_done_of_too_short() or self._not_done_of_mode(self.mode):
             return False
         else:
-            return self._done_of_wrong_toward_ori() or self._done_of_too_long()
+            return self._done_of_wrong_stand_ori() or self._done_of_too_long()
 
 class StandfromlieTaskV1(LaikagoTask):
     def __init__(self, mode='train'):
@@ -36,19 +34,16 @@ class StandfromlieTaskV1(LaikagoTask):
 
     def reward(self, env):
         del env
-        self._add_reward(self._reward_of_energy(), 1)
-        self._add_reward(self._reward_of_toe_collision(), 1)
-        self._add_reward(self._reward_of_stand_height(), 3)
-        self._add_reward(self._reward_of_toe_upper_distance(), 1)
+        self._add_reward(self._reward_of_stand_height(), 1)
 
         return self._get_sum_reward()
 
     def done(self, env):
         del env
-        if self._not_done_of_too_short() or self._not_done_of_mode(self.mode):
+        if self._not_done_of_too_short(50) or self._not_done_of_mode(self.mode):
             return False
         else:
-            return self._done_of_wrong_toward_ori() or self._done_of_too_long()
+            return self._done_of_wrong_stand_ori() or self._done_of_too_long() or self._done_of_low_height(0.2, 100)
 
 class StandfromlieTaskV2(LaikagoTask):
     def __init__(self, mode='train'):
@@ -70,4 +65,4 @@ class StandfromlieTaskV2(LaikagoTask):
         if self._not_done_of_too_short() or self._not_done_of_mode(self.mode):
             return False
         else:
-            return self._done_of_wrong_toward_ori() or self._done_of_too_long()
+            return self._done_of_wrong_stand_ori() or self._done_of_too_long()

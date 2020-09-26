@@ -62,7 +62,7 @@ class StandupheightTaskV0(LaikagoTask):
         return self._bad_end()
 
     def _bad_end(self):
-        back_ori = self._get_toward_ori()
+        back_ori = self._get_toward_up_ori()
         if back_ori[2] < 0.7:
             return True
         if self.body_pos[2] < 0.2:
@@ -78,7 +78,7 @@ class StandupheightTaskV1(StandupheightTaskV0):
         # 理想的face_ori为[1,0,0]
         face_ori = self._get_current_face_ori()
         # 理想的back_ori为[0,0,1]
-        back_ori = self._get_toward_ori()
+        back_ori = self._get_toward_up_ori()
         back_reward = - (1 - back_ori[2]) ** 2
         return back_reward
 
@@ -104,7 +104,7 @@ class StandupheightTaskV1(StandupheightTaskV0):
         return reward
 
     def _bad_end(self):
-        back_ori = self._get_toward_ori()
+        back_ori = self._get_toward_up_ori()
         if back_ori[2] < 0.7:
             return True
         if self.body_pos[2] < 0.2:

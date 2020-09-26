@@ -142,7 +142,7 @@ def done(self, env):
     if self._not_done_of_too_short() or self._not_done_of_mode(self.mode):
         return False
     else:
-        return self._done_of_wrong_toward_ori() or self._done_of_low_height() or self._done_of_too_long()
+        return self._done_of_wrong_stand_ori() or self._done_of_low_height() or self._done_of_too_long()
 ```
 
 ### Sensor
