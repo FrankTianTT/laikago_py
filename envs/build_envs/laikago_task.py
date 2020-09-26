@@ -12,7 +12,7 @@ class LaikagoTask(object):
 
         self.body_pos = None
         self.body_ori = None
-        self.body_lin_vel = None
+        self.body_linear_vel = None
         self.body_ang_vel = None
         self.joint_pos = None
         self.joint_vel = None
@@ -64,7 +64,7 @@ class LaikagoTask(object):
 
     def _reward_of_upward_ori(self):
         # the expect value of toward_ori is [0,0,1].
-        toward_ori = self._get_toward_ori()
+        toward_ori = self._get_toward_up_ori()
         reward = - (1 - toward_ori[2]) ** 2
         return self.normalize_reward(reward, -4, 0)
 
@@ -110,6 +110,17 @@ class LaikagoTask(object):
         reward = - np.sqrt(np.sum((last_base_position - now_base_position)**2))
         return self.normalize_reward(reward, -0.1, 0)
 
+    def _reward_of_run_vel(self):
+        self._get_body_pos_vel_info()
+        reward = self.body_linear_vel[0] # y is a axis of R,P,Y, not the one of x,y,z
+        return self.normalize_reward(reward, 0, 5)
+
+    def _reward_of_run_ori(self):
+        self._get_body_pos_vel_info()
+        speed = sum([v ** 2 for v in self.body_linear_vel])
+        reward = np.array(self.body_linear_vel) / speed
+        return self.normalize_reward(reward[0], -1, 1)
+
     def _not_done_of_too_short(self, threshold=20):
         return self._env.env_step_counter < threshold  # if in this case, return True to prevent to die.
 
@@ -119,13 +130,24 @@ class LaikagoTask(object):
         else:
             return False
 
-    def _done_of_wrong_toward_ori(self, threshold=0.6):
-        toward_ori = self._get_toward_ori()
+    def _done_of_wrong_stand_ori(self, threshold=0.6):
+        toward_ori = self._get_toward_up_ori()
         return toward_ori[2] < threshold
 
-    def _done_of_low_height(self, threshold=0.25):
+    def _done_of_too_low(self, vel_threshold=1, steps_threshold=100):
         self._get_body_pos_vel_info()
-        return self.body_pos[2] < threshold
+        y_toward_vel = self.body_linear_vel[0] # y is a axis of R,P,Y, not the one of x,y,z
+        return y_toward_vel < vel_threshold and self._env.env_step_counter > steps_threshold
+
+    def _done_of_wrong_run_ori(self, ori_threshold=0.7, steps_threshold=100):
+        self._get_body_pos_vel_info()
+        speed = sum([v**2 for v in self.body_linear_vel])
+        run_ori = np.array(self.body_linear_vel) / speed
+        return run_ori[0] < ori_threshold and self._env.env_step_counter > steps_threshold
+
+    def _done_of_low_height(self, threshold=0.25, steps_threshold=100):
+        self._get_body_pos_vel_info()
+        return self.body_pos[2] < threshold and self._env.env_step_counter > steps_threshold
 
     def _done_of_too_long(self, threshold=300):
         return self._env.env_step_counter > threshold
@@ -158,7 +180,7 @@ class LaikagoTask(object):
         pyb = self._get_pybullet_client()
         self.body_pos = pyb.getBasePositionAndOrientation(self.quadruped)[0]  # 3 list: position list of 3 floats
         self.body_ori = pyb.getBasePositionAndOrientation(self.quadruped)[1]  # 4 list: orientation as list of 4 floats in [x,y,z,w] order
-        self.body_lin_vel = pyb.getBaseVelocity(self.quadruped)[0]  # 3 list: linear velocity [x,y,z]
+        self.body_linear_vel = pyb.getBaseVelocity(self.quadruped)[0]  # 3 list: linear velocity [x,y,z]
         self.body_ang_vel = pyb.getBaseVelocity(self.quadruped)[1]  # 3 list: angular velocity [wx,wy,wz]
 
     # There are 12 links in the laikago.
@@ -232,7 +254,7 @@ class LaikagoTask(object):
         return bq(self.body_ori).ori([0, 0, 1])
 
     # This direction is not concerning rotation, which is the direction the back faces
-    def _get_toward_ori(self):
+    def _get_toward_up_ori(self):
         self._get_body_pos_vel_info()
         return bq(self.body_ori).ori([0, 1, 0])
 
