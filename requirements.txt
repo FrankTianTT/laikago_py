@@ -41,7 +41,7 @@ stable-baselines3==0.8.0
 tensorboard==1.14.0
 tensorboard-pytorch==0.7.1
 tensorboardX==2.1
-tensorflow==1.14.0
+tensorflow==2.6.4
 tensorflow-estimator==1.14.0
 termcolor==1.1.0
 torch==1.4.0
