@@ -26,7 +26,7 @@ olefile==0.46
 opencv-python==4.4.0.42
 pandas==1.1.2
 Pillow @ file:///C:/ci/pillow_1594299032796/work
-protobuf==3.13.0
+protobuf==3.18.3
 pybullet==2.8.7
 pycparser @ file:///tmp/build/80754af9/pycparser_1594388511720/work
 pyglet==1.5.0
